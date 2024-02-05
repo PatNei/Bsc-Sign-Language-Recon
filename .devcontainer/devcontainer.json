@@ -12,7 +12,7 @@
 	// "forwardPorts": [],
 
 	// Use 'postCreateCommand' to run commands after the container is created.
-	"postCreateCommand": "curl -fsSL https://deb.nodesource.com/setup_21.x | sudo -E bash - && sudo apt-get install -y nodejs && sudo apt install libsqlite3-dev && python3 -m pip install --user pipx && python3 -m pipx ensurepath && pipx install poetry",
+	"postCreateCommand": "curl -fsSL https://deb.nodesource.com/setup_21.x | sudo -E bash - && sudo apt-get install -y nodejs && sudo apt install libsqlite3-dev && python3 -m pip install --user pipx && python3 -m pipx ensurepath && pipx install poetry && sudo apt-get install ffmpeg libsm6 libxext6  -y",
 	"customizations": {
 		"vscode": {
 			"extensions": [
@@ -21,7 +21,12 @@
 				"ms-python.python"
 			]
 		}
-	}
+	},
+	// device args
+	"runArgs": ["-e DISPLAY=$DISPLAY --net=host -v /tmp/.X11-unix:/tmp/.X11-unix:rw -v /dev/video0:/dev/video0 "],
+//--device=/dev/video0:/dev/video0 
+	"privileged": true,
+	"containerUser": "root"
 
 	// Configure tool-specific properties.
 	// "customizations": {},
