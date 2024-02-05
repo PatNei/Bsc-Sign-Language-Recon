@@ -1,12 +1,12 @@
 [tool.poetry]
-name = "bsc"
+name = "sign"
 version = "0.1.0"
 description = "Project bsc sign language recognition"
 authors = ["p <p@p.dk>"]
 readme = "README.md"
 
 [tool.poetry.dependencies]
-python = "^3.10"
+python = ">=3.10,<3.12"
 numpy = "^1.26.3"
 pandas = "^2.2.0"
 mediapipe = "^0.10.9"
