@@ -21,12 +21,7 @@
 				"ms-python.python"
 			]
 		}
-	},
-	// device args
-	"runArgs": ["-e DISPLAY=$DISPLAY --net=host -v /tmp/.X11-unix:/tmp/.X11-unix:rw -v /dev/video0:/dev/video0 "],
-//--device=/dev/video0:/dev/video0 
-	"privileged": true,
-	"containerUser": "root"
+	}
 
 	// Configure tool-specific properties.
 	// "customizations": {},
