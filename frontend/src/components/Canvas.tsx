@@ -1,8 +1,17 @@
 import {Camera} from "@mediapipe/camera_utils";
 import {Hands} from "@mediapipe/hands";
 import { ReactElement, useRef ,CanvasHTMLAttributes, useEffect} from 'react';
-import {drawConnectors, drawLandmarks} from '@mediapipe/drawing_utils';
+import {NormalizedLandmark, drawConnectors, drawLandmarks} from '@mediapipe/drawing_utils';
 import {HAND_CONNECTIONS, InputImage} from '@mediapipe/holistic';
+
+interface Landmark{
+    x: number;
+    y: number;
+    z: number;
+}
+interface Landmarks{
+    landmarks: Landmark[];
+}
 
 export default function Canvas(props?:CanvasHTMLAttributes<HTMLCanvasElement>) : ReactElement{
     
@@ -45,7 +54,13 @@ export default function Canvas(props?:CanvasHTMLAttributes<HTMLCanvasElement>) :
     camera.start();
   }, []);
   
-function onResults(results: { image: CanvasImageSource; multiHandLandmarks: any; }, canvas: HTMLCanvasElement ,canvasCtx: CanvasRenderingContext2D) {
+  function getAnnotation(landmarks: NormalizedLandmark[]): string {
+    
+
+    return "Ok sign"
+  }
+
+function onResults(results: { image: CanvasImageSource; multiHandLandmarks: NormalizedLandmark[][]; }, canvas: HTMLCanvasElement ,canvasCtx: CanvasRenderingContext2D) {
     canvasCtx.save();
     canvasCtx.clearRect(0, 0, canvas.width, canvas.height);
     canvasCtx.drawImage(
@@ -53,9 +68,10 @@ function onResults(results: { image: CanvasImageSource; multiHandLandmarks: any;
     if (results.multiHandLandmarks) {
         console.log(results.multiHandLandmarks)
         for (const landmarks of results.multiHandLandmarks) {
-        drawConnectors(canvasCtx, landmarks, HAND_CONNECTIONS,
-            {color: '#00FF00', lineWidth: 2});
-            drawLandmarks(canvasCtx, landmarks, {color: '#FF0000', lineWidth: 2});
+            let annotation : string = getAnnotation(landmarks);
+            drawConnectors(canvasCtx, landmarks, HAND_CONNECTIONS,
+                {color: '#00FF00', lineWidth: 2});
+                drawLandmarks(canvasCtx, landmarks, {color: '#FF0000', lineWidth: 2});
         }
     }
     canvasCtx.restore();
