@@ -1,5 +1,10 @@
-from model import KeyPointClassifier
+from pydantic import BaseModel
+from sign.model import KeyPointClassifier
 import csv
+
+from sign.model.keypoint_classifier.keypoint_classifier import NormalizedLandmarks
+
+
 
 class Recogniser:
     def __init__(self) -> None:
@@ -11,7 +16,7 @@ class Recogniser:
             keypoint_classifier_labels = csv.reader(f)
             keypoint_classifier_labels = [row[0] for row in keypoint_classifier_labels]
 
-    def get_annotation(self, landmarks) -> str:
+    def get_annotation(self, landmarks : NormalizedLandmarks) -> str:
         # Hand sign classification
         hand_sign_id = self.keypoint_classifier(landmarks)
 

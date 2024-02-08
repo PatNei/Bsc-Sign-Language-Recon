@@ -1,8 +1,17 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 import numpy as np
+from pydantic import BaseModel
 import tensorflow as tf
 
+class NormalizedLandmark(BaseModel):
+    x: float
+    y: float
+    z: float | None = None
+    # visibility: float | None = None
+    
+class NormalizedLandmarks(BaseModel):
+    data: list[NormalizedLandmark]
 
 class KeyPointClassifier(object):
     def __init__(
@@ -17,11 +26,11 @@ class KeyPointClassifier(object):
         self.input_details = self.interpreter.get_input_details()
         self.output_details = self.interpreter.get_output_details()
 
-    def __call__(self, landmark_list) -> np.intp:
+    def __call__(self, landmark_list: NormalizedLandmarks) -> np.intp:
         input_details_tensor_index = self.input_details[0]['index']
         self.interpreter.set_tensor(
             input_details_tensor_index,
-            np.array([landmark_list], dtype=np.float32))
+            np.array([landmark_list.data], dtype=np.float32))
         self.interpreter.invoke()
 
         output_details_tensor_index = self.output_details[0]['index']

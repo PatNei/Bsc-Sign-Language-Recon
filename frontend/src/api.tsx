@@ -26,7 +26,7 @@ export function useAPIGet(): GetResponse {
     async function getData(url: string, data: string) {
         try {
             // console.log(params)
-            let response = await axios.get<string>(baseURL + url, { data });
+            let response = await axios.get<string>(baseURL + url, { data: data });
             setState({ ...state, isLoading: false, isError: false, response: response.data });
         } catch (error: any) {
             setState({ ...state, isLoading: false, isError: true, error: error });

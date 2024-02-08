@@ -56,6 +56,7 @@ export default function Canvas(props?: CanvasHTMLAttributes<HTMLCanvasElement>):
     if (results.multiHandLandmarks) {
       // console.log(results.multiHandLandmarks)
       for (const landmarks of results.multiHandLandmarks) {
+        console.log(JSON.stringify(landmarks))
         await apiGet.getData(`annotation`, JSON.stringify(landmarks));
         if (apiGet.isGetLoading || !apiGet.response) {
           console.log('loading')

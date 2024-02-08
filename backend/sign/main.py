@@ -1,6 +1,7 @@
 from fastapi import FastAPI
 from pydantic import BaseModel
-from recogniser.recogniser import Recogniser
+from sign.model.keypoint_classifier.keypoint_classifier import NormalizedLandmarks
+from sign.recogniser.recogniser import Recogniser
 from fastapi.middleware.cors import CORSMiddleware
 import uvicorn
 
@@ -19,22 +20,13 @@ app.add_middleware(
 
 recogniser = Recogniser()
 
-class NormalizedLandmark(BaseModel):
-    x: float
-    y: float
-    z: float | None = None
-    visibility: float | None = None
-    
-class NormalizedLandmarks(BaseModel):
-    data: list[NormalizedLandmark]
-
 @app.get("/hello")
 def read_root():
     return {"Hello": "World"}
 
 
 @app.get("/annotation")
-async def get_annotation(landmarks: str) -> str:
+def get_annotation(landmarks: NormalizedLandmarks) -> str:
     return recogniser.get_annotation(landmarks)
     
 if __name__ == "__main__":
