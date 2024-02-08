@@ -3,13 +3,12 @@ import { Hands } from "@mediapipe/hands";
 import { ReactElement, useRef, CanvasHTMLAttributes, useEffect } from 'react';
 import { NormalizedLandmark, drawConnectors, drawLandmarks } from '@mediapipe/drawing_utils';
 import { HAND_CONNECTIONS, InputImage } from '@mediapipe/holistic';
-import { useAPIGet } from "../api";
+import { getAnnotations } from "../api";
 
 export default function Canvas(props?: CanvasHTMLAttributes<HTMLCanvasElement>): ReactElement {
 
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const videoRef = useRef<HTMLVideoElement | null>(null);
-  const apiGet = useAPIGet();
 
   useEffect(() => {
     const canvas = canvasRef.current ?? undefined;
@@ -51,28 +50,28 @@ export default function Canvas(props?: CanvasHTMLAttributes<HTMLCanvasElement>):
   async function onResults(results: { image: CanvasImageSource; multiHandLandmarks: NormalizedLandmark[][]; }, canvas: HTMLCanvasElement, canvasCtx: CanvasRenderingContext2D) {
     canvasCtx.save();
     canvasCtx.clearRect(0, 0, canvas.width, canvas.height);
-    canvasCtx.drawImage(
-      results.image, 0, 0, canvas.width, canvas.height);
+    canvasCtx.drawImage( results.image, 0, 0, canvas.width, canvas.height);
     if (results.multiHandLandmarks) {
       // console.log(results.multiHandLandmarks)
+      let result;
       for (const landmarks of results.multiHandLandmarks) {
         console.log(JSON.stringify(landmarks))
-        await apiGet.getData(`annotation`, JSON.stringify(landmarks));
-        if (apiGet.isGetLoading || !apiGet.response) {
+        result = await getAnnotations(landmarks);
+        console.log(result)
+        // await apiGet.getData(`annotation`, JSON.stringify(landmarks));
+        // if (apiGet.isGetLoading || !apiGet.response) {
           console.log('loading')
-        }
-        else if (apiGet.isGetError && apiGet.error) {
-          console.log(apiGet.error)
-        }
-        else {
-          let annotation = apiGet.response;
-          console.log(annotation);
+        // else if (apiGet.isGetError && apiGet.error) {
+          // console.log(apiGet.error)
+        // }
+        // else {
+          // let annotation = apiGet.response;
+          // console.log(annotation);
           drawConnectors(canvasCtx, landmarks, HAND_CONNECTIONS,
             { color: '#00FF00', lineWidth: 2 });
           drawLandmarks(canvasCtx, landmarks, { color: '#FF0000', lineWidth: 2 });
         }
       }
-    }
     canvasCtx.restore();
   }
 
