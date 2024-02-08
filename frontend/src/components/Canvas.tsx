@@ -56,15 +56,20 @@ export default function Canvas(props?: CanvasHTMLAttributes<HTMLCanvasElement>):
     if (results.multiHandLandmarks) {
       // console.log(results.multiHandLandmarks)
       for (const landmarks of results.multiHandLandmarks) {
-        try {
-          let annotation = await apiGet.getData<NormalizedLandmark[], string>(`annotation`, landmarks);
-          console.log(annotation);
-        } catch (error) {
-          // console.log(error);
+        await apiGet.getData(`annotation`, JSON.stringify(landmarks));
+        if (apiGet.isGetLoading || !apiGet.response) {
+          console.log('loading')
         }
-        drawConnectors(canvasCtx, landmarks, HAND_CONNECTIONS,
-          { color: '#00FF00', lineWidth: 2 });
-        drawLandmarks(canvasCtx, landmarks, { color: '#FF0000', lineWidth: 2 });
+        else if (apiGet.isGetError && apiGet.error) {
+          console.log(apiGet.error)
+        }
+        else {
+          let annotation = apiGet.response;
+          console.log(annotation);
+          drawConnectors(canvasCtx, landmarks, HAND_CONNECTIONS,
+            { color: '#00FF00', lineWidth: 2 });
+          drawLandmarks(canvasCtx, landmarks, { color: '#FF0000', lineWidth: 2 });
+        }
       }
     }
     canvasCtx.restore();

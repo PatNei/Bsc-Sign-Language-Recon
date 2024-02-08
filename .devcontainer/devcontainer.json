@@ -29,7 +29,7 @@
 		"all"
 	],
 	"hostRequirements": {
-		"gpu": true
+		"gpu": "optional"
 	}
 	// Configure tool-specific properties.
 	// "customizations": {},
