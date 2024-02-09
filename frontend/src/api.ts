@@ -2,7 +2,7 @@ import { NormalizedLandmark } from "@mediapipe/drawing_utils";
 import axios from "axios";
 import { useState } from "react";
 const baseURL = "http://127.0.0.1:8000"
-const annotationEndpoint = "annotations"
+const annotationEndpoint = "annotation"
 
 interface GetResponse {
     isGetLoading: boolean,
@@ -11,20 +11,24 @@ interface GetResponse {
 }
 
 const generateRequest = <T>(method:"GET" | "POST" | "DELETE" | "PUT",data:T) => {
-    let request = {
+    const request = {
         method: method,
         headers: {
             'Content-Type':'application/json'
         },
         body: JSON.stringify(data)
     }
+    console.log(request)
     return request
 } 
 
 export async function getAnnotations(landmarks:NormalizedLandmark[]) {
-    let request = generateRequest('GET',landmarks);
-    let response = await fetch(`${baseURL}/${annotationEndpoint}`, request)
-    console.log(response)
+    const request = generateRequest('POST',landmarks);
+    console.log(JSON.stringify(landsmarks))
+
+    const response = await fetch(`${baseURL}/${annotationEndpoint}`, request)
+    // console.log(response)
+    return await response.json()
 
 }
 
@@ -40,7 +44,7 @@ export function useAPIGet(): GetResponse {
     async function getData<TParams,TResponse>(url: string, params: TParams): Promise<TResponse> {
         try {
             // console.log(params)
-            let response = await axios.get<TResponse>(baseURL + url, { data: params });
+            const response = await axios.get<TResponse>(baseURL + url, { data: params });
             setState({ isLoading: false, isError: false });
             return response.data;
         } catch (error) {
