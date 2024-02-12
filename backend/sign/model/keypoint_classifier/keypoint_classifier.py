@@ -1,22 +1,84 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
+import copy
+import itertools
+from typing_extensions import Unpack
 import numpy as np
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 import tensorflow as tf
+from pathlib import Path
 
-class NormalizedLandmark(BaseModel):
+class NormalizedLandmarkDTO(BaseModel):
+    x: str
+    y: str
+    z: str
+
+    
+class NormalizedLandmarksDTO(BaseModel):
+    data: list[NormalizedLandmarkDTO]
+
+
+class NormalizedLandmark():
     x: float
     y: float
-    z: float | None = None
-    # visibility: float | None = None
+    z: float
     
-class NormalizedLandmarks(BaseModel):
+    def __init__(self, dto : NormalizedLandmarkDTO):
+        self.x = np.float32(dto.x)
+        self.y = np.float32(dto.y)
+        self.z = np.float32(dto.z)
+    
+class NormalizedLandmarks():
     data: list[NormalizedLandmark]
+    
+    def __init__(self, landmarks : list[NormalizedLandmark]):
+        self.data = landmarks
+
+
+def calc_landmark_list(landmarks : NormalizedLandmarks):
+    image_width, image_height = 1280, 720
+
+    landmark_point = []
+
+    # Keypoint
+    for _, landmark in enumerate(landmarks):
+        landmark_x = min(int(landmark.x * image_width), image_width - 1)
+        landmark_y = min(int(landmark.y * image_height), image_height - 1)
+
+        landmark_point.append([landmark_x, landmark_y])
+
+    return landmark_point
+
+def pre_process_landmark(landmark_list) -> list[float]:
+    temp_landmark_list = copy.deepcopy(landmark_list)
+
+    # Convert to relative coordinates
+    base_x, base_y = 0, 0
+    for index, landmark_point in enumerate(temp_landmark_list):
+        if index == 0:
+            base_x, base_y = landmark_point[0], landmark_point[1]
+
+        temp_landmark_list[index][0] = temp_landmark_list[index][0] - base_x
+        temp_landmark_list[index][1] = temp_landmark_list[index][1] - base_y
+
+    # Convert to a one-dimensional list
+    temp_landmark_list = list(
+        itertools.chain.from_iterable(temp_landmark_list))
+
+    # Normalization
+    max_value = max(list(map(abs, temp_landmark_list)))
+
+    def normalize_(n):
+        return n / max_value
+
+    temp_landmark_list = list(map(normalize_, temp_landmark_list))
+
+    return temp_landmark_list
 
 class KeyPointClassifier(object):
     def __init__(
         self,
-        model_path='model/keypoint_classifier/keypoint_classifier.tflite',
+        model_path=str(Path.cwd().absolute().joinpath("./backend/sign/model/keypoint_classifier/keypoint_classifier.tflite")),
         num_threads=1,
     ):
         self.interpreter = tf.lite.Interpreter(model_path=model_path,
@@ -27,10 +89,17 @@ class KeyPointClassifier(object):
         self.output_details = self.interpreter.get_output_details()
 
     def __call__(self, landmark_list: NormalizedLandmarks) -> np.intp:
+        # landmarks = np.array(list(itertools.chain.from_iterable([data.x, data.y] for data in landmark_list.data)), dtype=np.float32)
+        landmarks = landmark_list.data
+        
+        landmarks = calc_landmark_list(landmarks)
+
+        # Conversion to relative coordinates / normalized coordinates
+        landmarks = pre_process_landmark(landmarks)
+        landmarks = np.array([landmarks], dtype=np.float32)
+        
         input_details_tensor_index = self.input_details[0]['index']
-        self.interpreter.set_tensor(
-            input_details_tensor_index,
-            np.array([landmark_list.data], dtype=np.float32))
+        self.interpreter.set_tensor(input_details_tensor_index, landmarks)
         self.interpreter.invoke()
 
         output_details_tensor_index = self.output_details[0]['index']
