@@ -1,63 +1,56 @@
-import { NormalizedLandmark } from "@mediapipe/drawing_utils";
 import axios from "axios";
 import { useState } from "react";
-const baseURL = "http://127.0.0.1:8000"
-const annotationEndpoint = "annotation"
+const baseURL = "http://localhost:8000/"
 
 interface GetResponse {
-    isGetLoading: boolean,
-    isGetError: boolean,
-    getData: <TParams, TResponse>(url: string, params: TParams, withCredentials:boolean) => Promise<TResponse>
+    response: string | undefined,
+    error: string | undefined,
+    postData: (url: string, body: any) => Promise<void>
 }
 
-const generateRequest = <T>(method:"GET" | "POST" | "DELETE" | "PUT",data:T) => {
-    const request = {
-        method: method,
-        headers: {
-            'Content-Type':'application/json'
-        },
-        body: JSON.stringify(data)
-    }
-    console.log(request)
-    return request
-} 
+// const generateRequest = <T>(method: "GET" | "POST" | "DELETE" | "PUT", data: T) => {
+//     const request = {
+//         method: method,
+//         headers: {
+//             'Content-Type': 'application/json'
+//         },
+//         body: JSON.stringify(data)
+//     }
+//     console.log(request)
+//     return request
+// }
 
-export async function getAnnotations(landmarks:NormalizedLandmark[]) {
-    const request = generateRequest('POST',landmarks);
-    console.log(JSON.stringify(landsmarks))
+// export async function getAnnotations(landmarks:NormalizedLandmark[]) {
+//     const request = generateRequest('POST',landmarks);
+//     console.log(JSON.stringify(landsmarks))
 
-    const response = await fetch(`${baseURL}/${annotationEndpoint}`, request)
-    // console.log(response)
-    return await response.json()
+//     const response = await fetch(`${baseURL}/${annotationEndpoint}`, request)
+//     // console.log(response)
+//     return await response.json()
 
-}
+// }
 
-export function useAPIGet(): GetResponse {
+export function useAPIPost(): GetResponse {
     interface State {
-        isLoading: boolean,
-        isError: boolean
+        response: string | undefined,
+        error: string | undefined
     }
     const [state, setState] = useState<State>({
-        isLoading: false,
-        isError: false,
+        response: undefined,
+        error: undefined
     });
-    async function getData<TParams,TResponse>(url: string, params: TParams): Promise<TResponse> {
+    async function postData(url: string, body: any) {
         try {
-            // console.log(params)
-            const response = await axios.get<TResponse>(baseURL + url, { data: params });
-            setState({ isLoading: false, isError: false });
-            return response.data;
-        } catch (error) {
-            setState({ isLoading: false, isError: true });
-            throw error;
-        } finally {
-            setState({ ...state, isLoading: false });
+            let response = await axios.post<string>(baseURL + url, { data: body });
+            setState({ ...state, response: response.data });
+        } catch (error: any) {
+            setState({ ...state, error: error });
         }
     }
 
     return {
-        isGetLoading: state.isLoading,
-        isGetError: state.isError,
-        getData
+        response: state.response,
+        error: state.error,
+        postData: postData
     }
 }

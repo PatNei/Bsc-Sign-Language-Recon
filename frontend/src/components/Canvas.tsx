@@ -1,15 +1,21 @@
 import { Camera } from "@mediapipe/camera_utils";
-import { Hands } from "@mediapipe/hands";
+import { Hands, NormalizedLandmark } from "@mediapipe/hands";
 import { ReactElement, useRef, CanvasHTMLAttributes, useEffect } from 'react';
-import { NormalizedLandmark, drawConnectors, drawLandmarks } from '@mediapipe/drawing_utils';
+import { drawConnectors, drawLandmarks } from '@mediapipe/drawing_utils';
 import { HAND_CONNECTIONS, InputImage } from '@mediapipe/holistic';
-import { getAnnotations, useAPIGet } from "../api";
+import { useAPIPost } from "../api";
+
+interface Landmark {
+  x: string;
+  y: string;
+  z: string;
+}
 
 export default function Canvas(props?: CanvasHTMLAttributes<HTMLCanvasElement>): ReactElement {
 
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const videoRef = useRef<HTMLVideoElement | null>(null);
-  const apiGet = useAPIGet();
+  const apiGet = useAPIPost();
 
   useEffect(() => {
     const canvas = canvasRef.current ?? undefined;
@@ -56,13 +62,24 @@ export default function Canvas(props?: CanvasHTMLAttributes<HTMLCanvasElement>):
     if (results.multiHandLandmarks) {
       // console.log(results.multiHandLandmarks)
       for (const landmarks of results.multiHandLandmarks) {
-        try {
-          let annotation = await getAnnotations(landmarks)
-          console.log(JSON.stringify(annotation))
-          // let annotation = await apiGet.getData<NormalizedLandmark[], string>(`annotation`, landmarks);
-        } catch (error) {
-          // console.log(error);
-        }
+        let newLandmarks: Landmark[] = []
+        landmarks.forEach((element, i) => {
+          newLandmarks[i] = {
+            x: element.x.toFixed(8),
+            y: element.y.toFixed(8),
+            z: element.z.toFixed(8)
+          }
+        });
+        // console.log(JSON.stringify(newLandmarks))
+        await apiGet.postData(`annotation`, newLandmarks);
+        if (apiGet.response && !apiGet.error) console.log(apiGet.response)
+        else if (apiGet.error) console.log(apiGet.error)
+        // try {
+        //   // let annotation = await getAnnotations(landmarks)
+        //   // console.log(JSON.stringify(annotation))
+        // } catch (error) {
+        //   // console.log(error);
+        // }
         drawConnectors(canvasCtx, landmarks, HAND_CONNECTIONS,
           { color: '#00FF00', lineWidth: 2 });
         drawLandmarks(canvasCtx, landmarks, { color: '#FF0000', lineWidth: 2 });
