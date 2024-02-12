@@ -1,7 +1,7 @@
 import { Camera } from "@mediapipe/camera_utils";
-import { Hands, NormalizedLandmark } from "@mediapipe/hands";
+import { Hands } from "@mediapipe/hands";
 import { ReactElement, useRef, CanvasHTMLAttributes, useEffect } from 'react';
-import { drawConnectors, drawLandmarks } from '@mediapipe/drawing_utils';
+import { drawConnectors, drawLandmarks, NormalizedLandmark } from '@mediapipe/drawing_utils';
 import { HAND_CONNECTIONS, InputImage } from '@mediapipe/holistic';
 import { useAPIPost } from "../api";
 
@@ -65,24 +65,16 @@ export default function Canvas(props?: CanvasHTMLAttributes<HTMLCanvasElement>):
         let newLandmarks: Landmark[] = []
         landmarks.forEach((element, i) => {
           newLandmarks[i] = {
-            x: element.x.toFixed(8),
-            y: element.y.toFixed(8),
-            z: element.z.toFixed(8)
+            x: element.x.toFixed(),
+            y: element.y.toFixed(),
+            z: element.z ? element.z.toFixed() : "0"
           }
         });
-        // console.log(JSON.stringify(newLandmarks))
+        drawConnectors(canvasCtx, landmarks, HAND_CONNECTIONS, { color: '#00FF00', lineWidth: 2 });
+        drawLandmarks(canvasCtx, landmarks, { color: '#FF0000', lineWidth: 2 });
         await apiGet.postData(`annotation`, newLandmarks);
         if (apiGet.response && !apiGet.error) console.log(apiGet.response)
         else if (apiGet.error) console.log(apiGet.error)
-        // try {
-        //   // let annotation = await getAnnotations(landmarks)
-        //   // console.log(JSON.stringify(annotation))
-        // } catch (error) {
-        //   // console.log(error);
-        // }
-        drawConnectors(canvasCtx, landmarks, HAND_CONNECTIONS,
-          { color: '#00FF00', lineWidth: 2 });
-        drawLandmarks(canvasCtx, landmarks, { color: '#FF0000', lineWidth: 2 });
       }
     }
     canvasCtx.restore();

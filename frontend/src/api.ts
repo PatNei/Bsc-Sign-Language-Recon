@@ -8,28 +8,6 @@ interface GetResponse {
     postData: (url: string, body: any) => Promise<void>
 }
 
-// const generateRequest = <T>(method: "GET" | "POST" | "DELETE" | "PUT", data: T) => {
-//     const request = {
-//         method: method,
-//         headers: {
-//             'Content-Type': 'application/json'
-//         },
-//         body: JSON.stringify(data)
-//     }
-//     console.log(request)
-//     return request
-// }
-
-// export async function getAnnotations(landmarks:NormalizedLandmark[]) {
-//     const request = generateRequest('POST',landmarks);
-//     console.log(JSON.stringify(landsmarks))
-
-//     const response = await fetch(`${baseURL}/${annotationEndpoint}`, request)
-//     // console.log(response)
-//     return await response.json()
-
-// }
-
 export function useAPIPost(): GetResponse {
     interface State {
         response: string | undefined,
