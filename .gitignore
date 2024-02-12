@@ -163,3 +163,5 @@ cython_debug/
 
 
 mediapipe-javascript/node_modules
+
+.devbox
