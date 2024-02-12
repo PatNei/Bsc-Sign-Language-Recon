@@ -3,7 +3,7 @@ import { Hands } from "@mediapipe/hands";
 import { ReactElement, useRef, CanvasHTMLAttributes, useEffect } from 'react';
 import { drawConnectors, drawLandmarks, NormalizedLandmark } from '@mediapipe/drawing_utils';
 import { HAND_CONNECTIONS, InputImage } from '@mediapipe/holistic';
-import { useAPIPost } from "../api";
+import { APIPost } from "../api";
 
 interface Landmark {
   x: string;
@@ -15,7 +15,6 @@ export default function Canvas(props?: CanvasHTMLAttributes<HTMLCanvasElement>):
 
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const videoRef = useRef<HTMLVideoElement | null>(null);
-  const apiGet = useAPIPost();
 
   useEffect(() => {
     const canvas = canvasRef.current ?? undefined;
@@ -60,7 +59,6 @@ export default function Canvas(props?: CanvasHTMLAttributes<HTMLCanvasElement>):
     canvasCtx.drawImage(
       results.image, 0, 0, canvas.width, canvas.height);
     if (results.multiHandLandmarks) {
-      // console.log(results.multiHandLandmarks)
       for (const landmarks of results.multiHandLandmarks) {
         let newLandmarks: Landmark[] = []
         landmarks.forEach((element, i) => {
@@ -72,9 +70,9 @@ export default function Canvas(props?: CanvasHTMLAttributes<HTMLCanvasElement>):
         });
         drawConnectors(canvasCtx, landmarks, HAND_CONNECTIONS, { color: '#00FF00', lineWidth: 2 });
         drawLandmarks(canvasCtx, landmarks, { color: '#FF0000', lineWidth: 2 });
-        await apiGet.postData(`annotation`, newLandmarks);
-        if (apiGet.response && !apiGet.error) console.log(apiGet.response)
-        else if (apiGet.error) console.log(apiGet.error)
+        let postState = await APIPost(`annotation`, newLandmarks);
+        if (postState.response && !postState.error) console.log(postState.response)
+        else if (postState.error) console.log(postState.error)
       }
     }
     canvasCtx.restore();

@@ -1,34 +1,22 @@
 import axios from "axios";
-import { useState } from "react";
 const baseURL = "http://localhost:8000/"
 
-interface GetResponse {
+interface PostState {
     response: string | undefined,
-    error: string | undefined,
-    postData: (url: string, body: any) => Promise<void>
+    error: string | undefined
 }
-
-export function useAPIPost(): GetResponse {
-    interface State {
-        response: string | undefined,
-        error: string | undefined
-    }
-    const [state, setState] = useState<State>({
+export async function APIPost(url: string, body: any): Promise<PostState> {
+    let state: PostState = {
         response: undefined,
         error: undefined
-    });
-    async function postData(url: string, body: any) {
-        try {
-            let response = await axios.post<string>(baseURL + url, { data: body });
-            setState({ ...state, response: response.data });
-        } catch (error: any) {
-            setState({ ...state, error: error });
-        }
-    }
+    };
 
-    return {
-        response: state.response,
-        error: state.error,
-        postData: postData
+    try {
+        let response = await axios.post<string>(baseURL + url, { data: body });
+        state = { ...state, response: response.data };
+    } catch (error: any) {
+        state = { ...state, error: error };
+    } finally {
+        return state
     }
 }
