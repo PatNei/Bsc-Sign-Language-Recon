@@ -2,7 +2,7 @@
   "packages": [
     "poetry@latest",
     "nodejs@latest",
-    "python@3.12.1",
+    "python@3.11",
     "stdenv.cc.cc.lib",
     "glibc"
   ],
