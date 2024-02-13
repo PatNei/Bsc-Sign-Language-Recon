@@ -1,6 +1,8 @@
 import csv
 import numpy as np
+from sklearn.linear_model import SGDClassifier
 from sklearn.model_selection import train_test_split
+from backend.sign.model.keypoint_classifier.keypoint_classifier import NormalizedLandmark
 
 class TrainingData:
     def __init__(self, landmarks, labels):
@@ -40,10 +42,11 @@ def load_training_data(file_path):
     return TrainingData(landmarks_list, labels_list)
 
 class SignClassifier:
-    def __init__(self, model, X, y):
-        sgd_clf = model(random_state=42) 
+    def __init__(self, model:SGDClassifier, X, y):
+        sgd_clf = model(random_state=42)
         sgd_clf.fit(X, y)
-        self.model = sgd_clf
+        self.model: SGDClassifier = sgd_clf
 
-    def predict(self, target):
+    def predict(self, target:np.ndarray[NormalizedLandmark]) -> np.ndarray[np.str_]:
         return self.model.predict(target)
+

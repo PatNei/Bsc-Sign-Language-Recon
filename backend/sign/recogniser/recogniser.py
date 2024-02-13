@@ -15,7 +15,5 @@ class Recogniser:
             self.keypoint_classifier_labels = [row[0] for row in self.keypoint_classifier_labels]
 
     def get_annotation(self, landmarks : NormalizedLandmarks) -> str:
-        # Hand sign classification
-        hand_sign_id = self.keypoint_classifier(landmarks)
 
-        return self.keypoint_classifier_labels[hand_sign_id]
+        return self.keypoint_classifier(landmarks)
