@@ -5,7 +5,7 @@ import { drawConnectors, drawLandmarks, NormalizedLandmark } from '@mediapipe/dr
 import { HAND_CONNECTIONS, InputImage } from '@mediapipe/holistic';
 import { APIPost } from "../api";
 
-interface Landmark {
+interface LandmarkDTO {
   x: string;
   y: string;
   z: string;
@@ -60,17 +60,17 @@ export default function Canvas(props?: CanvasHTMLAttributes<HTMLCanvasElement>):
       results.image, 0, 0, canvas.width, canvas.height);
     if (results.multiHandLandmarks) {
       for (const landmarks of results.multiHandLandmarks) {
-        let newLandmarks: Landmark[] = []
-        landmarks.forEach((element, i) => {
-          newLandmarks[i] = {
-            x: element.x.toFixed(),
-            y: element.y.toFixed(),
-            z: element.z ? element.z.toFixed() : "0"
+        let landmarksDTO: LandmarkDTO[] = landmarks.map((element : NormalizedLandmark) : LandmarkDTO => {
+          return {
+            x: element.x.toFixed(20),
+            y: element.y.toFixed(20),
+            z: element.z ? element.z.toFixed(20) : "0"
           }
-        });
+        })
+        console.log(JSON.stringify(landmarksDTO))
         drawConnectors(canvasCtx, landmarks, HAND_CONNECTIONS, { color: '#00FF00', lineWidth: 2 });
         drawLandmarks(canvasCtx, landmarks, { color: '#FF0000', lineWidth: 2 });
-        let postState = await APIPost(`annotation`, newLandmarks);
+        let postState = await APIPost(`annotation`, landmarksDTO);
         if (postState.response && !postState.error) console.log(postState.response)
         else if (postState.error) console.log(postState.error)
       }
