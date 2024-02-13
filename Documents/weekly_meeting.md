@@ -10,7 +10,7 @@ Are there any  data relevant for our project
 ...
     
 ### What helped you this week?
-- Switching from devcontainers from devbox
+- Switching from devcontainers to devbox
 - Reading the book
 	
 ### What did you achieve?
@@ -20,6 +20,7 @@ Are there any  data relevant for our project
     
 ### What did you struggle with?
 - FastAPI
+- Dev environments
 - It was hard to take an image from the computer and make it work on the model from the book
 
 ### What would you like to work on next week?
