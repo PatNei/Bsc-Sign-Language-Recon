@@ -3,9 +3,7 @@
     "poetry@latest",
     "nodejs@latest",
     "python@3.11",
-    "stdenv.cc.cc.lib",
-    "glibc",
-    "libGL@latest"
+    "stdenv.cc.cc.lib"
   ],
   "shell": {
     "init_hook": [
