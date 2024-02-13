@@ -3,9 +3,10 @@
     "poetry@latest",
     "nodejs@latest",
     "python@3.11",
-    "stdenv.cc.cc.lib",
-    "glibc",
-    "libGL@latest"
+	"libGL@latest",
+    "libstdcxx5@latest",
+    "python311Packages.tensorflow@latest",
+    "stdenv_32bit@latest",
   ],
   "shell": {
     "init_hook": [

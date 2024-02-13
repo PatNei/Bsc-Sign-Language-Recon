@@ -1,7 +1,7 @@
+import backend.sign.homemade.imageloader as imageloader
+import backend.sign.homemade.sussyproc as sussyproc
 import mediapipe as mp
-import homemade.imageloader as imageloader
 import csv
-import homemade.sussyproc as sussyproc
 
 class ProcessedImage:
     def __init__(self, label, landmarks, raw_img):

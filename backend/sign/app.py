@@ -1,11 +1,10 @@
-import homemade.imageloader as imageloader
-import homemade.mediapiper as mediapiper
-import homemade.drawer as drawer
-import homemade.model as model
-import homemade.sussyproc as sussyproc
+import backend.sign.homemade.imageloader as imageloader
+import backend.sign.homemade.mediapiper as mediapiper
+import backend.sign.homemade.drawer as drawer
+import backend.sign.homemade.model as model
+import backend.sign.homemade.sussyproc as sussyproc
 import copy
 import os
-from collections import deque
 from joblib import dump, load
 from sklearn.linear_model import SGDClassifier 
 import cv2 as cv

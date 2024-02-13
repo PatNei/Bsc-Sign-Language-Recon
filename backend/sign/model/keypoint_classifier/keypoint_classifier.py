@@ -2,10 +2,16 @@
 # -*- coding: utf-8 -*-
 import copy
 import itertools
+from joblib import load
 import numpy as np
 from pydantic import BaseModel
 import tensorflow as tf
 from pathlib import Path
+
+from backend.sign.homemade.model import SignClassifier
+
+MODEL_PATH = ""
+
 
 class NormalizedLandmarkDTO(BaseModel):
     x: str
@@ -77,16 +83,19 @@ def pre_process_landmark(landmark_list) -> list[float]:
 class KeyPointClassifier(object):
     def __init__(
         self,
-        model_path=str(Path.cwd().absolute().joinpath("./backend/sign/model/keypoint_classifier/keypoint_classifier.tflite")),
+        model_path=str(Path.cwd().absolute().joinpath("./backend/sign/model/alphabet/model.joblib")),
         num_threads=1,
     ):
+        
+        self.classifier: SignClassifier = load(MODEL_PATH)
+        
         self.interpreter = tf.lite.Interpreter(model_path=model_path, num_threads=num_threads)
-
+        
         self.interpreter.allocate_tensors()
         self.input_details = self.interpreter.get_input_details()
         self.output_details = self.interpreter.get_output_details()
 
-    def __call__(self, landmark_list: NormalizedLandmarks) -> np.intp:
+    def __call__(self, landmark_list: NormalizedLandmarks) -> np.str_:
         # landmarks = np.array(list(itertools.chain.from_iterable([data.x, data.y] for data in landmark_list.data)), dtype=np.float32)
         landmarks = landmark_list.data
         
@@ -94,16 +103,23 @@ class KeyPointClassifier(object):
 
         # Conversion to relative coordinates / normalized coordinates
         landmarks = pre_process_landmark(landmarks)
+        
+        
+        # This is going to change
         landmarks = np.array([landmarks], dtype=np.float32)
         
-        input_details_tensor_index = self.input_details[0]['index']
-        self.interpreter.set_tensor(input_details_tensor_index, landmarks)
-        self.interpreter.invoke()
+        # App.py <- here
+        predictions = self.classifier.predict(landmarks)
+        
+        
+        # input_details_tensor_index = self.input_details[0]['index']
+        # self.interpreter.set_tensor(input_details_tensor_index, landmarks)
+        # self.interpreter.invoke()
 
-        output_details_tensor_index = self.output_details[0]['index']
+        # output_details_tensor_index = self.output_details[0]['index']
 
-        result = self.interpreter.get_tensor(output_details_tensor_index)
+        # result = self.interpreter.get_tensor(output_details_tensor_index)
 
-        result_index = np.argmax(np.squeeze(result))
+        # result_index = np.argmax(np.squeeze(result))
 
-        return result_index
+        return predictions[0]
