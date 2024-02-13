@@ -5,6 +5,20 @@
       "resolved": "github:NixOS/nixpkgs/75a52265bda7fd25e06e3a67dee3f0354e73243c#glibc",
       "source": "nixpkg"
     },
+    "libGL@latest": {
+      "last_modified": "2024-01-27T14:55:31Z",
+      "resolved": "github:NixOS/nixpkgs/160b762eda6d139ac10ae081f8f78d640dd523eb#libGL",
+      "source": "devbox-search",
+      "version": "23.3.3",
+      "systems": {
+        "aarch64-darwin": {
+          "store_path": "/nix/store/z9s2l27hg03ph02v28ybj2z38bg1n3wk-libGL-23.3.3"
+        },
+        "x86_64-darwin": {
+          "store_path": "/nix/store/7m506dzn162z5rb6dlp5p7x32kqg4iz6-libGL-23.3.3"
+        }
+      }
+    },
     "nodejs@latest": {
       "last_modified": "2024-01-27T14:55:31Z",
       "resolved": "github:NixOS/nixpkgs/160b762eda6d139ac10ae081f8f78d640dd523eb#nodejs_21",
