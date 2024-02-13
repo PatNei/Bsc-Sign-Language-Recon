@@ -1,6 +1,10 @@
 {
   "lockfile_version": "1",
   "packages": {
+    "glibc": {
+      "resolved": "github:NixOS/nixpkgs/75a52265bda7fd25e06e3a67dee3f0354e73243c#glibc",
+      "source": "nixpkg"
+    },
     "nodejs@latest": {
       "last_modified": "2024-01-27T14:55:31Z",
       "resolved": "github:NixOS/nixpkgs/160b762eda6d139ac10ae081f8f78d640dd523eb#nodejs_21",
@@ -42,7 +46,7 @@
         }
       }
     },
-    "python@latest": {
+    "python@3.12.1": {
       "last_modified": "2024-01-27T14:55:31Z",
       "plugin_version": "0.0.3",
       "resolved": "github:NixOS/nixpkgs/160b762eda6d139ac10ae081f8f78d640dd523eb#python312",
