@@ -1,20 +1,22 @@
 {
   "packages": {
-    "poetry": "latest",
-    "nodejs": {
-      "version": "20.11.0"
-    },
-    "python": "3.11",
-    "stdenv.cc.cc.lib": ""
+    "poetry":           "latest",
+    "python":           "3.11",
+    "stdenv.cc.cc.lib": "",
+    "glibcLocales":     "latest",
+    "nodejs_21":        "latest"
   },
   "shell": {
     "init_hook": [
-      "echo 'Welcome to devbox!' > /dev/null"
+      "unset LD_LIBRARY_PATH",
+      "poetry install",
+      "cd frontend && npm i",
+      "echo '\n\n\n🤨🤨🤨🤨 Devbox ready 🤨🤨🤨🤨\n\n\n'"
     ],
     "scripts": {
-      "test": [
-        "echo \"Error: no test specified\" && exit 1"
-      ]
+      "frontend": ["cd frontend", "npm i", " npm run dev"],
+      "backend": ["cd backend","poetry install", "poetry run uvicorn backend.sign.main:app --reload"],
+      "dev": "cd frontend & poetry run uvicorn backend.sign.main:app --reload && cd .. && cd backend & npm run dev"
     }
   }
 }
