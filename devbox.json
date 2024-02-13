@@ -4,7 +4,8 @@
     "nodejs@latest",
     "python@3.11",
     "stdenv.cc.cc.lib",
-    "glibc"
+    "glibc",
+    "libGL@latest"
   ],
   "shell": {
     "init_hook": [
