@@ -1,2 +1,2 @@
 #!/bin/sh
-uvicorn backend.sign.main:app --reload
+poetry run uvicorn backend.sign.main:app --reload

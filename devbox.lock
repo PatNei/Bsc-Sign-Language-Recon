@@ -48,6 +48,7 @@
     },
     "python@3.11": {
       "last_modified": "2024-01-27T14:55:31Z",
+      "plugin_version": "0.0.3",
       "resolved": "github:NixOS/nixpkgs/160b762eda6d139ac10ae081f8f78d640dd523eb#python3",
       "source": "devbox-search",
       "version": "3.11.7",
