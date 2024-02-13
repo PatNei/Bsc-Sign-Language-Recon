@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "sign"
+name = "backend"
 version = "0.1.0"
 description = "Project bsc sign language recognition"
 authors = ["p <p@p.dk>"]

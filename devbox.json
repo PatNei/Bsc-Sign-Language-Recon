@@ -2,7 +2,8 @@
   "packages": [
     "poetry@latest",
     "nodejs@latest",
-    "python@latest"
+    "python@latest",
+    "stdenv.cc.cc.lib"
   ],
   "shell": {
     "init_hook": [

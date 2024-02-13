@@ -1,9 +1,8 @@
 from pathlib import Path
-from pydantic import BaseModel
-from sign.model.keypoint_classifier.keypoint_classifier import KeyPointClassifier
+from backend.sign.model.keypoint_classifier.keypoint_classifier import KeyPointClassifier
 import csv
 
-from sign.model.keypoint_classifier.keypoint_classifier import NormalizedLandmarks
+from backend.sign.model.keypoint_classifier.keypoint_classifier import NormalizedLandmarks
 
 class Recogniser:
     def __init__(self) -> None:

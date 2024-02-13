@@ -1,7 +1,6 @@
 from fastapi import FastAPI
-from pydantic import BaseModel
-from sign.model.keypoint_classifier.keypoint_classifier import NormalizedLandmark, NormalizedLandmarks, NormalizedLandmarksDTO
-from sign.recogniser.recogniser import Recogniser
+from backend.sign.model.keypoint_classifier.keypoint_classifier import NormalizedLandmark, NormalizedLandmarks, NormalizedLandmarksDTO
+from backend.sign.recogniser.recogniser import Recogniser
 from fastapi.middleware.cors import CORSMiddleware
 import uvicorn
 

@@ -2,9 +2,8 @@
 # -*- coding: utf-8 -*-
 import copy
 import itertools
-from typing_extensions import Unpack
 import numpy as np
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel
 import tensorflow as tf
 from pathlib import Path
 
@@ -81,8 +80,7 @@ class KeyPointClassifier(object):
         model_path=str(Path.cwd().absolute().joinpath("./backend/sign/model/keypoint_classifier/keypoint_classifier.tflite")),
         num_threads=1,
     ):
-        self.interpreter = tf.lite.Interpreter(model_path=model_path,
-                                               num_threads=num_threads)
+        self.interpreter = tf.lite.Interpreter(model_path=model_path, num_threads=num_threads)
 
         self.interpreter.allocate_tensors()
         self.input_details = self.interpreter.get_input_details()
