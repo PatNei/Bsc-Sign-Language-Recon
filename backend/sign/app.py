@@ -8,10 +8,11 @@ import os
 from joblib import dump, load
 from sklearn.linear_model import SGDClassifier 
 import cv2 as cv
+import numpy.typing as npt
 
 data_base_path = 'data/archive/asl_alphabet_train/'
 train_path = 'sign/model/alphabet/train.csv'
-model_path = 'sign/model/alphabet/model.joblib'
+model_path = 'sign/model/alphabet/softmax.joblib'
 training_amount = 250
 
 piper = mediapiper.MediaPiper()
@@ -41,7 +42,7 @@ if(not os.path.isfile(model_path)):
     classifier = mutli_classifier
     expected = data.labels_test[0]
 
-    predicted = classifier.predict( [data.landmarks_test[0]] )
+    predicted = classifier.predict( [ data.landmarks_test[0] ] )
     print("Trained a model: ", "predicted: " + str(predicted), "should return " + str( [expected] ))
     dump(mutli_classifier, model_path)
     print("Dumped model to: " + model_path)
@@ -74,7 +75,6 @@ while True:
 
     if landmarks is not None and len(landmarks) > 0:
         res = classifier.predict( landmarks )
-        
         for raw_hand_landmark in raw_landmarks.multi_hand_landmarks:
             landmark_list = sussyproc.calc_landmark_list(debug_image, raw_hand_landmark) 
             

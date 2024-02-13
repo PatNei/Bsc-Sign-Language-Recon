@@ -1,7 +1,11 @@
+import typing
+import numpy as np
 import backend.sign.homemade.imageloader as imageloader
 import backend.sign.homemade.sussyproc as sussyproc
-import mediapipe as mp
+import mediapipe.python.solutions.hands as mp_hands
 import csv
+import numpy.typing as npt
+
 
 class ProcessedImage:
     def __init__(self, label, landmarks, raw_img):
@@ -18,11 +22,10 @@ class ProcessedImage:
 class MediaPiper:
     def __init__(self, **kwargs):
         # TODO: How kwargs?
-        use_static_image_mode = 'store_true'
+        use_static_image_mode = True
         min_detection_confidence = 0.7
         min_tracking_confidence = 0.5
 
-        mp_hands = mp.solutions.hands
         hands = mp_hands.Hands(
             static_image_mode=use_static_image_mode,
             max_num_hands=1,
@@ -39,7 +42,7 @@ class MediaPiper:
                 results.append( r )
         return ProcessedImages(results)
 
-    def process_image_for_prediction(self, image):
+    def process_image_for_prediction(self, image) -> tuple[list[npt.NDArray[np.float32]], typing.Any]:
         raw_mp_landmarks = self.hands.process(image)
         return (sussyproc.normalize_landmarks(raw_mp_landmarks, image), raw_mp_landmarks)
 

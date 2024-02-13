@@ -10,9 +10,6 @@ from pathlib import Path
 
 from backend.sign.homemade.model import SignClassifier
 
-MODEL_PATH = ""
-
-
 class NormalizedLandmarkDTO(BaseModel):
     x: str
     y: str
@@ -24,9 +21,9 @@ class NormalizedLandmarksDTO(BaseModel):
 
 
 class NormalizedLandmark():
-    x: float
-    y: float
-    z: float
+    x: np.float32
+    y: np.float32
+    z: np.float32
     
     def __init__(self, dto : NormalizedLandmarkDTO):
         self.x = np.float32(dto.x)
@@ -46,7 +43,7 @@ def calc_landmark_list(landmarks : NormalizedLandmarks):
     landmark_point = []
 
     # Keypoint
-    for _, landmark in enumerate(landmarks):
+    for _, landmark in enumerate(landmarks.data):
         landmark_x = min(int(landmark.x * image_width), image_width - 1)
         landmark_y = min(int(landmark.y * image_height), image_height - 1)
 
@@ -83,23 +80,21 @@ def pre_process_landmark(landmark_list) -> list[float]:
 class KeyPointClassifier(object):
     def __init__(
         self,
-        model_path=str(Path.cwd().absolute().joinpath("./backend/sign/model/alphabet/model.joblib")),
+        model_path=str(Path.cwd().absolute().joinpath("backend/sign/models/alphabet/softmax.joblib")),
         num_threads=1,
     ):
         
-        self.classifier: SignClassifier = load(MODEL_PATH)
+        self.classifier: SignClassifier = load(model_path)
         
-        self.interpreter = tf.lite.Interpreter(model_path=model_path, num_threads=num_threads)
+        # self.interpreter = tf.lite.Interpreter(model_path=model_path, num_threads=num_threads)
         
-        self.interpreter.allocate_tensors()
-        self.input_details = self.interpreter.get_input_details()
-        self.output_details = self.interpreter.get_output_details()
+        # self.interpreter.allocate_tensors()
+        # self.input_details = self.interpreter.get_input_details()
+        # self.output_details = self.interpreter.get_output_details()
 
     def __call__(self, landmark_list: NormalizedLandmarks) -> np.str_:
         # landmarks = np.array(list(itertools.chain.from_iterable([data.x, data.y] for data in landmark_list.data)), dtype=np.float32)
-        landmarks = landmark_list.data
-        
-        landmarks = calc_landmark_list(landmarks)
+        landmarks = calc_landmark_list(landmark_list)
 
         # Conversion to relative coordinates / normalized coordinates
         landmarks = pre_process_landmark(landmarks)
@@ -109,7 +104,7 @@ class KeyPointClassifier(object):
         landmarks = np.array([landmarks], dtype=np.float32)
         
         # App.py <- here
-        predictions = self.classifier.predict(landmarks)
+        predictions = self.classifier.predict([landmarks])
         
         
         # input_details_tensor_index = self.input_details[0]['index']

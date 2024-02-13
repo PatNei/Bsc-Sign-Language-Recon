@@ -1,5 +1,7 @@
 import copy
 import itertools
+import numpy as np
+import numpy.typing as npt
 
 ##-----------------------##
 ##                       ##
@@ -48,7 +50,8 @@ def calc_landmark_list(image, landmarks):
 
     return landmark_point
 
-def normalize_landmarks(mp_result, raw_img):
+# TODO FIX THIS
+def normalize_landmarks(mp_result, raw_img) -> list[npt.NDArray[np.float32]]:
     res = []
     if mp_result.multi_hand_landmarks is not None:
     # Let's spit out the preprocessed landmarks to a CSV for training later.

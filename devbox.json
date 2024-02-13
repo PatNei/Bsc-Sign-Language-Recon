@@ -1,14 +1,15 @@
 {
-  "packages": [
-    "poetry@latest",
-    "nodejs@latest",
-    "python@3.11",
-    "stdenv.cc.cc.lib"
-  ],
+  "packages": {
+    "poetry": "latest",
+    "nodejs": {
+      "version": "20.11.0"
+    },
+    "python": "3.11",
+    "stdenv.cc.cc.lib": ""
+  },
   "shell": {
     "init_hook": [
-      "echo 'Welcome to devbox!' > /dev/null",
-      "unset LD_LIBRARY_PATH"
+      "echo 'Welcome to devbox!' > /dev/null"
     ],
     "scripts": {
       "test": [

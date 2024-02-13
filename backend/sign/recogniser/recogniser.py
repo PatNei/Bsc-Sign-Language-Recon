@@ -1,8 +1,6 @@
 from pathlib import Path
-from backend.sign.model.keypoint_classifier.keypoint_classifier import KeyPointClassifier
+from backend.sign.models.keypoint_classifier.keypoint_classifier import KeyPointClassifier, NormalizedLandmarks
 import csv
-
-from backend.sign.model.keypoint_classifier.keypoint_classifier import NormalizedLandmarks
 
 class Recogniser:
     def __init__(self) -> None:
@@ -10,7 +8,7 @@ class Recogniser:
         self.keypoint_classifier_labels = []
 
         # Read labels ###########################################################
-        with open(str(Path.cwd().absolute().joinpath("./backend/sign/model/keypoint_classifier/keypoint_classifier_label.csv")), encoding='utf-8-sig') as f:
+        with open(str(Path.cwd().absolute().joinpath("backend/sign/models/keypoint_classifier/keypoint_classifier_label.csv")), encoding='utf-8-sig') as f:
             self.keypoint_classifier_labels = csv.reader(f)
             self.keypoint_classifier_labels = [row[0] for row in self.keypoint_classifier_labels]
 
