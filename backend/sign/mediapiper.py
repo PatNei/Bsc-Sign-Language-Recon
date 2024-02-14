@@ -1,7 +1,7 @@
 import typing
 import numpy as np
-import backend.sign.homemade.imageloader as imageloader
-import backend.sign.homemade.sussyproc as sussyproc
+import sign.imageloader as imageloader
+import sign.sussyproc as sussyproc
 import mediapipe.python.solutions.hands as mp_hands
 import csv
 import numpy.typing as npt

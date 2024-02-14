@@ -1,30 +1,28 @@
-import backend.sign.homemade.imageloader as imageloader
-import backend.sign.homemade.mediapiper as mediapiper
-import backend.sign.homemade.drawer as drawer
-import backend.sign.homemade.model as model
-import backend.sign.homemade.sussyproc as sussyproc
+import sign.imageloader as imageloader
+import sign.mediapiper as mediapiper
+import sign.drawer as drawer
+import sign.sussyproc as sussyproc
+import sign.model as model
 import copy
 import os
 from joblib import dump, load
 from sklearn.linear_model import SGDClassifier 
 import cv2 as cv
-import numpy.typing as npt
+from sign.CONST import MODEL_PATH,DATA_BASE_PATH,TRAIN_PATH
 
-data_base_path = 'data/archive/asl_alphabet_train/'
-train_path = 'sign/model/alphabet/train.csv'
-model_path = 'sign/model/alphabet/softmax.joblib'
+
 training_amount = 250
 
 piper = mediapiper.MediaPiper()
 
-if(not os.path.isfile(model_path)):
+if(not os.path.isfile(MODEL_PATH)):
     print("Creating a model")
     
-    l = imageloader.load_images_from_directory(data_base_path, amount = training_amount)
+    l = imageloader.load_images_from_directory(DATA_BASE_PATH, amount = training_amount)
     processed = piper.process_images_for_training_data(l)
-    processed.save_processed_image_to_csv(train_path)
+    processed.save_processed_image_to_csv(TRAIN_PATH)
 
-    data = model.load_training_data(train_path)
+    data = model.load_training_data(TRAIN_PATH)
     data.train_test_split()
     
     #labels_train_A = (data.labels_train == 'A')
@@ -44,11 +42,11 @@ if(not os.path.isfile(model_path)):
 
     predicted = classifier.predict( [ data.landmarks_test[0] ] )
     print("Trained a model: ", "predicted: " + str(predicted), "should return " + str( [expected] ))
-    dump(mutli_classifier, model_path)
-    print("Dumped model to: " + model_path)
+    dump(mutli_classifier, MODEL_PATH)
+    print("Dumped model to: " + MODEL_PATH)
 else:
-    classifier = load(model_path)
-    print("loaded model from: " + model_path)
+    classifier = load(MODEL_PATH)
+    print("loaded model from: " + MODEL_PATH)
 
 cap = cv.VideoCapture(0)
 cap.set(cv.CAP_PROP_FRAME_WIDTH, 500)

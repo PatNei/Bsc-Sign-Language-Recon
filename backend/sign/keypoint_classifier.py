@@ -5,10 +5,10 @@ import itertools
 from joblib import load
 import numpy as np
 from pydantic import BaseModel
-import tensorflow as tf
 from pathlib import Path
+from sign.CONST import MODEL_PATH
 
-from backend.sign.homemade.model import SignClassifier
+from sign.model import SignClassifier
 
 class NormalizedLandmarkDTO(BaseModel):
     x: str
@@ -80,7 +80,7 @@ def pre_process_landmark(landmark_list) -> list[float]:
 class KeyPointClassifier(object):
     def __init__(
         self,
-        model_path=str(Path.cwd().absolute().joinpath("backend/sign/models/alphabet/softmax.joblib")),
+        model_path=str(Path.cwd().absolute().joinpath(MODEL_PATH)),
         num_threads=1,
     ):
         
