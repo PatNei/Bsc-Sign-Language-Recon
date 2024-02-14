@@ -1,0 +1,15 @@
+{
+  "packages": ["nodejs@latest"],
+  "shell": {
+    "init_hook": [
+      "npm i",
+      "echo '\n\n\n🤨🤨🤨🤨 Frontend Box Ready 🤨🤨🤨🤨\n\n\n'"
+    ],
+    "scripts": {
+      "dev": "npm run dev",
+      "test": [
+        "echo \"Error: no test specified\" && exit 1"
+      ]
+    }
+  }
+}

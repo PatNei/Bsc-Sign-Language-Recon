@@ -1,0 +1,17 @@
+{
+  "packages": {
+    "python" : "3.11",
+    "poetry": "latest",
+    "stdenv.cc.cc.lib": ""
+  },
+  "shell": {
+    "init_hook": [
+      "poetry install",
+      "echo '\n\n\n🤨🤨🤨🤨 Devbox ready 🤨🤨🤨🤨\n\n\n'"
+    ],
+    "scripts": {
+      "shell":   ["poetry shell"],
+      "dev":  ["poetry run uvicorn sign.main:app --reload"]
+    }
+  }
+}
