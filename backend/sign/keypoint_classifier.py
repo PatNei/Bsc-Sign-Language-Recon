@@ -1,81 +1,11 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-import copy
-import itertools
 from joblib import load
 import numpy as np
-from pydantic import BaseModel
 from pathlib import Path
 from sign.CONST import MODEL_PATH
-
+from sign.landmarks import NormalizedLandmarks, calc_landmark_list, pre_process_landmark
 from sign.model import SignClassifier
-
-class NormalizedLandmarkDTO(BaseModel):
-    x: str
-    y: str
-    z: str
-
-    
-class NormalizedLandmarksDTO(BaseModel):
-    data: list[NormalizedLandmarkDTO]
-
-
-class NormalizedLandmark():
-    x: np.float32
-    y: np.float32
-    z: np.float32
-    
-    def __init__(self, dto : NormalizedLandmarkDTO):
-        self.x = np.float32(dto.x)
-        self.y = np.float32(dto.y)
-        self.z = np.float32(dto.z)
-    
-class NormalizedLandmarks():
-    data: list[NormalizedLandmark]
-    
-    def __init__(self, landmarks : list[NormalizedLandmark]):
-        self.data = landmarks
-
-
-def calc_landmark_list(landmarks : NormalizedLandmarks):
-    image_width, image_height = 1280, 720
-
-    landmark_point = []
-
-    # Keypoint
-    for _, landmark in enumerate(landmarks.data):
-        landmark_x = min(int(landmark.x * image_width), image_width - 1)
-        landmark_y = min(int(landmark.y * image_height), image_height - 1)
-
-        landmark_point.append([landmark_x, landmark_y])
-
-    return landmark_point
-
-def pre_process_landmark(landmark_list) -> list[float]:
-    temp_landmark_list = copy.deepcopy(landmark_list)
-
-    # Convert to relative coordinates
-    base_x, base_y = 0, 0
-    for index, landmark_point in enumerate(temp_landmark_list):
-        if index == 0:
-            base_x, base_y = landmark_point[0], landmark_point[1]
-
-        temp_landmark_list[index][0] = temp_landmark_list[index][0] - base_x
-        temp_landmark_list[index][1] = temp_landmark_list[index][1] - base_y
-
-    # Convert to a one-dimensional list
-    temp_landmark_list = list(
-        itertools.chain.from_iterable(temp_landmark_list))
-
-    # Normalization
-    max_value = max(list(map(abs, temp_landmark_list)))
-
-    def normalize_(n):
-        return n / max_value
-
-    temp_landmark_list = list(map(normalize_, temp_landmark_list))
-
-    return temp_landmark_list
 
 class KeyPointClassifier(object):
     def __init__(

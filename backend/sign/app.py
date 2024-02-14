@@ -1,7 +1,7 @@
-import sign.imageloader as imageloader
-import sign.mediapiper as mediapiper
-import sign.drawer as drawer
-import sign.sussyproc as sussyproc
+import sign.training.imageloader as imageloader
+import sign.training.mediapiper as mediapiper
+import sign.training.drawer as drawer
+import sign.training.sussyproc as sussyproc
 import sign.model as model
 import copy
 import os
@@ -20,7 +20,7 @@ if(not os.path.isfile(MODEL_PATH)):
     
     l = imageloader.load_images_from_directory(DATA_BASE_PATH, amount = training_amount)
     processed = piper.process_images_for_training_data(l)
-    processed.save_processed_image_to_csv(TRAIN_PATH)
+    # processed.save_processed_image_to_csv(TRAIN_PATH)
 
     data = model.load_training_data(TRAIN_PATH)
     data.train_test_split()
@@ -68,23 +68,23 @@ while True:
     image = cv.cvtColor(image, cv.COLOR_BGR2RGB)
 
     image.flags.writeable = False
-    (landmarks, raw_landmarks) = piper.process_image_for_prediction(image)
+    # (landmarks, raw_landmarks) = piper.process_image_for_prediction(image)
     image.flags.writeable = True
 
-    if landmarks is not None and len(landmarks) > 0:
-        res = classifier.predict( landmarks )
-        for raw_hand_landmark in raw_landmarks.multi_hand_landmarks:
-            landmark_list = sussyproc.calc_landmark_list(debug_image, raw_hand_landmark) 
+    # if landmarks is not None and len(landmarks) > 0:
+    #     res = classifier.predict( landmarks )
+    #     for raw_hand_landmark in raw_landmarks.multi_hand_landmarks:
+    #         landmark_list = sussyproc.calc_landmark_list(debug_image, raw_hand_landmark) 
             
-            brect = drawer.calc_bounding_rect(debug_image, raw_hand_landmark)
+    #         brect = drawer.calc_bounding_rect(debug_image, raw_hand_landmark)
         
-            debug_image = drawer.draw_bounding_rect(True, debug_image, brect)
-            debug_image = drawer.draw_landmarks(debug_image, landmark_list)
-            debug_image = drawer.draw_info_text(
-                debug_image,
-                brect,
-                str(res),
-            )
+    #         debug_image = drawer.draw_bounding_rect(True, debug_image, brect)
+    #         debug_image = drawer.draw_landmarks(debug_image, landmark_list)
+    #         debug_image = drawer.draw_info_text(
+    #             debug_image,
+    #             brect,
+    #             str(res),
+    #         )
 
     cv.imshow('Hand Gesture Recognition', debug_image)
 

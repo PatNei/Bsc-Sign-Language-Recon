@@ -1,8 +1,7 @@
 import typing
 import numpy as np
-import sign.imageloader as imageloader
-import sign.sussyproc as sussyproc
-import mediapipe.python.solutions.hands as mp_hands
+import sign.training.imageloader as imageloader
+import sign.training.sussyproc as sussyproc
 import csv
 import numpy.typing as npt
 
@@ -26,25 +25,21 @@ class MediaPiper:
         min_detection_confidence = 0.7
         min_tracking_confidence = 0.5
 
-        hands = mp_hands.Hands(
-            static_image_mode=use_static_image_mode,
-            max_num_hands=1,
-            min_detection_confidence=min_detection_confidence,
-            min_tracking_confidence=min_tracking_confidence,
-        )
-        self.hands = hands
+       # hands = mp_hands.Hands(static_image_mode=use_static_image_mode,max_num_hands=1, min_detection_confidence=min_detection_confidence, min_tracking_confidence=min_tracking_confidence,)
+        # self.hands = hands
 
     def process_images_for_training_data(self, images: list[imageloader.LabelledImage]):
         results = []
-        for li in images:
-            for img in li.data:
-                r = ProcessedImage( li.label, self.hands.process(img), img )
-                results.append( r )
-        return ProcessedImages(results)
+        # for li in images:
+            # for img in li.data:
+                # r = ProcessedImage( li.label, self.hands.process(img), img )
+                # results.append( r )
+            # return ProcessedImages(results)
+        return None
 
-    def process_image_for_prediction(self, image) -> tuple[list[npt.NDArray[np.float32]], typing.Any]:
-        raw_mp_landmarks = self.hands.process(image)
-        return (sussyproc.normalize_landmarks(raw_mp_landmarks, image), raw_mp_landmarks)
+    # def process_image_for_prediction(self, image) -> tuple[list[npt.NDArray[np.float32]], typing.Any]:
+        # raw_mp_landmarks = self.hands.process(image)
+        # return (sussyproc.normalize_landmarks(raw_mp_landmarks, image), raw_mp_landmarks)
 
 class ProcessedImages:
     processed_images: list[ProcessedImage]

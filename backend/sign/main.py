@@ -1,5 +1,5 @@
 from fastapi import FastAPI
-from sign.keypoint_classifier import NormalizedLandmark, NormalizedLandmarks, NormalizedLandmarksDTO
+from sign.landmarks import NormalizedLandmark, NormalizedLandmarks, NormalizedLandmarksDTO
 from sign.recogniser import Recogniser
 from fastapi.middleware.cors import CORSMiddleware
 import uvicorn
