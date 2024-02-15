@@ -3,6 +3,7 @@ import csv
 import numpy as np
 from sklearn.linear_model import SGDClassifier
 from sklearn.model_selection import train_test_split
+from typing import Tuple, List
 
 class TrainingData:
     landmarks_array : npt.NDArray[np.float32]
@@ -18,7 +19,7 @@ class TrainingData:
 
     def train_test_split(self):
         #Zip landmarks and labels, then shuffle, then unzip
-        zipped = list(zip(self.landmarks_array, self.labels_array))
+        zipped: List[Tuple[(np.float32,np.str_)]] = list(zip(self.landmarks_array, self.labels_array))
 
         #then shuffle
         train_set, test_set = train_test_split(zipped, test_size=0.2, random_state=42)
@@ -49,10 +50,13 @@ def load_training_data(file_path) -> TrainingData:
     return TrainingData(np.array(landmarks_list, dtype=np.float32), np.array(labels_list, dtype=np.str_))
 
 class SignClassifier:
-    def __init__(self, model, X, y):
+    def __init__(self, model:SGDClassifier, X, y):
         sgd_clf = model(random_state=42)
         sgd_clf.fit(X, y)
-        self.model: SGDClassifier = sgd_clf
+        self.model = sgd_clf
 
     def predict(self, target: list[npt.NDArray[np.float32]]) -> npt.NDArray[np.str_]:
         return self.model.predict(target)
+
+if __name__ == '__main__':
+    print("it works sir")
