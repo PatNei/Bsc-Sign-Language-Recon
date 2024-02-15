@@ -3,7 +3,7 @@ import csv
 import numpy as np
 from sklearn.linear_model import SGDClassifier
 from sklearn.model_selection import train_test_split
-from typing import Tuple, List
+from typing import Protocol, Self, Tuple, List
 
 class TrainingData:
     landmarks_array : npt.NDArray[np.float32]
@@ -49,13 +49,23 @@ def load_training_data(file_path) -> TrainingData:
 
     return TrainingData(np.array(landmarks_list, dtype=np.float32), np.array(labels_list, dtype=np.str_))
 
+class scikitModel(Protocol):
+    def __init__(self):
+        super().__init__()
+    def __call__(self) -> Self: 
+        return self
+    def fit(self,X:npt.NDArray,y:npt.NDArray): ...
+    def predict(self,target:npt.NDArray) -> npt.NDArray[np.str_]: ...
+
+
+
 class SignClassifier:
-    def __init__(self, model:SGDClassifier, X, y):
-        sgd_clf = model(random_state=42)
+    def __init__(self, model:scikitModel, X:npt.NDArray, y:npt.NDArray):
+        sgd_clf = model()
         sgd_clf.fit(X, y)
         self.model = sgd_clf
 
-    def predict(self, target: list[npt.NDArray[np.float32]]) -> npt.NDArray[np.str_]:
+    def predict(self, target:npt.NDArray[np.float32]) -> npt.NDArray[np.str_]:
         return self.model.predict(target)
 
 if __name__ == '__main__':
