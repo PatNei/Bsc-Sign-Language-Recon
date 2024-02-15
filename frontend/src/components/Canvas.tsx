@@ -33,10 +33,11 @@ export default function Canvas(props?: CanvasHTMLAttributes<HTMLCanvasElement>):
     });
 
     hands.setOptions({
-      maxNumHands: 2,
+      maxNumHands: 3,
       modelComplexity: 1,
       minDetectionConfidence: 0.5,
-      minTrackingConfidence: 0.5
+      minTrackingConfidence: 0.5,
+      selfieMode:true
     });
 
     hands.onResults((results) => {
@@ -67,7 +68,7 @@ export default function Canvas(props?: CanvasHTMLAttributes<HTMLCanvasElement>):
             z: element.z ? element.z.toFixed(20) : "0"
           }
         })
-        console.log(JSON.stringify(landmarksDTO))
+        // console.log(JSON.stringify(landmarksDTO))
         drawConnectors(canvasCtx, landmarks, HAND_CONNECTIONS, { color: '#00FF00', lineWidth: 2 });
         drawLandmarks(canvasCtx, landmarks, { color: '#FF0000', lineWidth: 2 });
         let postState = await APIPost(`annotation`, landmarksDTO);

@@ -34,7 +34,7 @@ class KeyPointClassifier(object):
         landmarks = np.array([landmarks], dtype=np.float32)
         
         # App.py <- here
-        predictions = self.classifier.predict([landmarks])
+        predictions = self.classifier.predict(landmarks)
         
         
         # input_details_tensor_index = self.input_details[0]['index']
