@@ -36,4 +36,6 @@ Are there any  data relevant for our project
 - Any tips from going from processing static image data, to video data.
     
 ### What are the agreements after this meeting? (to fill in after the meeting)
-- tbd
+- Show confusion matrix
+- Begin writing project
+- 
