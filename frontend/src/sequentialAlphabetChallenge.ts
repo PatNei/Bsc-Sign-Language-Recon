@@ -1,6 +1,6 @@
 type Challenge = [letter: string, image: string];
 
-const PATH = "/public/letterImages/";
+const PATH = "/letterImages/";
 
 export const ALPHABET = "abcdefghijklmnopqrstuvwxyz".toUpperCase().split("");
 export const CHALLENGES: Challenge[] = ALPHABET.reduce(

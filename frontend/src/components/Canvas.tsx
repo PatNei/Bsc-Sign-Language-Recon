@@ -32,7 +32,7 @@ export default function Canvas(props: CanvasProps): ReactElement {
     const hands = new Hands({
       locateFile: (file) => {
         //return `https://cdn.jsdelivr.net/npm/@mediapipe/hands/${file}`;
-        return `/public/hands/${file}`;
+        return `/hands/${file}`;
       }
     });
 
