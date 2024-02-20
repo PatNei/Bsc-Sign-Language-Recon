@@ -1,0 +1,9 @@
+*
+!public
+!src
+!index.html
+!package.json
+!package-lock.json
+!tsconfig.json
+!tsconfig.node.json
+!vite.config.ts

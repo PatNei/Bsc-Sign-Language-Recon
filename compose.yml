@@ -1,0 +1,15 @@
+services:
+  frontend:
+    build:
+      context: .
+      dockerfile: dockerfiles/frontend/dockerfile
+    ports:
+      - "3000:80"
+    environment:
+      - "baseURL=backend:8000"
+  backend:
+    build:
+      context: .
+      dockerfile: dockerfiles/backend/dockerfile
+    ports:
+      - "8000:8000"

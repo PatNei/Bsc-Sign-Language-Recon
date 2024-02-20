@@ -1,0 +1,7 @@
+*
+!sign
+!poetry.lock
+!pyproject.toml
+!model
+sign/training
+__pycache__
