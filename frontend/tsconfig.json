@@ -20,6 +20,6 @@
     "noUnusedParameters": true,
     "noFallthroughCasesInSwitch": true
   },
-  "include": ["src", "index.tsx"],
+  "include": ["src", "index.tsx", "public/letterImages/"],
   "references": [{ "path": "./tsconfig.node.json" }]
 }
