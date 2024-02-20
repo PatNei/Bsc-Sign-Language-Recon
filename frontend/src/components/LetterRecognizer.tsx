@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import Canvas from "./Canvas";
 
 type Challenge = [letter: string, image: string];
@@ -18,13 +18,15 @@ export default function LetterRecognizer() {
   const [boolski, setBoolski] = useState<boolean>(false);
   const [i, setI] = useState(0);
   const [ [letter, letterImg], setChallenge] = useState(CHALLENGES[i]);
-  
+  const [letterCounter, setLetterCounter] = useState(0);
 
-  //const [letter, letterImg] = [0]
-  
+
   if(response === letter){
-    console.log("good job bozo")
-    if(!boolski) setBoolski(true);
+    if(!boolski) {
+      setLetterCounter(letterCounter + 1)
+
+      if (letterCounter >= 10) setBoolski(true);
+    } 
   }
 
   const onNext = () => {
@@ -33,9 +35,9 @@ export default function LetterRecognizer() {
     const nextI = i + 1 
     setChallenge(CHALLENGES[nextI])
     setI(nextI)
+    setLetterCounter(0);
   }
 
-  console.log(boolski)
   return (
     <div className="w-full h-full flex flex-col items-center">
       <div>
