@@ -12,6 +12,7 @@ const CHALLENGES: Challenge[] = ALPHABET.reduce(
   },
   []
 );
+console.log(CHALLENGES.length)
 
 export default function LetterRecognizer() {
   const [response, setResponse] = useState<string>();
@@ -33,9 +34,15 @@ export default function LetterRecognizer() {
     setBoolski(false)
     setResponse("")
     const nextI = i + 1 
-    setChallenge(CHALLENGES[nextI])
+    if(nextI < CHALLENGES.length) setChallenge(CHALLENGES[nextI])
     setI(nextI)
     setLetterCounter(0);
+  }
+
+  if(i >= CHALLENGES.length) {
+    return <div>
+      "Well" done!
+    </div>
   }
 
   return (
