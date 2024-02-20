@@ -1,6 +1,6 @@
 import React from 'react';
 import './App.css';
-import Canvas from './components/Canvas.tsx';
+import LetterRecognizer from './components/LetterRecognizer.tsx';
 
 
 function App() {
@@ -12,13 +12,13 @@ function App() {
   }
 
   return (
-    <div className="App">
-      <div className="container">
-        {shouldCapture && <Canvas />}
+    <div className="App w-full h-full">
+      
+        {shouldCapture && <LetterRecognizer />}
         <button onClick={handleClick} >
             Hello
       </button>
-      </div>
+
     </div>
   );
 }

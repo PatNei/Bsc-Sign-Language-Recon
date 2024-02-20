@@ -11,8 +11,11 @@ interface LandmarkDTO {
   z: string;
 }
 
-export default function Canvas(props?: CanvasHTMLAttributes<HTMLCanvasElement>): ReactElement {
+type CanvasProps = CanvasHTMLAttributes<HTMLCanvasElement> & {
+  onResults?: (s:string) => void,
+}
 
+export default function Canvas(props: CanvasProps): ReactElement {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const videoRef = useRef<HTMLVideoElement | null>(null);
 
@@ -59,6 +62,8 @@ export default function Canvas(props?: CanvasHTMLAttributes<HTMLCanvasElement>):
     canvasCtx.clearRect(0, 0, canvas.width, canvas.height);
     canvasCtx.drawImage(
       results.image, 0, 0, canvas.width, canvas.height);
+    
+    
     if (results.multiHandLandmarks) {
       for (const landmarks of results.multiHandLandmarks) {
         let landmarksDTO: LandmarkDTO[] = landmarks.map((element : NormalizedLandmark) : LandmarkDTO => {
@@ -68,18 +73,19 @@ export default function Canvas(props?: CanvasHTMLAttributes<HTMLCanvasElement>):
             z: element.z ? element.z.toFixed(20) : "0"
           }
         })
-        // console.log(JSON.stringify(landmarksDTO))
-        drawConnectors(canvasCtx, landmarks, HAND_CONNECTIONS, { color: '#00FF00', lineWidth: 2 });
-        drawLandmarks(canvasCtx, landmarks, { color: '#FF0000', lineWidth: 2 });
+        drawConnectors(canvasCtx, landmarks, HAND_CONNECTIONS, { color: '#00FF00', lineWidth: 1 });
+        drawLandmarks(canvasCtx, landmarks, { color: '#FF0000', lineWidth: 1, radius: 0.8 });
         let postState = await APIPost(`annotation`, landmarksDTO);
-        if (postState.response && !postState.error) console.log(postState.response)
+        if (postState.response && !postState.error) {
+          if(props.onResults) props.onResults(postState.response);
+        }
         else if (postState.error) console.log(postState.error)
       }
     }
     canvasCtx.restore();
   }
 
-  return <div>
+  return <div className="w-full h-full">
     <video hidden ref={videoRef} />
     <canvas className='the-canvas' ref={canvasRef} {...props}></canvas>
   </div>
