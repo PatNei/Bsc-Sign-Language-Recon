@@ -85,7 +85,7 @@ export default function Canvas(props: CanvasProps): ReactElement {
     canvasCtx.restore();
   }
 
-  return <div className="w-full h-full">
+  return <div className="w-full h-full flex justify-center">
     <video hidden ref={videoRef} />
     <canvas className='the-canvas' ref={canvasRef} {...props}></canvas>
   </div>
