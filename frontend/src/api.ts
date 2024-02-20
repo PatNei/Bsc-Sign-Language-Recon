@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const baseURL = process.env.baseURL
+const baseURL = import.meta.env.VITE_baseURL + "/"
 
 interface PostState {
     response: string | undefined,
