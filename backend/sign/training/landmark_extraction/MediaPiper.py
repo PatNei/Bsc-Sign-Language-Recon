@@ -95,6 +95,8 @@ class MediaPiper:
 
                 if mp_result.multi_hand_landmarks is not None:
                     image_width, image_height = img.shape[1], img.shape[0]
+
+                    # TODO: This used to be inside of a loop, does this pose any challenges when doing more than a single hand?
                     landmark_list = sp.calc_landmark_list(mp_result.multi_hand_landmarks, image_width, image_height)
                     pre_processed_landmark_list = sp.pre_process_landmark(landmark_list)
 

@@ -11,7 +11,7 @@ from sign.landmarks import NormalizedLandmark
 ##                       ##
 ##-----------------------##
 
-def pre_process_landmark(landmark_list: list[Tuple[int, int]]) -> list[int]:
+def pre_process_landmark(landmark_list: list[Tuple[int, int]]) -> list[float]:
     """ Takes a list of landmarks that have been converted using calc_landmark_list
         and performs the final preprocessing step. That is normalizing all the landmarks
         according to the max absolut value 
@@ -56,18 +56,3 @@ def calc_landmark_list(landmarks: Union[list[MediapipeLandmark], list[Normalized
         landmark_point.append((landmark_x, landmark_y))
 
     return landmark_point
-
-# TODO FIX THIS
-def normalize_landmarks(mp_result, image_width, image_height) -> list[npt.NDArray[np.float32]]:
-    res = []
-    if mp_result.multi_hand_landmarks is not None:
-    # Let's spit out the preprocessed landmarks to a CSV for training later.
-        for hand_landmarks, handedness in zip(mp_result.multi_hand_landmarks,
-                                                mp_result.multi_handedness):
-            landmark_list = calc_landmark_list(hand_landmarks, image_width, image_height)
-            
-            pre_processed_landmark_list = pre_process_landmark(landmark_list)
-            res.append(pre_processed_landmark_list)
-
-    return res
-
