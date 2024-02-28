@@ -65,6 +65,16 @@ class MediaPiper:
         return self.process_image(img)
 
     def process_images_from_folder_to_csv(self, base_path, out_file = "out.csv", limit = 0) -> None:
+        """Given a base_path to a directory with subdirectories containing images, the method
+        creates training data from all images. IF Mediapipe is unable to find identify hands in an image
+        the imaged is skipped, so there may be missing "lines" in the output csv file
+        
+        Side-effects:
+            Creates/Writes to the specified csv file
+
+        Returns:
+            None
+        """
         subfolders :list[str] = [ file for file in os.listdir(base_path) 
                                   if os.path.isdir(base_path + file) ]
 
@@ -100,6 +110,6 @@ if __name__ == "__main__":
     data_path = "data/archive/asl_alphabet_train/"
 
     print(f"Processing images from ({data_path})...")
-    mpr.process_images_from_folder_to_csv(data_path, out_file=out_file, limit=1)
+    mpr.process_images_from_folder_to_csv(data_path, out_file=out_file, limit=10)
     print(f"Output result to {out_file}")
         
