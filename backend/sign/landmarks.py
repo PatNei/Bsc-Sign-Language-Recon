@@ -4,6 +4,9 @@ import itertools
 from pydantic import BaseModel
 import numpy as np
 
+from typing import Union, Tuple
+from sign.training.landmark_extraction.MediapipeTypes import MediapipeLandmark
+
 class NormalizedLandmarkDTO(BaseModel):
     x: str
     y: str
@@ -30,14 +33,27 @@ class NormalizedLandmarks():
     def __init__(self, landmarks : list[NormalizedLandmark]):
         self.data = landmarks
 
+##------------------------------------------------------------------------------------##
+##                                                                                    ##
+##  SHOUTOUT TO OUR BOI                                                               ##
+##  https://github.com/kinivi/hand-gesture-recognition-mediapipe                      ##
+##                                                                                    ##
+##                                                                                    ##
+##------------------------------------------------------------------------------------##
 
-def calc_landmark_list(landmarks : NormalizedLandmarks):
-    image_width, image_height = 1280, 720
+def calc_landmark_list(landmarks : Union[list[MediapipeLandmark], list[NormalizedLandmark]],
+                       image_width = 1280, 
+                       image_height = 720) -> list[Tuple[int, int]]:
+    """ Turns a list of MediapipeLandmarks into a list of screen coordinates
+
+        Returns: 
+            The list of landmarks turned into screen coordinates, [x,y]
+    """
 
     landmark_point = []
 
     # Keypoint
-    for _, landmark in enumerate(landmarks.data):
+    for landmark in landmarks:
         landmark_x = min(int(landmark.x * image_width), image_width - 1)
         landmark_y = min(int(landmark.y * image_height), image_height - 1)
 
@@ -45,28 +61,31 @@ def calc_landmark_list(landmarks : NormalizedLandmarks):
 
     return landmark_point
 
-def pre_process_landmark(landmark_list) -> list[float]:
-    temp_landmark_list = copy.deepcopy(landmark_list)
+def pre_process_landmark(landmark_list: list[Tuple[int, int]]) -> list[float]:
+    """ Takes a list of landmarks that have been converted using calc_landmark_list
+        and performs the final preprocessing step. That is normalizing all the landmarks
+        according to the max absolut value 
 
-    # Convert to relative coordinates
+        Returns: 
+            A list of processed landmarks
+    """
+    res = []
     base_x, base_y = 0, 0
-    for index, landmark_point in enumerate(temp_landmark_list):
+    for index, landmark_point in enumerate(landmark_list):
         if index == 0:
             base_x, base_y = landmark_point[0], landmark_point[1]
-
-        temp_landmark_list[index][0] = temp_landmark_list[index][0] - base_x
-        temp_landmark_list[index][1] = temp_landmark_list[index][1] - base_y
-
-    # Convert to a one-dimensional list
-    temp_landmark_list = list(
-        itertools.chain.from_iterable(temp_landmark_list))
-
+        
+        x = landmark_point[0] - base_x
+        y = landmark_point[1] - base_y
+        
+        res.append(x)
+        res.append(y)
+   
     # Normalization
-    max_value = max(list(map(abs, temp_landmark_list)))
-
-    def normalize_(n):
+    max_value = max(list(map(abs, res)))
+    def normalize_(n : int) -> float:
         return n / max_value
 
-    temp_landmark_list = list(map(normalize_, temp_landmark_list))
+    res = list(map(normalize_, res))
 
-    return temp_landmark_list
+    return res
