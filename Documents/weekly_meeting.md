@@ -1,7 +1,6 @@
 # Weekly meeting
-- [15 February 2024](#Date-15th-February-2024)
 - [29 February 2024](#Date-29th-February-2024)
-
+- [15 February 2024](#Date-15th-February-2024)
 
 ## Date: 29th February 2024 
 
