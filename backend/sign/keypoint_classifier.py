@@ -24,27 +24,12 @@ class KeyPointClassifier(object):
 
     def __call__(self, landmark_list: NormalizedLandmarks) -> np.str_:
         # landmarks = np.array(list(itertools.chain.from_iterable([data.x, data.y] for data in landmark_list.data)), dtype=np.float32)
-        landmarks = calc_landmark_list(landmark_list)
+        landmarks = calc_landmark_list(landmark_list.data)
 
         # Conversion to relative coordinates / normalized coordinates
         landmarks = pre_process_landmark(landmarks)
         
-        
-        # This is going to change
-        landmarks = np.array([landmarks], dtype=np.float32)
-        
-        # App.py <- here
+        landmarks = np.array([landmarks], dtype=np.float32)    
         predictions = self.classifier.predict(landmarks)
-        
-        
-        # input_details_tensor_index = self.input_details[0]['index']
-        # self.interpreter.set_tensor(input_details_tensor_index, landmarks)
-        # self.interpreter.invoke()
-
-        # output_details_tensor_index = self.output_details[0]['index']
-
-        # result = self.interpreter.get_tensor(output_details_tensor_index)
-
-        # result_index = np.argmax(np.squeeze(result))
 
         return predictions[0]
