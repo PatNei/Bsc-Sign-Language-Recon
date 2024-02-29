@@ -40,11 +40,16 @@ class MediaPiper:
         # [multi_hand_landmarks, multi_hand_world_landmarks, multi_handedness]
         cursed = [getattr(res, field) for field in res._fields]
         
-        if cursed[0] is not None:
+        if cursed[0] is not None and cursed[2] is not None:
+            # TODO: Does this cause any trouble handling more than a single hand?
             # Converts the multi_hand_landmarks which has the form: 
             #   'mediapipe.framework.formats.landmark_pb2.NormalizedLandmark'
             # into a simple python list of MediapipeTypes.MediapipeLandmark
-            cursed[0] = [MediapipeLandmark(l.x, l.y, l.z) for _, l in enumerate(cursed[0][0].landmark)]
+            cursed[0] = [MediapipeLandmark(l.x, l.y, l.z) 
+                         for _, l in enumerate(cursed[0][0].landmark)]
+            
+            cursed[2] = [MediapipeClassification(c.index, c.score, c.label) 
+                         for _, c in enumerate(cursed[2][0].classification)]
 
         return MediapipeResult(
             multi_hand_landmarks=cursed[0],
@@ -116,4 +121,3 @@ if __name__ == "__main__":
     print(f"Processing images from ({data_path})...")
     mpr.process_images_from_folder_to_csv(data_path, out_file=out_file, limit=10)
     print(f"Output result to {out_file}")
-        
