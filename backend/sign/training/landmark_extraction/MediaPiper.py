@@ -6,15 +6,29 @@ import os
 from sign.landmarks import calc_landmark_list, pre_process_landmark
 from sign.CONST import DATA_BASE_PATH, TRAIN_PATH
 
-from MediapipeTypes import *
+from sign.training.landmark_extraction.MediapipeTypes import MediapipeLandmark, MediapipeResult, MediapipeClassification
+from dataclasses import dataclass
+from natsort import natsorted
 
+GestureSequence = list[MediapipeResult]
+
+@dataclass
+class DynamicGesture:
+    """Fields:
+    
+            label -> name of the gesture
+
+            results -> a 2D list, each list in is a sequence of images of the gesture.
+    """
+    label: str
+    results: list[GestureSequence]
 
 class MediaPiper:
     """
         MediaPiper, a home made interface for interacting with the mediapipe hands library.
         The class is used to create training data.
     """
-    def __init__(self, num_hands = 1) -> None:
+    def __init__(self, num_hands = 1, gesture_sequence_sep = "_") -> None:
         # TODO: How kwargs?
         use_static_image_mode = True
         min_detection_confidence = 0.7
@@ -27,6 +41,7 @@ class MediaPiper:
             min_tracking_confidence=min_tracking_confidence,
         )
         self.__hands = hands
+        self.__seq_sep = gesture_sequence_sep
 
     def process_image(self, img: cv.typing.MatLike) -> MediapipeResult:
         """Process a single image using mediapipe hands library
@@ -112,12 +127,63 @@ class MediaPiper:
                         writer.writerow([folder, *pre_processed_landmark_list])
         return None
 
+    def process_dynamic_gestures_from_folder(self, base_path:str) -> list[DynamicGesture]:
+        """Given a folder of dynamic gestures (represented a folder of image sequences),
+        the function will produce landmarks for all dynamic gestures.
+
+        Expects a directory structured like: base_path/[gestures]/[image_sequences]
+
+            [gestures] -> directory names will be used as labels
+            
+            [image_sequnces] -> sequences of images, a sequence is marked as the first part of the file name,
+              2_23.png is then the 23rd image in sequence 2.
+
+        Returns:
+            A list of dynamic gestures, with a label field, and a 2D list of Mediapiperesults.
+            Each list in the DynamicGesture.results represents a sequence of images.
+        """
+        labels = [folder for folder in os.listdir(base_path)
+                  if os.path.isdir(base_path + os.sep + folder)]
+        
+        res: list[DynamicGesture] = []
+        for label in labels:
+            folder_path = base_path + os.sep + label
+            files = natsorted([file for file in os.listdir(folder_path)
+                               if os.path.isfile(folder_path + os.sep + file)])
+            
+            folder_path += os.sep
+
+            cur: GestureSequence = []
+            labelRes: list[GestureSequence] = [cur]
+            prev_prefix = self.__extract_prefix(files[0])
+            for image in files:
+                prefix = self.__extract_prefix(image)
+                if not (prefix == prev_prefix):
+                    cur = []
+                    labelRes.append(cur)
+                
+                imageRes = self.process_image_from_path(folder_path + image)
+                cur.append(imageRes)
+                prev_prefix = prefix
+            res.append(DynamicGesture(label=label, results=labelRes))
+
+        return res
+
+    def __extract_prefix(self, file_name:str) -> str:
+        """Extract the prefix of images belonging to a sequence of a dynamic gesture.
+        So, for 2_13.png returns 2
+        """
+        return file_name.split(self.__seq_sep)[0]
+
 if __name__ == "__main__":
     mpr = MediaPiper()
 
     out_file = "out.csv"
-    data_path = "data/archive/asl_alphabet_train/"
+    #data_path = "data/archive/asl_alphabet_train/"
+    data_path = "data/archive/dynamic_gestures/"
 
     print(f"Processing images from ({data_path})...")
-    mpr.process_images_from_folder_to_csv(data_path, out_file=out_file, limit=10)
+    #mpr.process_images_from_folder_to_csv(data_path, out_file=out_file, limit=10)
+    res = mpr.process_dynamic_gestures_from_folder(data_path)
+    print(len(res))
     print(f"Output result to {out_file}")
