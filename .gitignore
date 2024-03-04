@@ -163,3 +163,5 @@ node_modules
 
 .devbox
 .env
+
+backend/dynamic_signs/frames
