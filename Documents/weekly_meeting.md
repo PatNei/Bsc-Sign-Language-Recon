@@ -1,6 +1,28 @@
 # Weekly meeting
+- [5 March 2024](#Date-5th-March-2024)
 - [29 February 2024](#Date-29th-February-2024)
 - [15 February 2024](#Date-15th-February-2024)
+
+## Date: 5th March 2024 
+
+### What helped you this week?
+- 
+
+### What did you achieve?
+- Optimized hyper parameters for multiclass model (and binary classifier) for ASL alphabet
+
+### What did you struggle with?
+- Python & React
+
+### What would you like to work on next week?
+- Creating a trajectory classifier.
+
+### Where do you need help from Amelia?
+- What are the limits of a multiclass classification model? (How would it scale with a 1000 classes?)
+
+### What are the agreements after this meeting? (to fill in after the meeting)
+- 
+
 
 ## Date: 29th February 2024 
 
