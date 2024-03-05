@@ -3,18 +3,17 @@ import Canvas from "./Canvas";
 import { CHALLENGES } from "../sequentialAlphabetChallenge";
 
 export default function LetterRecognizer() {
-  const [response, setResponse] = useState<string>();
   const [boolski, setBoolski] = useState<boolean>(false);
   const [i, setI] = useState(0);
   const [[letter, letterImg], setChallenge] = useState(CHALLENGES[i]);
   const [letterCounter, setLetterCounter] = useState(0);
   const [shouldCapture, setShouldCapture] = useState<boolean>(false);
+  const [response, setResponse] = useState<string>("");
+  const [shouldCaptureDynamicSign, setShouldCaptureDynamicSign] = useState<boolean>(false);
 
-  function handleClick(
-    event: React.MouseEvent<HTMLButtonElement, MouseEvent>
-  ): void {
+  function handleClick(event: React.MouseEvent<HTMLButtonElement, MouseEvent>): void {
     event.preventDefault();
-    setShouldCapture(!shouldCapture);
+    setShouldCapture(prev => !prev);
   }
 
   if (response === letter) {
@@ -37,7 +36,6 @@ export default function LetterRecognizer() {
   if (i >= CHALLENGES.length) {
     return <div>"Well" done!</div>;
   }
-
   return (
     <div className="w-full h-full flex flex-col items-center">
       {shouldCapture && (
@@ -46,7 +44,7 @@ export default function LetterRecognizer() {
             <img src={letterImg} alt="ASL letter A" className=" h-20 w-20" />
             <p>{letter}</p>
           </div>
-          <Canvas onResults={setResponse} />
+          <Canvas setLetterRecognizerResponse={setResponse} shouldCaptureDynamicSign={shouldCaptureDynamicSign} />
           <p className=" h-40 text-7xl pt-2">
             {boolski && (
               <>
@@ -58,6 +56,12 @@ export default function LetterRecognizer() {
         </div>
       )}
       <button onClick={handleClick}>{shouldCapture ? "Disable" : "Enable"} camera</button>
+      <button onClick={handleShouldCaptureDynamicSignClick}>{/* {shouldCaptureDynamicSign ? "Don't " : ""}Capture Dynamic Sign */}Hej</button>
     </div>
   );
+
+  function handleShouldCaptureDynamicSignClick(event: React.MouseEvent<HTMLButtonElement, MouseEvent>): void {
+    event.preventDefault();
+    setShouldCaptureDynamicSign(!shouldCaptureDynamicSign);
+  }
 }

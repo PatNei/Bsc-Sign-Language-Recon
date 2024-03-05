@@ -1,93 +1,43 @@
-import { Camera } from "@mediapipe/camera_utils";
-import { Hands } from "@mediapipe/hands";
-import { ReactElement, useRef, CanvasHTMLAttributes, useEffect } from 'react';
-import { drawConnectors, drawLandmarks, NormalizedLandmark } from '@mediapipe/drawing_utils';
-import { HAND_CONNECTIONS, InputImage } from '@mediapipe/holistic';
-import { APIPost } from "../api";
+import { ReactElement, useRef, useState, MutableRefObject } from 'react';
+import { Camera2, LandmarkDTO, camera3, renderEverything,onResult } from "./Camera";
 
-interface LandmarkDTO {
-  x: string;
-  y: string;
-  z: string;
+interface CanvasType{
+  canvasRef: MutableRefObject<HTMLCanvasElement | null> | undefined;
+  videoRef: MutableRefObject<HTMLVideoElement | null> | undefined;
+  canvas: MutableRefObject<HTMLVideoElement | null> | undefined;
+  videoElement: MutableRefObject<HTMLVideoElement | null> | undefined;
+  canvasCtx: HTMLCanvasElement;
 }
 
-type CanvasProps = CanvasHTMLAttributes<HTMLCanvasElement> & {
-  onResults?: (s:string) => void,
+
+type CanvasProps = & {
+  setLetterRecognizerResponse: ((r:string) => void);
+  shouldCaptureDynamicSign: boolean;
 }
-
-export default function Canvas(props: CanvasProps): ReactElement {
-  const canvasRef = useRef<HTMLCanvasElement | null>(null);
-  const videoRef = useRef<HTMLVideoElement | null>(null);
-
-  useEffect(() => {
-    const canvas = canvasRef.current ?? undefined;
-    const videoElement = videoRef.current ?? undefined;
-    const canvasCtx = canvas?.getContext('2d');
-    if (canvasCtx === undefined || canvasCtx === null || canvas === undefined) {
-      return;
-    }
-    if (videoElement === undefined) {
-      return;
-    }
-    const hands = new Hands({
-      locateFile: (file) => {
-        //return `https://cdn.jsdelivr.net/npm/@mediapipe/hands/${file}`;
-        return `/hands/${file}`;
-      }
-    });
-
-    hands.setOptions({
-      maxNumHands: 3,
-      modelComplexity: 1,
-      minDetectionConfidence: 0.5,
-      minTrackingConfidence: 0.5,
-      selfieMode:true
-    });
-
-    hands.onResults((results) => {
-      onResults(results, canvas, canvasCtx);
-    });
-
-    const camera = new Camera(videoElement, {
-      onFrame: async () => {
-        await hands.send({ image: videoElement as unknown as InputImage });
-      },
-      width: 1280,
-      height: 720
-    });
-    camera.start();
-  }, []);
-
-  async function onResults(results: { image: CanvasImageSource; multiHandLandmarks: NormalizedLandmark[][]; }, canvas: HTMLCanvasElement, canvasCtx: CanvasRenderingContext2D) {
-    canvasCtx.save();
-    canvasCtx.clearRect(0, 0, canvas.width, canvas.height);
-    canvasCtx.drawImage(
-      results.image, 0, 0, canvas.width, canvas.height);
-    
-    
-    if (results.multiHandLandmarks) {
-      for (const landmarks of results.multiHandLandmarks) {
-        let landmarksDTO: LandmarkDTO[] = landmarks.map((element : NormalizedLandmark) : LandmarkDTO => {
-          return {
-            x: element.x.toFixed(20),
-            y: element.y.toFixed(20),
-            z: element.z ? element.z.toFixed(20) : "0"
-          }
-        })
-        drawConnectors(canvasCtx, landmarks, HAND_CONNECTIONS, { color: '#00FF00', lineWidth: 1 });
-        drawLandmarks(canvasCtx, landmarks, { color: '#FF0000', lineWidth: 1, radius: 0.8 });
-        let postState = await APIPost(`annotation`, landmarksDTO);
-        if (postState.response && !postState.error) {
-          if(props.onResults) props.onResults(postState.response);
-        }
-        else if (postState.error) console.log(postState.error)
-      }
-    }
-    canvasCtx.restore();
+export default function Canvas({shouldCaptureDynamicSign,setLetterRecognizerResponse}: CanvasProps): ReactElement<CanvasProps> {
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const [dynamicSignLandmarks, setDynamicSignLandmarks] = useState<LandmarkDTO[][]>([]);
+  const [camera,setCamera] = useState<camera3 | null>(null)
+  if (!camera && videoRef.current != null && canvasRef.current != null) {
+    const canvasCtx = canvasRef.current.getContext('2d')
+    setCamera(Camera2(videoRef.current,(results) => {
+      renderEverything({results: results,canvas:canvasRef.current,canvasCtx: canvasCtx})
+      onResult({
+        results: results,
+        dynamicSignLandmarks: 
+        dynamicSignLandmarks,
+        useDynamicSign:shouldCaptureDynamicSign,
+        setLetterRecognizerResponse: setLetterRecognizerResponse,setDynamicSignLandmarks:setDynamicSignLandmarks
+      })
+    }))
   }
-
+  if (camera && !camera.isRunning) {
+    camera.camera.start();
+    setCamera({...camera,isRunning:true})
+  }
   return <div className="w-full h-full flex justify-center">
     <video hidden ref={videoRef} />
-    <canvas className='the-canvas' ref={canvasRef} {...props}></canvas>
+    <canvas className='the-canvas' ref={canvasRef}/>
   </div>
 }
