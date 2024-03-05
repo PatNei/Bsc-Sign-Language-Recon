@@ -163,7 +163,10 @@ class MediaPiper:
                     labelRes.append(cur)
                 
                 imageRes = self.process_image_from_path(folder_path + image)
-                cur.append(imageRes)
+                # TODO: Do we really want to throw away pictures that couldn't
+                #       be recognized by mediapipe?
+                if(imageRes.multi_hand_landmarks is not None):
+                    cur.append(imageRes)
                 prev_prefix = prefix
             res.append(DynamicGesture(label=label, results=labelRes))
 
@@ -175,6 +178,7 @@ class MediaPiper:
         """
         return file_name.split(self.__seq_sep)[0]
 
+import numpy as np
 if __name__ == "__main__":
     mpr = MediaPiper()
 
@@ -185,5 +189,4 @@ if __name__ == "__main__":
     print(f"Processing images from ({data_path})...")
     #mpr.process_images_from_folder_to_csv(data_path, out_file=out_file, limit=10)
     res = mpr.process_dynamic_gestures_from_folder(data_path)
-    print(len(res))
-    print(f"Output result to {out_file}")
+    #print(f"Output result to {out_file}")
