@@ -1,5 +1,6 @@
 
 import copy
+from dataclasses import dataclass
 import itertools
 from pydantic import BaseModel
 import numpy as np
@@ -26,12 +27,14 @@ class NormalizedLandmark():
         self.x = np.float32(dto.x)
         self.y = np.float32(dto.y)
         self.z = np.float32(dto.z)
-    
-class NormalizedLandmarks():
+        
+@dataclass
+class NormalizedLandmarks(list):
     data: list[NormalizedLandmark]
     
-    def __init__(self, landmarks : list[NormalizedLandmark]):
-        self.data = landmarks
+@dataclass
+class NormalizedLandmarksSequence(list): 
+    seq = list[list[NormalizedLandmark]]
 
 ##------------------------------------------------------------------------------------##
 ##                                                                                    ##
