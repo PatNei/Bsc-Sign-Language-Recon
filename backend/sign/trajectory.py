@@ -1,9 +1,7 @@
-import array
 from enum import IntEnum, Enum
-from typing import List, Union
+from typing import Union
 import numpy as np
 from numpy import typing as npt
-from pytz import ZERO
 from sign.landmarks import NormalizedLandmark, NormalizedLandmarks
 from dataclasses import dataclass
 
