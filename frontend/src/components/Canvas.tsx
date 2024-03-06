@@ -26,7 +26,9 @@ export default function Canvas({ shouldCaptureDynamicSign, setLetterRecognizerRe
     if (!canvasRef.current || !videoRef.current) return
     const canvasCtx = canvasRef.current.getContext('2d')
     setCamera(createCamera(videoRef.current, { canvas: canvasRef.current, canvasCtx }, (result) => {
-      onResult(result, {
+
+      onResult({
+        multiHandLandmarks: result.multiHandLandmarks,
         dynamicSignLandmarks:
           dynamicSignLandmarks,
         shouldCaptureDynamicSign: shouldCaptureDynamicSign,
@@ -36,7 +38,7 @@ export default function Canvas({ shouldCaptureDynamicSign, setLetterRecognizerRe
   }, [])
 
   return <div className="w-full h-full flex justify-center">
-    <video hidden ref={videoRef} />
+    <video className='hidden' ref={videoRef} />
     <canvas className='the-canvas' ref={canvasRef} />
   </div>
 }

@@ -39,8 +39,4 @@ export const createCamera = (videoElement: HTMLVideoElement, { canvas, canvasCtx
   return camera
 }
 
-export interface result {
-  image: CanvasImageSource
-  multiHandLandmarks: NormalizedLandmark[][]
-}
 

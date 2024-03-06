@@ -1,5 +1,5 @@
 import axios from "axios";
-import { result } from "./camera";
+import { NormalizedLandmark } from "@mediapipe/hands";
 
 const baseURL = import.meta.env.VITE_baseURL + "/"
 
@@ -30,21 +30,22 @@ export interface LandmarkDTO {
 }
 
 interface onResultType {
+  multiHandLandmarks: NormalizedLandmark[][],
   dynamicSignLandmarks: LandmarkDTO[][],
   shouldCaptureDynamicSign: boolean
   setDynamicSignLandmarks: React.Dispatch<React.SetStateAction<LandmarkDTO[][]>>
   setLetterRecognizerResponse: ((r: string) => void)
 }
 
-export const onResult = async (result: result, { dynamicSignLandmarks, shouldCaptureDynamicSign, setLetterRecognizerResponse, setDynamicSignLandmarks }: onResultType) => {
+export const onResult = async ({ multiHandLandmarks, dynamicSignLandmarks, shouldCaptureDynamicSign, setLetterRecognizerResponse, setDynamicSignLandmarks }: onResultType) => {
 
   if (!shouldCaptureDynamicSign) {
     setDynamicSignLandmarks([]);
     return;
   }
   let min_frames_per_sign = 24;
-  if (result.multiHandLandmarks && result.multiHandLandmarks.length > 0) {
-    let resultsDTO = result.multiHandLandmarks.map(e => e.map((landmark): LandmarkDTO => {
+  if (multiHandLandmarks && multiHandLandmarks.length > 0) {
+    let resultsDTO = multiHandLandmarks.map(e => e.map((landmark): LandmarkDTO => {
       return {
         x: landmark.x.toFixed(20),
         y: landmark.y.toFixed(20),
