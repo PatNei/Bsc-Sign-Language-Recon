@@ -56,12 +56,8 @@ export default function LetterRecognizer() {
         </div>
       )}
       <button onClick={handleClick}>{shouldCapture ? "Disable" : "Enable"} camera</button>
-      <button onClick={handleShouldCaptureDynamicSignClick}>{/* {shouldCaptureDynamicSign ? "Don't " : ""}Capture Dynamic Sign */}Hej</button>
+      <button onClick={() => setShouldCaptureDynamicSign(!shouldCaptureDynamicSign)}>{shouldCaptureDynamicSign ? "Don't " : ""} Capture Dynamic Sign</button>
     </div>
   );
 
-  function handleShouldCaptureDynamicSignClick(event: React.MouseEvent<HTMLButtonElement, MouseEvent>): void {
-    event.preventDefault();
-    setShouldCaptureDynamicSign(!shouldCaptureDynamicSign);
-  }
 }
