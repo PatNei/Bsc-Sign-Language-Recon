@@ -38,7 +38,7 @@ export default function Canvas({ shouldCaptureDynamicSign, setLetterRecognizerRe
   }, [])
 
   return <div className="w-full h-full flex justify-center">
-    <video className='hidden' ref={videoRef} />
+    <video hidden className="hidden" ref={videoRef} />
     <canvas className='the-canvas' ref={canvasRef} />
   </div>
 }
