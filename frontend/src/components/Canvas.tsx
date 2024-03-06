@@ -1,6 +1,7 @@
 import { ReactElement, useRef, useState, MutableRefObject, useEffect } from 'react';
-import { LandmarkDTO, onResult, createCamera } from "../utility/Camera";
+import { createCamera } from "../utility/camera";
 import { Camera } from '@mediapipe/camera_utils';
+import { LandmarkDTO, onResult } from '../utility/api';
 
 interface CanvasType {
   canvasRef: MutableRefObject<HTMLCanvasElement | null> | undefined;

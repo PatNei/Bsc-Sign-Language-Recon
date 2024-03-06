@@ -26,7 +26,7 @@ const createHands = (resultFunction: ResultsListener) => {
 export const createCamera = (videoElement: HTMLVideoElement, { canvas, canvasCtx }: drawType, resultFunction: ResultsListener) => {
   const hands = createHands((result) => {
     renderEverything(result, { canvas, canvasCtx })
-    resultFunction(result)
+    //resultFunction(result)
   })
   const camera = new Camera(videoElement, {
     onFrame: async () => {

@@ -1,5 +1,5 @@
 import axios from "axios";
-import { result } from "./Camera";
+import { result } from "./camera";
 
 const baseURL = import.meta.env.VITE_baseURL + "/"
 

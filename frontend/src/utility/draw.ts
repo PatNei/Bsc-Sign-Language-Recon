@@ -1,6 +1,6 @@
 import { drawConnectors, drawLandmarks } from "@mediapipe/drawing_utils";
 import { HAND_CONNECTIONS } from "@mediapipe/hands";
-import { result } from "./Camera";
+import { result } from "./camera";
 
 export interface drawType {
     canvas: HTMLCanvasElement | null,
