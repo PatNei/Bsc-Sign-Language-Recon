@@ -17,7 +17,7 @@ export default function Canvas({ setLetterRecognizerResponse }: CanvasProps): Re
   useEffect(() => {
     if (!canvasRef.current || !videoRef.current) return
     const canvasCtx = canvasRef.current.getContext('2d')
-    handsRef.current = createHands({dynamicSignLandmarks, shouldCaptureDynamicSign: false, setDynamicSignLandmarks, setLetterRecognizerResponse}, {canvasCtx, canvas: canvasRef.current})
+    handsRef.current = createHands({dynamicSignLandmarks, shouldCaptureDynamicSign: true, setDynamicSignLandmarks, setLetterRecognizerResponse}, {canvasCtx, canvas: canvasRef.current})
     cameraRef.current = createCamera(handsRef.current, videoRef.current)
   }, [])
 

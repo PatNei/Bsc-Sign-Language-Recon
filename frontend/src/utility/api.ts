@@ -29,7 +29,7 @@ export interface LandmarkDTO {
   z: string;
 }
 
-interface onResultType {
+export interface onResultType {
   multiHandLandmarks: NormalizedLandmark[][],
   dynamicSignLandmarks: LandmarkDTO[][],
   shouldCaptureDynamicSign: boolean
@@ -38,11 +38,11 @@ interface onResultType {
 }
 
 export const onResult = async ({ multiHandLandmarks, dynamicSignLandmarks, shouldCaptureDynamicSign, setLetterRecognizerResponse, setDynamicSignLandmarks }: onResultType) => {
-
   if (!shouldCaptureDynamicSign) {
     setDynamicSignLandmarks([]);
     return;
   }
+
   let min_frames_per_sign = 24;
   if (multiHandLandmarks && multiHandLandmarks.length > 0) {
     let resultsDTO = multiHandLandmarks.map(e => e.map((landmark): LandmarkDTO => {
@@ -56,7 +56,6 @@ export const onResult = async ({ multiHandLandmarks, dynamicSignLandmarks, shoul
     const data = dynamicSignLandmarks
     data.push(landmarks)
     setDynamicSignLandmarks(data)
-    console.log(shouldCaptureDynamicSign)
     console.log(dynamicSignLandmarks)
 
     if (dynamicSignLandmarks.length == min_frames_per_sign) {
@@ -66,7 +65,6 @@ export const onResult = async ({ multiHandLandmarks, dynamicSignLandmarks, shoul
       // }
       // else if (postState.error) console.log(postState.error)
 
-      setDynamicSignLandmarks([]);
     }
 
 

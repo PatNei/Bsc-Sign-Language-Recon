@@ -1,6 +1,7 @@
 import { useState } from "react";
 import Canvas from "./Canvas";
 import { CHALLENGES } from "../sequentialAlphabetChallenge";
+import DynamicCanvas from "./DynamicCanvas";
 
 export default function LetterRecognizer() {
   const [boolski, setBoolski] = useState<boolean>(false);
@@ -38,13 +39,28 @@ export default function LetterRecognizer() {
   }
   return (
     <div className="w-full h-full flex flex-col items-center">
-      {shouldCapture && (
+      {shouldCapture && ( shouldCaptureDynamicSign ?
+        <div className="w-full h-full flex flex-col items-center">
+        <div className="w-full flex flex-col items-center">
+          <img src={letterImg} alt="ASL letter A" className=" h-20 w-20" />
+          <p>{letter}</p>
+        </div>
+        <DynamicCanvas setLetterRecognizerResponse={setResponse} />
+        <p className=" h-40 text-7xl pt-2">
+          {boolski && (
+            <>
+              "✅"
+              <button onClick={onNext}>Next</button>
+            </>
+          )}
+        </p>
+      </div> : 
         <div className="w-full h-full flex flex-col items-center">
           <div className="w-full flex flex-col items-center">
             <img src={letterImg} alt="ASL letter A" className=" h-20 w-20" />
             <p>{letter}</p>
           </div>
-          <Canvas setLetterRecognizerResponse={setResponse} shouldCaptureDynamicSign={shouldCaptureDynamicSign} />
+          <Canvas setLetterRecognizerResponse={setResponse} />
           <p className=" h-40 text-7xl pt-2">
             {boolski && (
               <>
@@ -56,7 +72,10 @@ export default function LetterRecognizer() {
         </div>
       )}
       <button onClick={handleClick}>{shouldCapture ? "Disable" : "Enable"} camera</button>
-      <button onClick={() => setShouldCaptureDynamicSign(!shouldCaptureDynamicSign)}>{shouldCaptureDynamicSign ? "Don't " : ""} Capture Dynamic Sign</button>
+      <button onClick={() => {
+        console.log("BUTTON",shouldCaptureDynamicSign);
+        setShouldCaptureDynamicSign(!shouldCaptureDynamicSign);
+      }}>{shouldCaptureDynamicSign ? "Don't " : ""} Capture Dynamic Sign</button>
     </div>
   );
 
