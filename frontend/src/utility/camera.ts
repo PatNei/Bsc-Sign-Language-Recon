@@ -1,9 +1,10 @@
 import { Camera } from "@mediapipe/camera_utils";
-import { NormalizedLandmark } from "@mediapipe/drawing_utils";
 import { Hands, ResultsListener } from "@mediapipe/hands";
 import { drawType, renderEverything } from "./draw";
+import { onResult, onResultType } from "./api";
 
-const createHands = (resultFunction: ResultsListener) => {
+// resultFunction: ResultsListener
+export const createHands = (props: Omit<onResultType, "multiHandLandmarks">, draw: drawType) => {
   const hands = new Hands({
     locateFile: (file) => {
       //return `https://cdn.jsdelivr.net/npm/@mediapipe/hands/${file}`;
@@ -18,16 +19,15 @@ const createHands = (resultFunction: ResultsListener) => {
     selfieMode: true
   })
 
-  hands.onResults(resultFunction);
+  hands.onResults((result) => {
+      renderEverything(result,draw)
+      onResult({...props, multiHandLandmarks: result.multiHandLandmarks})
+  });
   return hands;
 }
 
 /** Wrapper function that creates a Camera from mediapipe with the config we want. */
-export const createCamera = (videoElement: HTMLVideoElement, { canvas, canvasCtx }: drawType, resultFunction: ResultsListener) => {
-  const hands = createHands((result) => {
-    renderEverything(result, { canvas, canvasCtx })
-    //resultFunction(result)
-  })
+export const createCamera = (hands:Hands, videoElement: HTMLVideoElement) => {
   const camera = new Camera(videoElement, {
     onFrame: async () => {
       await hands.send({ image: videoElement });
