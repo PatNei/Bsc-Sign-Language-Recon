@@ -24,3 +24,7 @@ ipykernel = "^6.29.3"
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
+
+[tool.poetry.scripts]
+dev = "sign.main:dev"
+prod = "sign.main:prod"
