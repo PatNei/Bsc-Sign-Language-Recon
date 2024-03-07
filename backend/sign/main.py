@@ -28,7 +28,7 @@ def read_root():
 
 @app.post("/annotation")
 def get_annotation(landmarksDTO: NormalizedLandmarksDTO) -> str:
-    landmarks : NormalizedLandmarks = NormalizedLandmarks([ NormalizedLandmark(element) for element in landmarksDTO.data ])
+    landmarks:NormalizedLandmarks = NormalizedLandmarks([NormalizedLandmark(element) for element in landmarksDTO.data])
     return recogniser.get_annotation(landmarks)
     
 if __name__ == "__main__":
