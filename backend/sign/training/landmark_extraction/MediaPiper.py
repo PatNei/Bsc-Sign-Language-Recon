@@ -190,3 +190,4 @@ if __name__ == "__main__":
     #mpr.process_images_from_folder_to_csv(data_path, out_file=out_file, limit=10)
     res = mpr.process_dynamic_gestures_from_folder(data_path)
     #print(f"Output result to {out_file}")
+
