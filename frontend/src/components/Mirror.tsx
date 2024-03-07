@@ -9,7 +9,7 @@ export default function Mirror() {
 
   return (
     <div className="w-full h-full flex flex-col items-center">
-      <Canvas onResults={setResponse} />
+      <Canvas setLetterRecognizerResponse={setResponse} />
       <div className="flex flex-row">
         <p className=" h-40 text-7xl pt-2">
             {response}
