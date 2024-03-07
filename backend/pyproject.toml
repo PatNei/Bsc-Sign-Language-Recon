@@ -22,3 +22,7 @@ mediapipe = "^0.10.9"
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
+
+[tool.poetry.scripts]
+dev = "sign.main:dev"
+prod = "sign.main:prod"
