@@ -10,11 +10,14 @@ export default function LetterRecognizer() {
   const [letterCounter, setLetterCounter] = useState(0);
   const [shouldCapture, setShouldCapture] = useState<boolean>(false);
   const [response, setResponse] = useState<string>("");
-  const [shouldCaptureDynamicSign, setShouldCaptureDynamicSign] = useState<boolean>(false);
+  const [shouldCaptureDynamicSign, setShouldCaptureDynamicSign] =
+    useState<boolean>(false);
 
-  function handleClick(event: React.MouseEvent<HTMLButtonElement, MouseEvent>): void {
+  function handleClick(
+    event: React.MouseEvent<HTMLButtonElement, MouseEvent>
+  ): void {
     event.preventDefault();
-    setShouldCapture(prev => !prev);
+    setShouldCapture((prev) => !prev);
   }
 
   if (response === letter) {
@@ -39,27 +42,35 @@ export default function LetterRecognizer() {
   }
   return (
     <div className="w-full h-full flex flex-col items-center">
-      {shouldCapture && ( 
+      {shouldCapture && (
         <div className="w-full h-full flex flex-col items-center">
-        <div className="w-full flex flex-col items-center">
-          <img src={letterImg} alt="ASL letter A" className=" h-20 w-20" />
-          <p>{letter}</p>
-        </div>
-        {shouldCaptureDynamicSign ? <DynamicCanvas setLetterRecognizerResponse={setResponse} /> : <Canvas setLetterRecognizerResponse={setResponse} />}
-        <p className=" h-40 text-7xl pt-2">
-          {boolski && (
-            <>
-              "✅"
-              <button onClick={onNext}>Next</button>
-            </>
+          <div className="w-full flex flex-col items-center">
+            <img src={letterImg} alt="ASL letter A" className=" h-20 w-20" />
+            <p>{letter}</p>
+          </div>
+          {shouldCaptureDynamicSign ? (
+            <DynamicCanvas setLetterRecognizerResponse={setResponse} />
+          ) : (
+            <Canvas setLetterRecognizerResponse={setResponse} />
           )}
-        </p>
-      </div>
-
+          <p className=" h-40 text-7xl pt-2">
+            {boolski && (
+              <>
+                "✅"
+                <button onClick={onNext}>Next</button>
+              </>
+            )}
+          </p>
+        </div>
       )}
-      <button onClick={handleClick}>{shouldCapture ? "Disable" : "Enable"} camera</button>
-      <button onClick={() => setShouldCaptureDynamicSign(!shouldCaptureDynamicSign)}>{shouldCaptureDynamicSign ? "Don't " : ""} Capture Dynamic Sign</button>
+      <button onClick={handleClick}>
+        {shouldCapture ? "Disable" : "Enable"} camera
+      </button>
+      <button
+        onClick={() => setShouldCaptureDynamicSign(!shouldCaptureDynamicSign)}
+      >
+        {shouldCaptureDynamicSign ? "Don't " : ""} Capture Dynamic Sign
+      </button>
     </div>
   );
-
 }
