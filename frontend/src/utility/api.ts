@@ -38,6 +38,7 @@ export interface onResultType {
 }
 
 export const onResult = async ({ multiHandLandmarks, dynamicSignLandmarks, shouldCaptureDynamicSign, setLetterRecognizerResponse, setDynamicSignLandmarks }: onResultType) => {
+  console.log(shouldCaptureDynamicSign)
   if (!shouldCaptureDynamicSign) {
     setDynamicSignLandmarks([]);
     return;

@@ -39,13 +39,13 @@ export default function LetterRecognizer() {
   }
   return (
     <div className="w-full h-full flex flex-col items-center">
-      {shouldCapture && ( shouldCaptureDynamicSign ?
+      {shouldCapture && ( 
         <div className="w-full h-full flex flex-col items-center">
         <div className="w-full flex flex-col items-center">
           <img src={letterImg} alt="ASL letter A" className=" h-20 w-20" />
           <p>{letter}</p>
         </div>
-        <DynamicCanvas setLetterRecognizerResponse={setResponse} />
+        {shouldCaptureDynamicSign ? <DynamicCanvas setLetterRecognizerResponse={setResponse} /> : <Canvas setLetterRecognizerResponse={setResponse} />}
         <p className=" h-40 text-7xl pt-2">
           {boolski && (
             <>
@@ -54,28 +54,11 @@ export default function LetterRecognizer() {
             </>
           )}
         </p>
-      </div> : 
-        <div className="w-full h-full flex flex-col items-center">
-          <div className="w-full flex flex-col items-center">
-            <img src={letterImg} alt="ASL letter A" className=" h-20 w-20" />
-            <p>{letter}</p>
-          </div>
-          <Canvas setLetterRecognizerResponse={setResponse} />
-          <p className=" h-40 text-7xl pt-2">
-            {boolski && (
-              <>
-                "✅"
-                <button onClick={onNext}>Next</button>
-              </>
-            )}
-          </p>
-        </div>
+      </div>
+
       )}
       <button onClick={handleClick}>{shouldCapture ? "Disable" : "Enable"} camera</button>
-      <button onClick={() => {
-        console.log("BUTTON",shouldCaptureDynamicSign);
-        setShouldCaptureDynamicSign(!shouldCaptureDynamicSign);
-      }}>{shouldCaptureDynamicSign ? "Don't " : ""} Capture Dynamic Sign</button>
+      <button onClick={() => setShouldCaptureDynamicSign(!shouldCaptureDynamicSign)}>{shouldCaptureDynamicSign ? "Don't " : ""} Capture Dynamic Sign</button>
     </div>
   );
 
