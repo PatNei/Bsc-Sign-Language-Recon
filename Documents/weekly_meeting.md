@@ -10,6 +10,8 @@
 
 ### What did you achieve?
 - Optimized hyper parameters for multiclass model (and binary classifier) for ASL alphabet
+- we implemented simple trajectories, reducing the hand to a single point
+- Learning app (frontend) is now able to capture sequences of landmarks and send them off to the API.
 
 ### What did you struggle with?
 - Python & React
@@ -19,6 +21,7 @@
 
 ### Where do you need help from Amelia?
 - What are the limits of a multiclass classification model? (How would it scale with a 1000 classes?)
+- How much math should be put into the report?
 
 ### What are the agreements after this meeting? (to fill in after the meeting)
 - 
