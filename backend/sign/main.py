@@ -4,6 +4,8 @@ from sign.recogniser import Recogniser
 from fastapi.middleware.cors import CORSMiddleware
 import uvicorn
 
+    
+
 app = FastAPI()
 origins = [
     "http://127.0.0.1:5173",
@@ -33,3 +35,9 @@ def get_annotation(landmarksDTO: NormalizedLandmarksDTO) -> str:
     
 if __name__ == "__main__":
     uvicorn.run(app, host="localhost", port=8000)
+    
+def dev():
+    uvicorn.run("sign.main:app", host="localhost", port=8000, reload=True)
+    
+def prod():
+    uvicorn.run("sign.main:app", host="localhost", port=8000)
