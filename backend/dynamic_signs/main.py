@@ -24,7 +24,7 @@ def capture_dynamic_sign(sign_name: str):
             print("Can't receive frame (stream end?). Exiting ...")
             continue
 
-        cv.imshow('frame', frame)
+        cv.imshow('frame', cv.flip(frame, cv.ROTATE_180))
         if cv.waitKey(33) == ord('c'):
             if not capturing:
                 j=0
