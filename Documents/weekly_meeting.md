@@ -24,7 +24,13 @@
 - How much math should be put into the report?
 
 ### What are the agreements after this meeting? (to fill in after the meeting)
-- 
+-  Consider loss functions (Sci-kit magic)
+	-  No blackbox
+-  Consider how our application/model relates to our research question
+-  Consider whether multiclass classification or binary classification is the right approach to solve our goal with the research question.
+	- _Test both options_
+ 	- Do we care about storage issues, prediction time and available data.
+ - Bring some metrics for next time. (confusion metrics,precision and accuracy)
 
 
 ## Date: 29th February 2024 
