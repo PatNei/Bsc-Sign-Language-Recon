@@ -7,6 +7,7 @@ from dataclasses import dataclass
 
 NormalizedLandmarksSequence = list[NormalizedLandmarks]
 
+
 DIMENSIONS = 3  # x, y, and z (always 3 for consistency)
 LANDMARK_POINTS = 21
 LANDMARK_AMOUNT = DIMENSIONS * LANDMARK_POINTS
@@ -119,6 +120,7 @@ def make_step_directions(_previous:NormalizedLandmark,_current:NormalizedLandmar
     # TODO: Maybe check if dimensions are correct
     if SCALED_PRECISION: # increases precision for the zero precision if the movement is too low.
         zero_precision = find_best_precision(previous,current,zero_precision)        
+
     
     
     return
@@ -130,6 +132,7 @@ def find_best_precision(_previous:npt.NDArray,_current:npt.NDArray, zero_precisi
     return zero_precision
 
 def generate_trajectories(landmarks_seq: NormalizedLandmarksSequence,zero_precision:float,hand=HAND):
+
     ## Do the thing
     
     trajectories = []
@@ -137,10 +140,10 @@ def generate_trajectories(landmarks_seq: NormalizedLandmarksSequence,zero_precis
     for landmark in landmarks_seq[1:]:
         current = hands_spatial_position(landmark,hand)
         directions = make_step_directions(previous,current,zero_precision)
+
         trajectories.append(directions)
         previous = current
     return trajectories
-
 
 
 if __name__ == "__main__":
@@ -158,3 +161,4 @@ if __name__ == "__main__":
     print(traj)
     for elm in traj.directions:
         print(f"x:{elm.x}, y: {elm.y}, z: {elm.z}")
+
