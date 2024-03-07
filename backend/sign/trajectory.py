@@ -29,13 +29,6 @@ class direction(Enum):
     LEFT = DOWN
     AWAY = DOWN
 
-
-@dataclass
-class trajectory:
-    x: int
-    y: int
-    z: int
-
 @dataclass
 class trajectory_element:
     x: direction = direction.STATIONARY
@@ -43,57 +36,67 @@ class trajectory_element:
     z: direction = direction.STATIONARY
     
 @dataclass
-class trajectory2:
+class trajectory:
     directions: list[trajectory_element]
 
-def landmarks_to_single_mean(landmarks: np.ndarray) -> np.ndarray:
-    reshaped = landmarks.reshape((-1,21,3))
-    return np.mean(reshaped, axis=1).flatten()
+class TrajectoryBuilder:
+    def __init__(self, bertram_mode = True, boundary = 0.01):
+        self.bertram_mode = bertram_mode
+        self.boundary = boundary
+        if bertram_mode: 
+            print("🔥🔥 TrajectoryBuilder is now running in BERTRAM_MODE 🔥🔥")
 
-def is_within_boundaries(prev_mean:Union[float, np.float32], 
-                         cur_mean:Union[float, np.float32],
-                         boundary = 0.01, bertram_mode = False
-                         ) -> Union[bool, np.bool_]:
-    boundary = boundary / 2
-    if bertram_mode:
-        diff = abs(prev_mean - cur_mean)
-        return diff <= boundary
-    else:
-        upper = prev_mean + boundary
-        lower = prev_mean - boundary
+    def landmarks_to_single_mean(self, landmarks: np.ndarray) -> np.ndarray:
+        reshaped = landmarks.reshape((-1,21,3))
+        return np.mean(reshaped, axis=1).flatten()
 
-        return lower <= cur_mean <= upper
-
-def create_trajectory_element(prev:np.ndarray, cur:np.ndarray) -> trajectory_element:
-    directions: list[direction] = []
-
-    for dim in range(DIMENSIONS):
-        mean_p_dim:np.float32 = prev[dim]
-        mean_c_dim:np.float32 = cur[dim]
-
-        if dim == 1:
-            print(f"prev_mean_y: {mean_p_dim}, cur_mean_y: {mean_c_dim}")
-
-        if is_within_boundaries(mean_p_dim, mean_c_dim):
-            directions.append(direction.STATIONARY)
+    def is_within_boundaries(self, 
+                             prev_mean:Union[float, np.float32], cur_mean:Union[float, np.float32]
+                             ) -> Union[bool, np.bool_]:
+        boundary = self.boundary / 2
+        if self.bertram_mode:
+            diff = abs(prev_mean - cur_mean)
+            return diff <= boundary
         else:
-            directions.append(direction.UP if mean_p_dim > mean_p_dim else direction.DOWN)
+            upper = prev_mean + boundary
+            lower = prev_mean - boundary
 
-    return trajectory_element(*directions)
+            return lower <= cur_mean <= upper
 
-def make_trajectory(image_landmark_sequence: np.ndarray) -> trajectory2:
-    res: list[trajectory_element] = []
+    def create_trajectory_element(self, prev:np.ndarray, cur:np.ndarray) -> trajectory_element:
+        directions: list[direction] = []
 
-    previous = image_landmark_sequence[0]
-    for current in image_landmark_sequence[1:]:
-        mean_prev = landmarks_to_single_mean(previous)
-        mean_cur = landmarks_to_single_mean(current)
-        
-        next_elm_of_trajectory = create_trajectory_element(mean_prev, mean_cur)
-        res.append(next_elm_of_trajectory)
-        previous = current
+        for dim in range(DIMENSIONS):
+            mean_p_dim:np.float32 = prev[dim]
+            mean_c_dim:np.float32 = cur[dim]
 
-    return trajectory2(res)
+            if self.is_within_boundaries(mean_p_dim, mean_c_dim):
+                directions.append(direction.STATIONARY)
+            else:
+                directions.append(direction.UP if mean_p_dim > mean_p_dim else direction.DOWN)
+
+        return trajectory_element(*directions)
+
+    def make_trajectory(self,image_landmark_sequence: np.ndarray) -> trajectory:
+        """Creates a trajectory(representing a gesture ) from a sequence of landmarks.
+
+            :param image_landmark_sequence: list of pictures, that have been reduced to landmarks
+                np.array(np.array(landmarks)), where each landmark has 3 float coordinates (x,y,z).
+                
+            :return: A trajectory object.
+        """
+        res: list[trajectory_element] = []
+
+        previous = image_landmark_sequence[0]
+        for current in image_landmark_sequence[1:]:
+            mean_prev = self.landmarks_to_single_mean(previous)
+            mean_cur = self.landmarks_to_single_mean(current)
+            
+            next_elm_of_trajectory = self.create_trajectory_element(mean_prev, mean_cur)
+            res.append(next_elm_of_trajectory)
+            previous = current
+
+        return trajectory(res)
 
 
 def hands_spatial_position(landmarks:NormalizedLandmarks,hand=HAND):
@@ -145,15 +148,15 @@ def generate_trajectories(landmarks_seq: NormalizedLandmarksSequence,zero_precis
 if __name__ == "__main__":
     fist_down_seq = np.load("./dynamic_signs/fist_down_seq_npyarray.npy")
     
-    landmarks = fist_down_seq
+    #landmarks = fist_down_seq
     #reshaped = landmarks.reshape((-1, 21, 3))
     #print(landmarks)
     #print(np.mean(reshaped, axis=1))
     #mean = np.mean(reshaped, axis = 1)
 
     #print("mean HERE: ", mean.flatten())
-
-    traj = make_trajectory(fist_down_seq)
+    gen = TrajectoryBuilder()
+    traj = gen.make_trajectory(fist_down_seq)
     print(traj)
     for elm in traj.directions:
         print(f"x:{elm.x}, y: {elm.y}, z: {elm.z}")
