@@ -95,6 +95,7 @@ export const onResult = async ({
         );
         if (postState.response && !postState.error) {
           setLetterRecognizerResponse(postState.response!);
+          console.log(postState.response!)
         } else if (postState.error) console.log(postState.error);
       } else {
         setDynamicSignLandmarks([]);

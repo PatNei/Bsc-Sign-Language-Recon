@@ -97,6 +97,14 @@ class TrajectoryBuilder:
 
         return trajectory(res)
 
+    def make_trajectory_values(self, trj: trajectory) -> np.ndarray:
+        return np.array([(te.x.value, te.y.value, te.z.value) for te in trj.directions]).flatten()
+        # xyz  = []
+        # for te in trj.directions:    
+        #     xyz.append(te.x.value)
+        #     xyz.append(te.y.value)
+        #     xyz.append(te.z.value)
+        # return np.array(xyz)
 
 def hands_spatial_position(landmarks:NormalizedLandmarks,hand=HAND):
     """
