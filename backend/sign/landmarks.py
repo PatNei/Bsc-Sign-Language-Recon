@@ -17,6 +17,8 @@ class NormalizedLandmarkDTO(BaseModel):
 class NormalizedLandmarksDTO(BaseModel):
     data: list[NormalizedLandmarkDTO]
 
+class NormalizedLandmarksSequenceDTO(BaseModel):
+    data: list[list[NormalizedLandmarkDTO]]
 
 class NormalizedLandmark():
     x: np.float32
@@ -29,12 +31,12 @@ class NormalizedLandmark():
         self.z = np.float32(dto.z)
         
 @dataclass
-class NormalizedLandmarks(list):
+class NormalizedLandmarks():
     data: list[NormalizedLandmark]
     
-@dataclass
-class NormalizedLandmarksSequence(list): 
-    seq = list[list[NormalizedLandmark]]
+@dataclass()
+class NormalizedLandmarksSequence(): 
+    seq = list[NormalizedLandmarks]
 
 ##------------------------------------------------------------------------------------##
 ##                                                                                    ##
