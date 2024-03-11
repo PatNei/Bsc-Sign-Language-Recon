@@ -72,7 +72,7 @@ class TrajectoryBuilder:
             if self.is_within_boundaries(mean_p_dim, mean_c_dim):
                 directions.append(direction.STATIONARY)
             else:
-                directions.append(direction.UP if mean_p_dim > mean_p_dim else direction.DOWN)
+                directions.append(direction.UP if mean_c_dim > mean_p_dim else direction.DOWN)
 
         return trajectory_element(*directions)
 
