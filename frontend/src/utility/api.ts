@@ -71,7 +71,7 @@ export const onResult = async ({
       }
     }
   } else {
-    let min_frames_per_sign = 24;
+    let min_frames_per_sign = 100;
     if (multiHandLandmarks && multiHandLandmarks.length > 0) {
       let resultsDTO = multiHandLandmarks.map((e) =>
         e.map((landmark): LandmarkDTO => {
@@ -82,7 +82,8 @@ export const onResult = async ({
           };
         })
       );
-      let landmarks = resultsDTO.length == 1 ? resultsDTO[0] : [];
+      let landmarks = resultsDTO.length >= 1 ? resultsDTO[0] : [];
+      if (landmarks.length == 0) return;
       const data = dynamicSignLandmarks;
       data.push(landmarks);
       setDynamicSignLandmarks(data);
@@ -95,7 +96,7 @@ export const onResult = async ({
         );
         if (postState.response && !postState.error) {
           setLetterRecognizerResponse(postState.response!);
-          console.log(postState.response!)
+          console.log(postState.response!);
         } else if (postState.error) console.log(postState.error);
       } else {
         setDynamicSignLandmarks([]);

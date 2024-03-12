@@ -1,5 +1,5 @@
 from enum import IntEnum, Enum
-from typing import Union
+from typing import Any, Union
 import numpy as np
 from numpy import typing as npt
 from sign.landmarks import NormalizedLandmark, NormalizedLandmarks
@@ -39,11 +39,70 @@ class trajectory:
     directions: list[trajectory_element]
 
 class TrajectoryBuilder:
-    def __init__(self, bertram_mode = True, boundary = 0.01):
+    def __init__(self, bertram_mode = True, boundary = 0.01, target_len = 3):
+        self.target_len = target_len
         self.bertram_mode = bertram_mode
         self.boundary = boundary
         if bertram_mode: 
             print("🔥🔥 TrajectoryBuilder is now running in BERTRAM_MODE 🔥🔥")
+
+    # Just the length of 3D vector difference, don't worry bout it
+    def _distance(self, pos1, pos2) -> float:
+        return float(np.linalg.norm(pos1 - pos2))
+
+    def remove_outliers(self, seq : list[np.ndarray[Any, np.dtype[np.float32]]]) -> list[np.ndarray[Any, np.dtype[np.float32]]]:
+        positions = []
+        for i in range(len(seq)):
+            positions.append(self.landmarks_to_single_mean(seq[i]))
+
+        non_outliers = [seq[0]]
+        for i in range(1, len(seq) - 1):
+            if min(self._distance(positions[i-1], positions[i]), self._distance(positions[i], positions[i+1])) > \
+                    self._distance(positions[i-1], positions[i+1]):
+                # outlier
+                print("REMOVING OUTLIER")
+                continue
+            non_outliers.append(seq[i])
+
+        non_outliers.append(seq[-1])
+        return non_outliers
+
+    def extract_keyframes(self, seq: list[np.ndarray[Any, np.dtype[np.float32]]]) -> np.ndarray:
+        
+        seq = self.remove_outliers(seq)
+        print("SEQ LENGTH ", len(seq))
+        # compute displacements between neighboring frames
+        displacements: list[float] = [0]
+        last_pos = self.landmarks_to_single_mean(seq[0])
+
+        for i in range(1, len(seq)):
+            pos = self.landmarks_to_single_mean(seq[i])
+            displacements.append(self._distance(last_pos, pos))
+            last_pos = pos.copy()
+
+        total = sum(displacements)
+        # this is how often a key frame should be placed
+        interval = total / (self.target_len - 1)
+        print("INTERVAL: ", interval)
+        running_sum = 0
+        toReturn = [seq[0]]
+        for i in range(1, len(seq)):
+            running_sum += displacements[i]
+            print("running_sum ", running_sum)
+            print("displacements[i] ", displacements[i])
+            if running_sum >= interval:
+                # the total displacement up to this point is enough to consider this frame key
+                toReturn.append(seq[i])
+                print("SEQ[I] ", seq[i])
+                running_sum = 0
+        print("TORETURN LENGTH: ", len(toReturn))
+        if len(toReturn) < self.target_len:
+            toReturn.append(seq[len(seq)-1])
+            
+        if len(toReturn) < self.target_len:
+            raise Exception(f"expected {self.target_len} but got {len(toReturn)}.. not enough keyframes >:(")
+                
+        return np.array(toReturn)
 
     def landmarks_to_single_mean(self, landmarks: np.ndarray) -> np.ndarray:
         reshaped = landmarks.reshape((-1,21,3))

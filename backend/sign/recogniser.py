@@ -14,5 +14,4 @@ class Recogniser:
         return self.keypoint_classifier(landmarks)
     
     def get_dynamic_annotation(self, landmarks_sequence: list[NormalizedLandmarks]) -> str:
-
         return self.dynamic_classifier(landmarks_sequence)
