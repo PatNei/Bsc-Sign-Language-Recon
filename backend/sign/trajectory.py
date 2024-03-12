@@ -1,4 +1,5 @@
 from enum import IntEnum, Enum
+import random
 from typing import Any, Union
 import numpy as np
 from numpy import typing as npt
@@ -67,8 +68,19 @@ class TrajectoryBuilder:
         non_outliers.append(seq[-1])
         return non_outliers
 
+    def extract_keyframes_sample(self, seq: list[np.ndarray[Any, np.dtype[np.float32]]]) -> np.ndarray:
+        if (self.target_len <= 2):
+            raise Exception("stop it")
+        res = [seq[0]]
+        res.extend(random.sample(seq[1:-1], self.target_len - 2))
+        res.append(seq[-1])
+        return np.array(res)
+    
     def extract_keyframes(self, seq: list[np.ndarray[Any, np.dtype[np.float32]]]) -> np.ndarray:
-        
+        if self.target_len > len(seq): 
+            raise ValueError(f"Tried creating {self.target_len} keyframes for a sequence of {len(seq)}")
+        if len(seq) / self.target_len < 2:
+            return np.array(random.sample(seq, self.target_len))
         seq = self.remove_outliers(seq)
         print("SEQ LENGTH ", len(seq))
         # compute displacements between neighboring frames

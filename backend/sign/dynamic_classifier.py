@@ -20,7 +20,7 @@ class DynamicClassifier():
             arr : np.ndarray[Any, np.dtype[np.float32]] = np.array([(mrk.x,mrk.y,mrk.z) for mrk in image_landmarks.data]).flatten()
             new_sequence.append(arr)
 
-        keyframes = self.bob.extract_keyframes(new_sequence)
+        keyframes = self.bob.extract_keyframes_sample(new_sequence)
         
         sequence_trajectory = self.bob.make_trajectory(keyframes)
 
