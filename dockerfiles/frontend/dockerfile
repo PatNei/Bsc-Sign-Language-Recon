@@ -1,14 +1,9 @@
 FROM node:20 as build
 
 WORKDIR /app
-COPY ./frontend /app
-
+COPY ./frontend .
 RUN npm install
-RUN npm run build
+ENV VITE_baseURL=""
+EXPOSE 5002
 
-FROM ubuntu
-RUN apt-get update
-RUN apt-get install nginx -y
-COPY --from=build /app/dist /var/www/html/
-EXPOSE 80
-CMD ["nginx","-g","daemon off;"]
+CMD ["npm","run","prod"]

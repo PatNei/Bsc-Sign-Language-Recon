@@ -1,4 +1,4 @@
-import { ReactElement, useRef, useState, MutableRefObject, useEffect } from 'react';
+import { ReactElement, useRef, useState, useEffect } from 'react';
 import { createCamera, createHands } from "../utility/camera";
 import { Camera } from '@mediapipe/camera_utils';
 import { LandmarkDTO } from '../utility/api';
@@ -15,8 +15,8 @@ export default function Canvas({ setLetterRecognizerResponse }: CanvasProps): Re
   useEffect(() => {
     if (!canvasRef.current || !videoRef.current) return
     const canvasCtx = canvasRef.current.getContext('2d')
-    cameraRef.current = createCamera(createHands({dynamicSignLandmarks, shouldCaptureDynamicSign: false, setDynamicSignLandmarks, setLetterRecognizerResponse}, {canvasCtx, canvas: canvasRef.current}), videoRef.current)
-    return () => {cameraRef.current = null;}
+    cameraRef.current = createCamera(createHands({ dynamicSignLandmarks, shouldCaptureDynamicSign: false, setDynamicSignLandmarks, setLetterRecognizerResponse }, { canvasCtx, canvas: canvasRef.current }), videoRef.current)
+    return () => { cameraRef.current = null; }
   }, [])
 
   return <div className="w-full h-full flex justify-center">
