@@ -69,6 +69,13 @@ class TrajectoryBuilder:
         return non_outliers
 
     def extract_keyframes_sample(self, seq: list[np.ndarray[Any, np.dtype[np.float32]]]) -> np.ndarray:
+        """
+        Extracts keyframes from a sequence of landmarks to get target_len frames to send to the model.
+        Why random.sample? This results in extracting keyframes that are more evenly distributed across the sequence.
+        We don't take the physical distance of the hand between frames into account.
+        We simply want a fixed number of frames to send to the model.
+        """
+        
         if (self.target_len <= 2):
             raise Exception("stop it")
         res = [seq[0]]
