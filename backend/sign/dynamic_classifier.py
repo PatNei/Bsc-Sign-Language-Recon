@@ -1,11 +1,13 @@
 
-from typing import Any
-from fastapi import HTTPException
+from typing import Tuple
 import numpy as np
+import numpy.typing as npt
 from sign.CONST import DYNAMIC_MODEL_PATH
-from sign.landmarks import NormalizedLandmarks
+from sign.landmarks import NormalizedLandmarks, pre_process_landmark, calc_landmark_list
 from sign.model import SignClassifier
 from sign.trajectory import TrajectoryBuilder
+
+import random
 
 class DynamicClassifier():
     def __init__(self):
@@ -13,33 +15,49 @@ class DynamicClassifier():
         self.bob = TrajectoryBuilder()
     
     def __call__(self, landmark_list: list[NormalizedLandmarks]) -> str:
-        new_sequence: list[np.ndarray[Any, np.dtype[np.float32]]] = []
-        for image_landmarks in landmark_list:
-            if len(image_landmarks.data) < 1:
-                 continue
-            arr : np.ndarray[Any, np.dtype[np.float32]] = np.array([(mrk.x,mrk.y,mrk.z) for mrk in image_landmarks.data]).flatten()
-            new_sequence.append(arr)
-
-        keyframes = self.bob.extract_keyframes_sample(new_sequence)
+        new_sequence = self._preprocess_mediapipe_landmarks(landmark_list)
         
+        keyframes, flatmarks = self._extract_keyframes_sample_keep_preprocessed_landmarks(new_sequence)
         sequence_trajectory = self.bob.make_trajectory(keyframes)
 
-        model_input = self.bob.make_trajectory_values(sequence_trajectory)
+        model_input = sequence_trajectory.to_numpy_array()
+        for flat_landmark in flatmarks:
+            model_input = np.append(model_input, flat_landmark)
         
+        # Model now expects input to be of the form:
+        # <simple-trajectory-as-xyz-values><42-xy-values-from-yt-algo><42-xy-values-from-yt-algo>...
         predictions = self.classifier.predict(np.array([model_input]))
 
         return predictions[0]
     
-        # try:
-            # keyframes = self.bob.extract_keyframes(new_sequence)
-            
-            # sequence_trajectory = self.bob.make_trajectory(keyframes)
+    def _preprocess_mediapipe_landmarks(self, ldnmrks:list[NormalizedLandmarks]) -> list[Tuple[npt.NDArray[np.float32], list[float]]]:
+        """Converts mediapipe landmarks to a list of tuples.
+        Tuples consist of the "raw" mediapipe multi_hand_landmarks, and the 
+        preprocessed landmarks (that we also use for static models)
+        """
+        converted_lndmrks: list[Tuple[npt.NDArray[np.float32], list[float]]] = []
 
-            # model_input = self.bob.make_trajectory_values(sequence_trajectory)
-            
-            # predictions = self.classifier.predict(np.array([model_input]))
+        for image_landmarks in ldnmrks:
+            if len(image_landmarks.data) < 1:
+                 continue
+            arr = np.array([(mrk.x,mrk.y,mrk.z) for mrk in image_landmarks.data]).flatten()
+            preprocessed = pre_process_landmark(calc_landmark_list(image_landmarks.data))
+            converted_lndmrks.append( (arr, preprocessed) )
+        return converted_lndmrks
 
-            # return predictions[0]
-        # except Exception as e:
-        #     print(e)
-        #     raise HTTPException(status_code=400, detail=str(e))
+    #TODO: Should probably be part of trajectory builder
+    def _extract_keyframes_sample_keep_preprocessed_landmarks(self,
+              landmark_list: list[Tuple[npt.NDArray[np.float32], list[float]]]) -> Tuple[npt.NDArray[np.float32], list[list[float]] ]:
+            """Extract keyframs using the sample method.
+            But it keeps the raw mediapipe landmarks and
+            the landmarks "pre-processed" together in a single tuple.
+            """
+            random.seed(42)
+            res = [landmark_list[0]]
+            res.extend(random.sample(landmark_list[1:-1], self.bob.target_len - 2))
+            res.append(landmark_list[-1])
+
+            keyframes = [raw_mp_landmarks for raw_mp_landmarks,_ in res]
+            pre_processed_landmarks = [preprossed for _,preprossed in res]
+
+            return np.array(keyframes), pre_processed_landmarks
