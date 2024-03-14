@@ -1,4 +1,5 @@
 import os
+import sys
 import cv2 as cv
 
 dir_path = 'dynamic_signs/frames'
@@ -60,6 +61,12 @@ def clean_dynamic_sign_dir(sign_name: str):
         if len(v) <= min_frame_len:
             for image in v:
                 os.remove(f'{path}/{image}')
-    
-capture_dynamic_sign('test')
-clean_dynamic_sign_dir('test')
+
+if __name__ == '__main__':
+    args = sys.argv[1:]
+    if len(args) < 1:
+        print("<usage> \n\t\"gesture-name\"")
+        exit(1)
+    gesture_name = args[0].upper()
+    capture_dynamic_sign(gesture_name)
+    clean_dynamic_sign_dir(gesture_name)
