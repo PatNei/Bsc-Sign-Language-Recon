@@ -17,7 +17,7 @@ def capture_dynamic_sign(sign_name: str):
         exit()
         
     capturing = False
-    i=0
+    i=max([int(file_name[0]) for file_name in os.listdir(path)])+1
     j=0
     while True:
         ret, frame = cap.read()

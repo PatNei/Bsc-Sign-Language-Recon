@@ -78,6 +78,7 @@ class TrajectoryBuilder:
         
         if (self.target_len <= 2):
             raise Exception("stop it")
+        random.seed(42)
         res = [seq[0]]
         res.extend(random.sample(seq[1:-1], self.target_len - 2))
         res.append(seq[-1])
