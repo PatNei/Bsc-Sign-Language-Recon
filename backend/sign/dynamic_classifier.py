@@ -10,7 +10,7 @@ from sign.trajectory import TrajectoryBuilder
 class DynamicClassifier():
     def __init__(self):
         self.classifier = SignClassifier(DYNAMIC_MODEL_PATH)
-        self.bob = TrajectoryBuilder(target_len=13)
+        self.bob = TrajectoryBuilder()
     
     def __call__(self, landmark_list: list[NormalizedLandmarks]) -> str:
         new_sequence: list[np.ndarray[Any, np.dtype[np.float32]]] = []
