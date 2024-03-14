@@ -144,7 +144,6 @@ class MediaPiper:
         """
         labels = [folder for folder in os.listdir(base_path)
                   if os.path.isdir(base_path + os.sep + folder)]
-        
         res: list[DynamicGesture] = []
         for label in labels:
             folder_path = base_path + os.sep + label

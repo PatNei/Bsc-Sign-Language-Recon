@@ -530,6 +530,16 @@ typing-extensions = ">=4.8.0"
 all = ["email-validator (>=2.0.0)", "httpx (>=0.23.0)", "itsdangerous (>=1.1.0)", "jinja2 (>=2.11.2)", "orjson (>=3.2.1)", "pydantic-extra-types (>=2.0.0)", "pydantic-settings (>=2.0.0)", "python-multipart (>=0.0.7)", "pyyaml (>=5.3.1)", "ujson (>=4.0.1,!=4.0.2,!=4.1.0,!=4.2.0,!=4.3.0,!=5.0.0,!=5.1.0)", "uvicorn[standard] (>=0.12.0)"]
 
 [[package]]
+name = "ffmpeg"
+version = "1.4"
+description = "ffmpeg python package url [https://github.com/jiashaokun/ffmpeg]"
+optional = false
+python-versions = "*"
+files = [
+    {file = "ffmpeg-1.4.tar.gz", hash = "sha256:6931692c890ff21d39938433c2189747815dca0c60ddc7f9bb97f199dba0b5b9"},
+]
+
+[[package]]
 name = "flatbuffers"
 version = "23.5.26"
 description = "The FlatBuffers serialization format for Python"
@@ -823,37 +833,6 @@ parallel = ["ipyparallel"]
 qtconsole = ["qtconsole"]
 test = ["pickleshare", "pytest (<8)", "pytest-asyncio (<0.22)", "testpath"]
 test-extra = ["curio", "ipython[test]", "matplotlib (!=3.2.0)", "nbformat", "numpy (>=1.23)", "pandas", "trio"]
-
-[[package]]
-name = "jax"
-version = "0.4.25"
-description = "Differentiate, compile, and transform Numpy code."
-optional = false
-python-versions = ">=3.9"
-files = [
-    {file = "jax-0.4.25-py3-none-any.whl", hash = "sha256:8158c837e5ecc195074b421609e85329a962785b36f9fe5ff53e844e8ad87dbc"},
-    {file = "jax-0.4.25.tar.gz", hash = "sha256:a8ee189c782de2b7b2ffb64a8916da380b882a617e2769aa429b71d79747b982"},
-]
-
-[package.dependencies]
-ml-dtypes = ">=0.2.0"
-numpy = {version = ">=1.23.2", markers = "python_version >= \"3.11\""}
-opt-einsum = "*"
-scipy = ">=1.9"
-
-[package.extras]
-australis = ["protobuf (>=3.13,<4)"]
-ci = ["jaxlib (==0.4.24)"]
-cpu = ["jaxlib (==0.4.25)"]
-cuda = ["jaxlib (==0.4.25+cuda11.cudnn86)"]
-cuda11-cudnn86 = ["jaxlib (==0.4.25+cuda11.cudnn86)"]
-cuda11-local = ["jaxlib (==0.4.25+cuda11.cudnn86)"]
-cuda11-pip = ["jaxlib (==0.4.25+cuda11.cudnn86)", "nvidia-cublas-cu11 (>=11.11)", "nvidia-cuda-cupti-cu11 (>=11.8)", "nvidia-cuda-nvcc-cu11 (>=11.8)", "nvidia-cuda-runtime-cu11 (>=11.8)", "nvidia-cudnn-cu11 (>=8.8)", "nvidia-cufft-cu11 (>=10.9)", "nvidia-cusolver-cu11 (>=11.4)", "nvidia-cusparse-cu11 (>=11.7)", "nvidia-nccl-cu11 (>=2.18.3)"]
-cuda12 = ["jax-cuda12-plugin (==0.4.25)", "jaxlib (==0.4.25)", "nvidia-cublas-cu12 (>=12.3.4.1)", "nvidia-cuda-cupti-cu12 (>=12.3.101)", "nvidia-cuda-nvcc-cu12 (>=12.3.107)", "nvidia-cuda-runtime-cu12 (>=12.3.101)", "nvidia-cudnn-cu12 (>=8.9.7.29)", "nvidia-cufft-cu12 (>=11.0.12.1)", "nvidia-cusolver-cu12 (>=11.5.4.101)", "nvidia-cusparse-cu12 (>=12.2.0.103)", "nvidia-nccl-cu12 (>=2.19.3)", "nvidia-nvjitlink-cu12 (>=12.3.101)"]
-cuda12-local = ["jaxlib (==0.4.25+cuda12.cudnn89)"]
-cuda12-pip = ["jaxlib (==0.4.25+cuda12.cudnn89)", "nvidia-cublas-cu12 (>=12.3.4.1)", "nvidia-cuda-cupti-cu12 (>=12.3.101)", "nvidia-cuda-nvcc-cu12 (>=12.3.107)", "nvidia-cuda-runtime-cu12 (>=12.3.101)", "nvidia-cudnn-cu12 (>=8.9.7.29)", "nvidia-cufft-cu12 (>=11.0.12.1)", "nvidia-cusolver-cu12 (>=11.5.4.101)", "nvidia-cusparse-cu12 (>=12.2.0.103)", "nvidia-nccl-cu12 (>=2.19.3)", "nvidia-nvjitlink-cu12 (>=12.3.101)"]
-minimum-jaxlib = ["jaxlib (==0.4.20)"]
-tpu = ["jaxlib (==0.4.25)", "libtpu-nightly (==0.1.dev20240224)", "requests"]
 
 [[package]]
 name = "jedi"
@@ -1263,34 +1242,37 @@ files = [
 
 [[package]]
 name = "mediapipe"
-version = "0.10.10"
+version = "0.10.9"
 description = "MediaPipe is the simplest way for researchers and developers to build world-class ML solutions and applications for mobile, edge, cloud and the web."
 optional = false
 python-versions = "*"
 files = [
-    {file = "mediapipe-0.10.10-cp310-cp310-macosx_11_0_universal2.whl", hash = "sha256:caf8ef2434905413cb7772cbd6615f79ef317f50a1b0896680726952a7be10a4"},
-    {file = "mediapipe-0.10.10-cp310-cp310-macosx_11_0_x86_64.whl", hash = "sha256:e38e16060f270cb38ac8e1df69c6d54d5ca6494385b17fe2152903c97372ef66"},
-    {file = "mediapipe-0.10.10-cp310-cp310-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:56d5f577da38a236d6cc40c4e53fcb3e2b595fa33a079228e8e905d9d9499697"},
-    {file = "mediapipe-0.10.10-cp310-cp310-win_amd64.whl", hash = "sha256:640ca38a08b671c7f0a7261bcbc6fbbd4cd02407a1d87c2981af68686a576663"},
-    {file = "mediapipe-0.10.10-cp311-cp311-macosx_11_0_universal2.whl", hash = "sha256:14d9ab630300a83fb477569280c9ffc27872bf79187194f7524d0381b6dab7d6"},
-    {file = "mediapipe-0.10.10-cp311-cp311-macosx_11_0_x86_64.whl", hash = "sha256:7be112406c27065b53b1441d197d3650eb64f8a8bf294265c342a8f295e0afeb"},
-    {file = "mediapipe-0.10.10-cp311-cp311-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:49733cd9c3c4dba35ccd88cb71a67b5dff023cae65535e81638922926669537d"},
-    {file = "mediapipe-0.10.10-cp311-cp311-win_amd64.whl", hash = "sha256:3a2b1ba4d8ac6bb2bb9731824774c9b6fb5e24ea16db4bee76a73e37fac6bd65"},
-    {file = "mediapipe-0.10.10-cp38-cp38-macosx_11_0_universal2.whl", hash = "sha256:cfad5b8bd63d40f6703b84128aedf46622175d98d4b357df05b88fdda33060f7"},
-    {file = "mediapipe-0.10.10-cp38-cp38-macosx_11_0_x86_64.whl", hash = "sha256:e049ab9b1ea0fc301271b839696fb4cecc8b06c78845ab30ce7b4ec8a94904b0"},
-    {file = "mediapipe-0.10.10-cp38-cp38-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:0cddef4436b9ce9e41e3c5e6e902f426704f941c3bd1175ead74f147213c97df"},
-    {file = "mediapipe-0.10.10-cp38-cp38-win_amd64.whl", hash = "sha256:45c86fbe6da80f99ba5b00b18c754742e5ea4b7fc8f9644770fc79e5a696c15a"},
-    {file = "mediapipe-0.10.10-cp39-cp39-macosx_11_0_universal2.whl", hash = "sha256:9ab223a5a59300ca1a245f7d8f75d917b8ec9e5599e324016bf869cf9f96c971"},
-    {file = "mediapipe-0.10.10-cp39-cp39-macosx_11_0_x86_64.whl", hash = "sha256:cb6b5063c50d4edd735aea1aed9a256f1d386ff0c147aa76e6c5242ffe7e605e"},
-    {file = "mediapipe-0.10.10-cp39-cp39-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:5ac324506733f0db34098fbf59df69d35e5f1665a30f0ad5aa5464e485a01093"},
-    {file = "mediapipe-0.10.10-cp39-cp39-win_amd64.whl", hash = "sha256:e07b9977de91e6db6213993160660881d1fd8576a36faed84820292ecd4da6ae"},
+    {file = "mediapipe-0.10.9-cp310-cp310-macosx_11_0_universal2.whl", hash = "sha256:ae078678d60e84861291973402ad1f21d500d67b3265327d9789af3e17af5a9a"},
+    {file = "mediapipe-0.10.9-cp310-cp310-macosx_11_0_x86_64.whl", hash = "sha256:33dfe3061b1e26350eb68a6d13555400cf0e03acd02420f432c907116ca1c83e"},
+    {file = "mediapipe-0.10.9-cp310-cp310-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:f21a0af8dd35747ffbcec1086f74eefbf8e96cd285bba327a67580e315c52da0"},
+    {file = "mediapipe-0.10.9-cp310-cp310-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:84c7ab49c7ece1f0246b4f066cdc3089ff1a0b13f67c3fd23b81dfd907f58057"},
+    {file = "mediapipe-0.10.9-cp310-cp310-win_amd64.whl", hash = "sha256:fcf2ff891171c1c704a28cad16e9af31121d85468f87c46c277aa5ac86f96bcf"},
+    {file = "mediapipe-0.10.9-cp311-cp311-macosx_11_0_universal2.whl", hash = "sha256:8733735f582e6e6a05bf9b15c48b03a6387a0795793a2530aa1189eecfd33780"},
+    {file = "mediapipe-0.10.9-cp311-cp311-macosx_11_0_x86_64.whl", hash = "sha256:b7dde54b82732479b9b856c9230b9f7b3da55b0913dde5254a7489e20c2e3c6e"},
+    {file = "mediapipe-0.10.9-cp311-cp311-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:d4eefd799812d81f1a4ab06554dda42b0bfe91a7fe16fb793687175035c5adeb"},
+    {file = "mediapipe-0.10.9-cp311-cp311-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:2c31ea1160c118daa50f7d43f0027d2480664568df53b7d7a7835b6e966f2cc2"},
+    {file = "mediapipe-0.10.9-cp311-cp311-win_amd64.whl", hash = "sha256:ad98a5783c4bef69d66a90e3c0140eab999d03178d637b2450aa415276fe32ba"},
+    {file = "mediapipe-0.10.9-cp38-cp38-macosx_11_0_universal2.whl", hash = "sha256:f99bc1beb4de89008693134809d6351aa1531acfc7b0ae1ece4a3b7d171aa495"},
+    {file = "mediapipe-0.10.9-cp38-cp38-macosx_11_0_x86_64.whl", hash = "sha256:c27594c51a8cbebcf383c8d41fb230daac30f755a9f83c9f2bb5c686461a1fff"},
+    {file = "mediapipe-0.10.9-cp38-cp38-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:d15e69a1d79db7f205ab2e03c86327bc0440ec9e206cc0a6994a82bf819731ef"},
+    {file = "mediapipe-0.10.9-cp38-cp38-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:7f9a120c3abbb05d961c137931ac0a2b9276fe11380b35939bde7c615d5da95a"},
+    {file = "mediapipe-0.10.9-cp38-cp38-win_amd64.whl", hash = "sha256:ec35aa2155432becbfd6f2499c2ce266e171a295ba19c4dcf8c85bc8d4208398"},
+    {file = "mediapipe-0.10.9-cp39-cp39-macosx_11_0_universal2.whl", hash = "sha256:a6f84f7920dd6853f3c092c95669a2c1c6e0593cbcf4f00f75bcf3401458dd7e"},
+    {file = "mediapipe-0.10.9-cp39-cp39-macosx_11_0_x86_64.whl", hash = "sha256:7122251d30acb70ec5570bd9ee0d87ef53c8bb9086fa269c8d6a94432778e3b6"},
+    {file = "mediapipe-0.10.9-cp39-cp39-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:abe2daef17502630a355cc08cb3fb562db1cc8c64af52d15f23551ff6968756b"},
+    {file = "mediapipe-0.10.9-cp39-cp39-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:95a0f3cd14482c97b27b91edc595c2570195e55983acf8c3db585b0382c0df75"},
+    {file = "mediapipe-0.10.9-cp39-cp39-win_amd64.whl", hash = "sha256:241732ef315fd45c0a3d3e7e264d0416bba3fb462563bc903fb526ec5c944123"},
 ]
 
 [package.dependencies]
 absl-py = "*"
 attrs = ">=19.1.0"
 flatbuffers = ">=2.0"
-jax = "*"
 matplotlib = "*"
 numpy = "*"
 opencv-contrib-python = "*"
@@ -2674,4 +2656,4 @@ files = [
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.11,<3.12"
-content-hash = "09b1ae015b07cec1d9b61a9af740a9b803c90ac580ec22559b3268748092bb7c"
+content-hash = "0a4807fe7ebd8a2db89383a11c88123c6e1b27b2e7dfe375e15e5d35b1a1a162"
