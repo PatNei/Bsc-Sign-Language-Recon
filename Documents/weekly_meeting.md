@@ -1,7 +1,35 @@
 # Weekly meeting
+- [14 March 2024](#Date-14th-March-2024)
 - [5 March 2024](#Date-5th-March-2024)
 - [29 February 2024](#Date-29th-February-2024)
 - [15 February 2024](#Date-15th-February-2024)
+
+## Date: 14th March 2024 
+
+### What helped you this week?
+-  Whiteboards
+
+### What did you achieve?
+- Trajectory classifier, "fist-up" or "fist-down"?
+- Dockerized the application
+- Extracting "key frames" from a image sequence.
+
+### What did you struggle with?
+- Getting an appropriate amount of frames from a sequence to satisfy the model.
+- VITE
+
+### What would you like to work on next week?
+- Report writing, detailing our progress so far, classifying the first dynamic sign.
+- Enable support for using two hands.
+- Deploy it.
+
+### Where do you need help from Amelia?
+- Extracting "good" key frames, any tips?
+- How do we train a model that isn't that sensitive to the amount of features?
+  - Our first model always expected exactly 12+1 frames😭
+
+### What are the agreements after this meeting? (to fill in after the meeting)
+- 
 
 ## Date: 5th March 2024 
 
