@@ -165,3 +165,13 @@ node_modules
 .env
 
 backend/dynamic_signs/frames
+backend/dynamic_signs/test
+
+*.zip
+*.tar.gz
+*.tar.bz2
+*.tar.xz
+*.tar.lz
+*.tar.lz4
+*.tar.zst
+*.tar.sz

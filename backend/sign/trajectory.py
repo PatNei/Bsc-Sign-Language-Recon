@@ -39,6 +39,10 @@ class trajectory_element:
 class trajectory:
     directions: list[trajectory_element]
 
+    def to_numpy_array(self) -> np.ndarray:
+        return np.array([(te.x.value, te.y.value, te.z.value) for te in self.directions]).flatten()
+
+
 class TrajectoryBuilder:
     def __init__(self, bertram_mode = True, boundary = 0.01, target_len = 3):
         self.target_len = target_len
@@ -78,6 +82,7 @@ class TrajectoryBuilder:
         
         if (self.target_len <= 2):
             raise Exception("stop it")
+        random.seed(42)
         res = [seq[0]]
         res.extend(random.sample(seq[1:-1], self.target_len - 2))
         res.append(seq[-1])
@@ -177,12 +182,6 @@ class TrajectoryBuilder:
 
     def make_trajectory_values(self, trj: trajectory) -> np.ndarray:
         return np.array([(te.x.value, te.y.value, te.z.value) for te in trj.directions]).flatten()
-        # xyz  = []
-        # for te in trj.directions:    
-        #     xyz.append(te.x.value)
-        #     xyz.append(te.y.value)
-        #     xyz.append(te.z.value)
-        # return np.array(xyz)
 
 def hands_spatial_position(landmarks:NormalizedLandmarks,hand=HAND):
     """
