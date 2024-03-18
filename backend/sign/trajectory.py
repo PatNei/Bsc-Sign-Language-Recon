@@ -40,13 +40,7 @@ class trajectory:
     directions: list[trajectory_element]
 
     def to_numpy_array(self) -> np.ndarray:
-        xyz = []
-        for trajectory_elm in self.directions:
-            xyz.append(trajectory_elm.x.value)
-            xyz.append(trajectory_elm.y.value)
-            xyz.append(trajectory_elm.z.value)
-        xyz = np.array(xyz)
-        return xyz
+        return np.array([(te.x.value, te.y.value, te.z.value) for te in self.directions]).flatten()
 
 
 class TrajectoryBuilder:
