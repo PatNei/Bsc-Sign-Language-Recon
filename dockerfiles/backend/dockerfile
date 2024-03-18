@@ -8,14 +8,15 @@ WORKDIR /app
 RUN pip install poetry
 
 # Copy pyproject.toml and poetry.lock to the working directory
-COPY ./backend/pyproject.toml ./backend/poetry.lock ./
+#COPY ./backend/pyproject.toml ./backend/poetry.lock ./
 
 # Install project dependencies
-RUN poetry config virtualenvs.create false && poetry install --no-dev
+#RUN poetry config virtualenvs.create true
 
 # Copy the rest of the application to the working directory
 COPY ./backend .
 ENV VITE_baseURL=""
+RUN poetry install
 
 # Expose port 8000 for the FastAPI server
 EXPOSE 8000
