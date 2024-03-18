@@ -15,10 +15,10 @@ RUN poetry config virtualenvs.create false && poetry install --no-dev
 
 # Copy the rest of the application to the working directory
 COPY ./backend .
-ENV baseURL=""
+ENV VITE_baseURL=""
 
 # Expose port 8000 for the FastAPI server
 EXPOSE 8000
 
 # Start the FastAPI server
-CMD ["uvicorn", "sign.main:app", "--host", "0.0.0.0" , "--port", "8000"]
+CMD ["poetry","run","prod"]

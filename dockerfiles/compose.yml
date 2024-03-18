@@ -5,12 +5,12 @@ services:
       context: ../
       dockerfile: dockerfiles/frontend/dockerfile
     ports:
-      - "4001:5002"
+      - "8001:5002"
     environment:
-      - VITE_baseURL="http://backend:4000"
+      - VITE_baseURL="http://backend:8000"
   backend:
     build:
       context: ../
       dockerfile: dockerfiles/backend/dockerfile
     ports:
-      - "4000:8000"
+      - "8000:8000"
