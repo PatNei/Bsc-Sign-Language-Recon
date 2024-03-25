@@ -12,36 +12,34 @@ import shutil
 LandmarksCSV = list[npt.NDArray[np.float32]]
 
 def process_video_frames(letter: str, id: str):
-    try:
-        vc = cv2.VideoCapture('video.avi')
-        i = 0
-        if vc.isOpened():
-            rval , frame = vc.read()
-        else:
-            rval = False
-            
-        path = f"./dynamic_signs/frames/{letter}"
-        if not os.path.exists(path):
-            os.makedirs(path)
-            
-        while rval:
-            rval, frame = vc.read()
-            if frame is None or frame.size == 0:
-                continue
-            cv2.imwrite(f"{path}/{id}_{i}.png", frame)
-            i = i + 1
-        vc.release()
-        res = mediapiper.process_dynamic_gestures_from_folder("./dynamic_signs/frames/")
-    finally:
-        with open("out.csv", 'a', newline="") as f:
-            for dynamic_gesture in res:
-                writer = csv.writer(f)
-                for gesture_sequence in dynamic_gesture.results:
-                    for landmarks in gesture_sequence:
-                        x = landmarks.multi_hand_landmarks
-                        if x is not None:
-                            writer.writerow([dynamic_gesture.label, *[[landmark.x, landmark.y, landmark.z] for landmark in x], len(landmarks.multi_handedness if landmarks.multi_handedness is not None else [])])
-        shutil.rmtree(path)
+    vc = cv2.VideoCapture('video.avi')
+    i = 0
+    if vc.isOpened():
+        rval , frame = vc.read()
+    else:
+        rval = False
+        
+    path = f"./dynamic_signs/frames/{letter}"
+    if not os.path.exists(path):
+        os.makedirs(path)
+        
+    while rval:
+        rval, frame = vc.read()
+        if frame is None or frame.size == 0:
+            continue
+        cv2.imwrite(f"{path}/{id}_{i}.png", frame)
+        i = i + 1
+    vc.release()
+    res = mediapiper.process_dynamic_gestures_from_folder("./dynamic_signs/frames/")
+    with open("out.csv", 'a', newline="") as f:
+        for dynamic_gesture in res:
+            writer = csv.writer(f)
+            for gesture_sequence in dynamic_gesture.results:
+                for landmarks in gesture_sequence:
+                    x = landmarks.multi_hand_landmarks
+                    if x is not None:
+                        writer.writerow([dynamic_gesture.label, id, *[[landmark.x, landmark.y, landmark.z] for landmark in x], len(landmarks.multi_handedness if landmarks.multi_handedness is not None else [])])
+    shutil.rmtree(path)
     
     
 regex = r".*\/*(.+)\/(.+)\.avi"
