@@ -13,7 +13,7 @@
 ### What did you achieve?
 - Dockerized our application.
 - CSV parsing.
-- Started writing on the report.
+- Started writing on the report, [here](https://github.com/PatNei/Bsc-Sign-Language-Recon/blob/main/Documents/BachelorProject.pdf).
 
 ### What did you struggle with?
 
