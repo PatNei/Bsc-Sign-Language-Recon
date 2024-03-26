@@ -1,8 +1,11 @@
 from fastapi import FastAPI
+import numpy as np
 from sign.landmarks import NormalizedLandmark, NormalizedLandmarks, NormalizedLandmarksDTO, NormalizedLandmarksSequence, NormalizedLandmarksSequenceDTO
 from sign.recogniser import Recogniser
 from fastapi.middleware.cors import CORSMiddleware
 import uvicorn
+
+from sign.trajectory import TrajectoryBuilder
 
     
 
@@ -11,7 +14,8 @@ origins = [
     "http://127.0.0.1:5173",
     "http://localhost:3000",
     "http://0.0.0.0:3000",
-    "http://localhost:8001"
+    "http://localhost:8001",
+    "*"
 ]
 
 app.add_middleware(
@@ -36,13 +40,7 @@ def get_annotation(landmarksDTO: NormalizedLandmarksDTO) -> str:
 
 @app.post("/dynamic_annotation")
 def get_dynamic_annotation(landmarksDTO: NormalizedLandmarksSequenceDTO) -> str:
-    landmarks_sequence: list[NormalizedLandmarks] = []
-    for image_landmarks in landmarksDTO.data:
-        image_normalized_landmarks = [NormalizedLandmark(lnd_mrk) for lnd_mrk in image_landmarks]        
-        mrks = NormalizedLandmarks(data = image_normalized_landmarks)
-        landmarks_sequence.append(mrks)
-        
-    return recogniser.get_dynamic_annotation(landmarks_sequence)
+    return recogniser.get_dynamic_annotation(landmarksDTO)
     
 if __name__ == "__main__":
     uvicorn.run(app, host="localhost", port=8000)

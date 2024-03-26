@@ -71,7 +71,7 @@ export const onResult = async ({
       }
     }
   } else {
-    let min_frames_per_sign = 50;
+    let min_frames_per_sign = 1512 / 3 / 21;
     if (multiHandLandmarks && multiHandLandmarks.length > 0) {
       let resultsDTO = multiHandLandmarks.map((e) =>
         e.map((landmark): LandmarkDTO => {

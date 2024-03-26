@@ -25,10 +25,11 @@ class NormalizedLandmark():
     y: np.float32
     z: np.float32
     
-    def __init__(self, dto : NormalizedLandmarkDTO):
-        self.x = np.float32(dto.x)
-        self.y = np.float32(dto.y)
-        self.z = np.float32(dto.z)
+    def __init__(self, dto: NormalizedLandmarkDTO | None = None):
+        if dto is not None:
+            self.x = np.float32(dto.x)
+            self.y = np.float32(dto.y)
+            self.z = np.float32(dto.z)
         
 @dataclass
 class NormalizedLandmarks():

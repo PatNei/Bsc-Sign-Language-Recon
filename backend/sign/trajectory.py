@@ -1,6 +1,6 @@
 from enum import IntEnum, Enum
 import random
-from typing import Any, Union
+from typing import Any, TypeVar, Union
 import numpy as np
 from numpy import typing as npt
 from sign.landmarks import NormalizedLandmark, NormalizedLandmarks
@@ -15,6 +15,7 @@ LANDMARK_AMOUNT = DIMENSIONS * LANDMARK_POINTS
 ZERO_PRECISION = 0.1
 SCALED_PRECISION = True # if True, the zero precision is scaled by the maximal displacement over an axis, but remains at least equal to self.zero_precision. This mitigates the problem of the zero precision being too small for fast movements.
 HANDEDNESS = 2
+T = TypeVar("T")
 
 class HAND(IntEnum):
     LEFT=0
@@ -42,6 +43,11 @@ class trajectory:
     def to_numpy_array(self) -> np.ndarray:
         return np.array([(te.x.value, te.y.value, te.z.value) for te in self.directions]).flatten()
 
+    def to_float_list(self) -> list[float]:
+        asd = list(sum([(float(te.x.value), float(te.y.value), float(te.z.value)) for te in self.directions], ()))
+        print(sum([(float(te.x.value), float(te.y.value), float(te.z.value)) for te in self.directions], ()))
+        return asd
+        # return [[direction.x.value, direction.y.value, direction.z.value] for direction in self.directions]
 
 class TrajectoryBuilder:
     def __init__(self, bertram_mode = True, boundary = 0.01, target_len = 3):
@@ -51,6 +57,12 @@ class TrajectoryBuilder:
         if bertram_mode: 
             print("🔥🔥 TrajectoryBuilder is now running in BERTRAM_MODE 🔥🔥")
 
+    def enforce_target_length(self, seq:list[T]) -> list[T]:
+        if len(seq) < self.target_len:
+            return self.pad_sequences_of_landmarks(seq)
+        else: 
+            return self.extract_keyframes_sample(seq)
+    
     # Just the length of 3D vector difference, don't worry bout it
     def _distance(self, pos1, pos2) -> float:
         return float(np.linalg.norm(pos1 - pos2))
@@ -71,8 +83,8 @@ class TrajectoryBuilder:
 
         non_outliers.append(seq[-1])
         return non_outliers
-
-    def pad_sequences_of_landmarks(self,seq:list):
+    
+    def pad_sequences_of_landmarks(self,seq:list[T]) -> list[T] :
         """
         TODO: Better way to do this?
         
@@ -89,9 +101,9 @@ class TrajectoryBuilder:
                 break
             new_seq.append(seq[i % seq_length])
             i += 1
-        return np.array(new_seq)
+        return new_seq
     
-    def extract_keyframes_sample(self, seq: list) -> np.ndarray:
+    def extract_keyframes_sample(self, seq: list[T]) -> list[T]:
         """
         TODO: Do something with the seq type (which was list[np.ndarray[Any, np.dtype[np.float32]]])
         
@@ -109,7 +121,7 @@ class TrajectoryBuilder:
         for index in idxs:
             res.append(seq[index])
         res.append(seq[-1])
-        return np.array(res)
+        return res
     
     def extract_keyframes(self, seq: list[np.ndarray[Any, np.dtype[np.float32]]]) -> np.ndarray:
         if self.target_len > len(seq): 

@@ -12,18 +12,19 @@ import random
 class DynamicClassifier():
     def __init__(self):
         self.classifier = SignClassifier(DYNAMIC_MODEL_PATH)
-        self.bob = TrajectoryBuilder()
+        self.bob = TrajectoryBuilder(target_len=24)
     
     def __call__(self, landmark_list: list[NormalizedLandmarks]) -> str:
-        new_sequence = self._preprocess_mediapipe_landmarks(landmark_list)
-        
-        keyframes, flatmarks = self._extract_keyframes_sample_keep_preprocessed_landmarks(new_sequence)
-        sequence_trajectory = self.bob.make_trajectory(keyframes)
-
+        new_frames = self.bob.enforce_target_length(landmark_list)
+        res = self._preprocess_mediapipe_landmarks(new_frames)
+        hand_landmarks_raw = [ hand_landmark for hand_landmark, _ in res ]
+            
+        flatmarks = [ flatmark for _, flatmark in res ] #without Z values
+        sequence_trajectory = self.bob.make_trajectory(np.array(hand_landmarks_raw))
         model_input = sequence_trajectory.to_numpy_array()
         for flat_landmark in flatmarks:
             model_input = np.append(model_input, flat_landmark)
-        
+        print(len(sequence_trajectory.directions))
         # Model now expects input to be of the form:
         # <simple-trajectory-as-xyz-values><42-xy-values-from-yt-algo><42-xy-values-from-yt-algo>...
         predictions = self.classifier.predict(np.array([model_input]))
