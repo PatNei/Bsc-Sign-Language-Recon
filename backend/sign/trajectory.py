@@ -84,7 +84,9 @@ class TrajectoryBuilder:
         if (self.target_len <= 2):
             raise Exception("stop it")
         i = 0
-        while len(new_seq) <= self.target_len:
+        while True:
+            if len(new_seq) == self.target_len:
+                break
             new_seq.append(seq[i % seq_length])
             i += 1
         return np.array(new_seq)
@@ -101,10 +103,11 @@ class TrajectoryBuilder:
         
         if (self.target_len <= 2):
             raise Exception("stop it")
-        
         random.seed(42)
         res = [seq[0]]
-        res.extend(random.sample(seq[1:-1], self.target_len - 2))
+        idxs = sorted(random.sample(range(1,len(seq)-1), k=self.target_len-2))
+        for index in idxs:
+            res.append(seq[index])
         res.append(seq[-1])
         return np.array(res)
     

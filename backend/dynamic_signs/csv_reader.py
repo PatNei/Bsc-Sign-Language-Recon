@@ -6,8 +6,8 @@ class csv_reader:
     def __init__(self):
         pass
     
-    def extract_landmarks(self) -> dict[str, dict[int, list[float]]]:
-        with open("out.csv", 'r') as f:
+    def extract_landmarks(self,path:str) -> dict[str, dict[int, list[float]]]:
+        with open(path, 'r') as f:
             reader = csv.reader(f)
             landmarks: dict[str, dict[int, list[float]]] = {}
             id = None
