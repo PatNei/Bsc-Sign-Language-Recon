@@ -72,8 +72,27 @@ class TrajectoryBuilder:
         non_outliers.append(seq[-1])
         return non_outliers
 
-    def extract_keyframes_sample(self, seq: list[np.ndarray[Any, np.dtype[np.float32]]]) -> np.ndarray:
+    def pad_sequences_of_landmarks(self,seq:list):
         """
+        TODO: Better way to do this?
+        
+        This functions loops the sequence until it reaches the target length.
+        
+        """
+        seq_length = len(seq)
+        new_seq = []
+        if (self.target_len <= 2):
+            raise Exception("stop it")
+        i = 0
+        while len(new_seq) <= self.target_len:
+            new_seq.append(seq[i % seq_length])
+            i += 1
+        return np.array(new_seq)
+    
+    def extract_keyframes_sample(self, seq: list) -> np.ndarray:
+        """
+        TODO: Do something with the seq type (which was list[np.ndarray[Any, np.dtype[np.float32]]])
+        
         Extracts keyframes from a sequence of landmarks to get target_len frames to send to the model.
         Why random.sample? This results in extracting keyframes that are more evenly distributed across the sequence.
         We don't take the physical distance of the hand between frames into account.
@@ -82,6 +101,7 @@ class TrajectoryBuilder:
         
         if (self.target_len <= 2):
             raise Exception("stop it")
+        
         random.seed(42)
         res = [seq[0]]
         res.extend(random.sample(seq[1:-1], self.target_len - 2))
