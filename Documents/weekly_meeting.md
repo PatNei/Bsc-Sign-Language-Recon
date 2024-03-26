@@ -1,8 +1,35 @@
 # Weekly meeting
+- [26 March 2024](#Date-26th-March-2024)
 - [14 March 2024](#Date-14th-March-2024)
 - [5 March 2024](#Date-5th-March-2024)
 - [29 February 2024](#Date-29th-February-2024)
 - [15 February 2024](#Date-15th-February-2024)
+
+## Date: 26th March 2024 
+
+### What helped you this week?
+- Confidence boost from passing a very hard exam :D
+
+### What did you achieve?
+- Dockerized our application.
+- CSV parsing.
+- Started writing on the report, [here](https://github.com/PatNei/Bsc-Sign-Language-Recon/blob/main/Documents/BachelorProject.pdf).
+
+### What did you struggle with?
+
+
+### What would you like to work on next week?
+- Improve Frontend by hiding capturing modes.
+- Combining our dynamic and static model into one.
+- Creating binary classifiers for all letters.
+
+
+
+### Where do you need help from Amelia?
+- What are good experiments? 
+
+### What are the agreements after this meeting? (to fill in after the meeting)
+
 
 ## Date: 14th March 2024 
 
