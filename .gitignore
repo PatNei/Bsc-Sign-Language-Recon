@@ -166,6 +166,7 @@ node_modules
 
 backend/dynamic_signs/frames
 backend/dynamic_signs/test
+backend/data/archive/
 
 *.zip
 *.tar.gz
