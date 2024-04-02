@@ -20,6 +20,7 @@ mediapipe = "0.10.9"
 natsort = "^8.4.0"
 ipykernel = "^6.29.3"
 ffmpeg = "^1.4"
+pytube = "^15.0.0"
 
 
 [build-system]
