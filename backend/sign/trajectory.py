@@ -45,9 +45,7 @@ class trajectory:
 
     def to_float_list(self) -> list[float]:
         asd = list(sum([(float(te.x.value), float(te.y.value), float(te.z.value)) for te in self.directions], ()))
-        print(sum([(float(te.x.value), float(te.y.value), float(te.z.value)) for te in self.directions], ()))
         return asd
-        # return [[direction.x.value, direction.y.value, direction.z.value] for direction in self.directions]
 
 class TrajectoryBuilder:
     def __init__(self, bertram_mode = True, boundary = 0.01, target_len = 3):
