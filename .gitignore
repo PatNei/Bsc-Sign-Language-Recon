@@ -175,3 +175,4 @@ backend/dynamic_signs/test
 *.tar.lz4
 *.tar.zst
 *.tar.sz
+*.avi
