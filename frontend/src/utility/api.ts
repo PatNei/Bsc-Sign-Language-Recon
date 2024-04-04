@@ -1,5 +1,5 @@
 import axios from "axios";
-import { NormalizedLandmark } from "@mediapipe/hands";
+import type { NormalizedLandmark } from "@mediapipe/hands";
 
 const baseURL = "http://localhost:8000/";
 
@@ -7,17 +7,18 @@ interface PostState {
   response: string | undefined;
   error: string | undefined;
 }
-export async function APIPost(url: string, body: any): Promise<PostState> {
+export async function APIPost(url: string, body: unknown): Promise<PostState> {
   let state: PostState = {
     response: undefined,
     error: undefined,
   };
   try {
-    let response = await axios.post<string>(baseURL + url, { data: body });
+    const response = await axios.post<string>(baseURL + url, { data: body });
     state = { ...state, response: response.data };
-  } catch (error: any) {
+    return state;
+  // biome-ignore lint/suspicious/noExplicitAny: <explanation>
+  } catch (error:any) {
     state = { ...state, error: error };
-  } finally {
     return state;
   }
 }
@@ -50,7 +51,7 @@ export const onResult = async ({
     setDynamicSignLandmarks([]);
 
     for (const landmarks of multiHandLandmarks) {
-      let landmarksDTO: LandmarkDTO[] = landmarks.map(
+      const landmarksDTO: LandmarkDTO[] = landmarks.map(
         (landmark: NormalizedLandmark): LandmarkDTO => {
           return {
             x: landmark.x.toFixed(20),
@@ -62,7 +63,7 @@ export const onResult = async ({
 
       // console.log(JSON.stringify(landmarksDTO));
 
-      let postState = await APIPost(`annotation`, landmarksDTO);
+      const postState = await APIPost("annotation", landmarksDTO);
       if (postState.response && !postState.error) {
         if (setLetterRecognizerResponse)
           setLetterRecognizerResponse(postState.response);
@@ -71,9 +72,9 @@ export const onResult = async ({
       }
     }
   } else {
-    let min_frames_per_sign = 1512 / 3 / 21;
+    const min_frames_per_sign = 1512 / 3 / 21;
     if (multiHandLandmarks && multiHandLandmarks.length > 0) {
-      let resultsDTO = multiHandLandmarks.map((e) =>
+      const resultsDTO = multiHandLandmarks.map((e) =>
         e.map((landmark): LandmarkDTO => {
           return {
             x: landmark.x.toFixed(20),
@@ -82,21 +83,21 @@ export const onResult = async ({
           };
         })
       );
-      let landmarks = resultsDTO.length >= 1 ? resultsDTO[0] : [];
-      if (landmarks.length == 0) return;
+      const landmarks = resultsDTO.length >= 1 ? resultsDTO[0] : [];
+      if (landmarks.length === 0) return;
       const data = dynamicSignLandmarks;
       data.push(landmarks);
       setDynamicSignLandmarks(data);
       // console.log(dynamicSignLandmarks);
 
-      if (dynamicSignLandmarks.length == min_frames_per_sign) {
+      if (dynamicSignLandmarks.length === min_frames_per_sign) {
         const postState = await APIPost(
-          `dynamic_annotation`,
+          "dynamic_annotation",
           dynamicSignLandmarks
         );
-        if (postState.response && !postState.error) {
-          setLetterRecognizerResponse(postState.response!);
-          console.log(postState.response!);
+        if (postState?.response && !postState.error) {
+          setLetterRecognizerResponse(postState.response);
+          console.log(postState.response);
         } else if (postState.error) console.log(postState.error);
       } else {
         setDynamicSignLandmarks([]);
