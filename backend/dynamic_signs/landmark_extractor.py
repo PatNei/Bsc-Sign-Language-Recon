@@ -1,5 +1,4 @@
 import argparse
-from genericpath import isfile
 import os
 from pathlib import Path
 
