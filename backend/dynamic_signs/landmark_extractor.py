@@ -24,6 +24,8 @@ if args.is_holistic and out_path.is_file():
     raise ValueError(f"--out must set to a directory when using the holistic flag")
 elif not args.is_holistic and not out_path.is_file():
     raise ValueError(f"--out must set to a .csv file when using MP hands")
+elif not str(args.zip_file).endswith(".zip"):
+    raise ValueError(f"videoes must be in a .zip file ?")
 
 import re
 from zipfile import ZipFile
