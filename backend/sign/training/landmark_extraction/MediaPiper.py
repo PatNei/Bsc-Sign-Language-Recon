@@ -6,6 +6,7 @@ import os
 from sign.landmarks import calc_landmark_list, pre_process_landmark
 from sign.CONST import DATA_BASE_PATH, TRAIN_PATH
 
+from sign.training.landmark_extraction.DynamicPiper import DynamicPiper
 from sign.training.landmark_extraction.MediapipeTypes import MediapipeLandmark, MediapipeResult, MediapipeClassification
 from dataclasses import dataclass
 from natsort import natsorted
@@ -23,7 +24,7 @@ class DynamicGesture:
     label: str
     results: list[GestureSequence]
 
-class MediaPiper:
+class MediaPiper(DynamicPiper):
     """
         MediaPiper, a home made interface for interacting with the mediapipe hands library.
         The class is used to create training data.
@@ -176,6 +177,18 @@ class MediaPiper:
         So, for 2_13.png returns 2
         """
         return file_name.split(self.__seq_sep)[0]
+    
+    def write_dynamic_gestures_from_folder_to_csv(self, path_frames:str, out:str):
+        res = self.process_dynamic_gestures_from_folder(path_frames)
+        with open(out, 'a', newline="") as f:
+            for dynamic_gesture in res:
+                writer = csv.writer(f)
+                for gesture_sequence in dynamic_gesture.results:
+                    for landmarks in gesture_sequence:
+                        x = landmarks.multi_hand_landmarks
+                        if x is not None:
+                            writer.writerow([dynamic_gesture.label, id, *[[landmark.x, landmark.y, landmark.z] for landmark in x], len(landmarks.multi_handedness if landmarks.multi_handedness is not None else [])])
+
 
 import numpy as np
 if __name__ == "__main__":
