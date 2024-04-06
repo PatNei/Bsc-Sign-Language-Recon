@@ -21,10 +21,11 @@ parser.add_argument("--out",
 args = parser.parse_args()
 
 out_path = Path(args.out)
+print(out_path)
 target_path = Path(args.zip_file)
 if args.is_holistic and out_path.is_file():
     raise ValueError(f"--out must set to a directory when using the holistic flag")
-elif not args.is_holistic and not out_path.is_file():
+elif not args.is_holistic and out_path.suffix != '.csv':
     raise ValueError(f"--out must set to a .csv file when using MP hands")
 elif not target_path.exists() or target_path.suffix != '.zip':
     raise ValueError(f"videoes must be in a .zip file AND exists :thinking:")
