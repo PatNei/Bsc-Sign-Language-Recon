@@ -61,7 +61,7 @@ def process_video_frames(letter: str, id: str):
         cv2.imwrite(f"{path_sign}/{id}_{i}.png", frame)
         i = i + 1
     vc.release()
-    mediapiper.write_dynamic_gestures_from_folder_to_csv(path_frames, args.out)
+    mediapiper.write_dynamic_gestures_from_folder_to_csv(path_frames, args.out, id)
 
     shutil.rmtree(path_frames)
     

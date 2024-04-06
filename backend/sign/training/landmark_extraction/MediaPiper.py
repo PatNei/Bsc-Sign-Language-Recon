@@ -178,7 +178,7 @@ class MediaPiper(DynamicPiper):
         """
         return file_name.split(self.__seq_sep)[0]
     
-    def write_dynamic_gestures_from_folder_to_csv(self, path_frames:str, out:str):
+    def write_dynamic_gestures_from_folder_to_csv(self, path_frames:str, out:str, id:str):
         res = self.process_dynamic_gestures_from_folder(path_frames)
         with open(out, 'a', newline="") as f:
             for dynamic_gesture in res:

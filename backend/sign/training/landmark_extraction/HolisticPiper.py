@@ -50,7 +50,7 @@ class HolisticPiper(DynamicPiper):
                     print(f"MediaPipe Holistic for {label}-{sequence.id} has {len(results)} many elements")
                 self.write_processed_sequence_to_csv(label, sequence.id, results)
 
-    def write_dynamic_gestures_from_folder_to_csv(self, parent_directory: str, out:str):
+    def write_dynamic_gestures_from_folder_to_csv(self, parent_directory: str, out:str, id: str):
         label_files_dict = get_image_sequences_from_dir(parent_directory)
         self.write_to_csv(label_files_dict)
 
