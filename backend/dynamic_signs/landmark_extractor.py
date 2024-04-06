@@ -21,7 +21,6 @@ parser.add_argument("--out",
 args = parser.parse_args()
 
 out_path = Path(args.out)
-print(out_path)
 target_path = Path(args.zip_file)
 if args.is_holistic and out_path.is_file():
     raise ValueError(f"--out must set to a directory when using the holistic flag")
