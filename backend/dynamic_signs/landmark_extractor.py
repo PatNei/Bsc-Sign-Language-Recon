@@ -15,6 +15,7 @@ parser.add_argument("-holi", "--holistic",
 parser.add_argument("--out", 
                     help="name of the out file. Must be a folder when combined with --holistic flag.",
                     dest="out", 
+                    default="landmarks_out.csv",
                     type=str)
 args = parser.parse_args()
 
