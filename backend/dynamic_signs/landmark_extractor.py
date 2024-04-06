@@ -44,7 +44,7 @@ from sign.training.landmark_extraction.MediaPiper import MediaPiper
 from sign.training.landmark_extraction.HolisticPiper import HolisticPiper
 import shutil
 
-mediapiper = MediaPiper() if not args.is_holistic else HolisticPiper()
+mediapiper = MediaPiper() if not args.is_holistic else HolisticPiper(out_dest = out_path)
 
 def process_video_frames(letter: str, id: str):
     vc = cv2.VideoCapture('video.avi')
