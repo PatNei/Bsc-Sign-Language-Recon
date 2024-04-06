@@ -27,6 +27,8 @@ elif not args.is_holistic and not out_path.is_file():
 elif not str(args.zip_file).endswith(".zip"):
     raise ValueError(f"videoes must be in a .zip file ?")
 
+print(f"About to process {args.zip_file} using {'Holistic' if args.is_holistic else 'Hands'}, outputting to [{args.out}]")
+
 import re
 from zipfile import ZipFile
 import cv2
