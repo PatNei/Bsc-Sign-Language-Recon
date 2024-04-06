@@ -12,7 +12,7 @@ class HolisticPiper(DynamicPiper):
 
     def __init__(self, out_dest:Path = Path.cwd().absolute().joinpath("csvs"),
                  complexity = 1, verbose = False):
-        self.mp = mp_holistic.Holistic(
+        self.holistic = mp_holistic.Holistic(
             static_image_mode=True,
             model_complexity=complexity,
         )

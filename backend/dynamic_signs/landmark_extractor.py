@@ -1,4 +1,5 @@
 import argparse
+from genericpath import isfile
 import os
 from pathlib import Path
 
@@ -20,12 +21,20 @@ parser.add_argument("--out",
 args = parser.parse_args()
 
 out_path = Path(args.out)
+target_path = Path(args.zip_file)
 if args.is_holistic and out_path.is_file():
     raise ValueError(f"--out must set to a directory when using the holistic flag")
 elif not args.is_holistic and not out_path.is_file():
     raise ValueError(f"--out must set to a .csv file when using MP hands")
-elif not str(args.zip_file).endswith(".zip"):
-    raise ValueError(f"videoes must be in a .zip file ?")
+elif not target_path.exists() or target_path.suffix != '.zip':
+    raise ValueError(f"videoes must be in a .zip file AND exists :thinking:")
+
+if not out_path.exists():
+    print(f"Couldn't find {out_path.absolute()}, so created it.")
+    if args.is_holistic:
+        out_path.mkdir()
+    else:
+        out_path.touch()
 
 print(f"About to process {args.zip_file} using {'Holistic' if args.is_holistic else 'Hands'}, outputting to [{args.out}]")
 
@@ -66,7 +75,7 @@ def process_video_frames(letter: str, id: str):
     shutil.rmtree(path_frames)
     
 regex = r".*\/*(.+)\/(.+)\.avi"
-with ZipFile(str(Path.cwd().absolute().joinpath("videos.zip")), 'r') as myzip:
+with ZipFile(target_path, 'r') as myzip:
     try:
         for file in myzip.filelist:
             match = re.match(regex, file.filename)
