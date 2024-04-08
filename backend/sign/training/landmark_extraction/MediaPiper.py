@@ -112,7 +112,7 @@ class MediaPiper(DynamicPiper):
             for image in image_paths:
                 img = cv.imread(image)  
                 img = cv.cvtColor(img, cv.COLOR_BGR2RGB)
-                img = cv.flip(img, 1)
+                #img = cv.flip(img, 1)
                 mp_result = self.process_image(img)
 
                 if mp_result.multi_hand_landmarks is not None:
