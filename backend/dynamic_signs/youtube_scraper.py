@@ -12,7 +12,7 @@ class YouTubeScraper():
 
     def get_video_signs(self, seconds_per_clip=1):
         dynamic_landmark_extractor = DynamicLandmarkExtractor()
-        for video_id, captions in self.extract_captions(max=200, only_common_words=True).items():
+        for video_id, captions in self.extract_captions(max=0, only_common_words=True).items():
             yt = YouTube(f"https://www.youtube.com/watch?v={video_id}")
             video = yt.streams.get_highest_resolution()
             if video is None:
@@ -117,5 +117,5 @@ class YouTubeScraper():
                     writer.writerow({'word': word})
 
 yt = YouTubeScraper()
-yt.find_common_words(min_occurances=10, max=0)
+# yt.find_common_words(min_occurances=10, max=0)
 yt.get_video_signs(seconds_per_clip=1)

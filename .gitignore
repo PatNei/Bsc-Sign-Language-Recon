@@ -164,8 +164,8 @@ node_modules
 .devbox
 .env
 
-backend/dynamic_signs/frames
-backend/dynamic_signs/test
+backend/dynamic_signs/frames/
+backend/dynamic_signs/test/
 backend/data/archive/
 
 *.zip
