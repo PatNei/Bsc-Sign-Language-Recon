@@ -1,6 +1,13 @@
 import argparse
+import csv
 import os
 from pathlib import Path
+import re
+from zipfile import ZipFile
+import cv2
+from sign.training.landmark_extraction.MediaPiper import MediaPiper
+from sign.training.landmark_extraction.HolisticPiper import HolisticPiper
+import shutil
 
 parser = argparse.ArgumentParser()
 parser.add_argument("zip_file", 
@@ -37,54 +44,54 @@ if not out_path.exists():
 
 print(f"About to process {args.zip_file} using {'Holistic' if args.is_holistic else 'Hands'}, outputting to [{args.out}]")
 
-import re
-from zipfile import ZipFile
-import cv2
-from sign.training.landmark_extraction.MediaPiper import MediaPiper
-from sign.training.landmark_extraction.HolisticPiper import HolisticPiper
-import shutil
+class DynamicLandmarkExtractor:
+    def __init__(self, is_holistic=False, out_path="out.csv", target_path="videos.zip") -> None:
+        self.target_path = target_path
+        self.out_path = out_path
+        if is_holistic:
+            self.mediapiper = HolisticPiper()
+        else:
+            self.mediapiper = MediaPiper()
+        self.regex = r".*\/*(.+)\/(.+)\.avi"
+        pass
 
-mediapiper = MediaPiper() if not args.is_holistic else HolisticPiper(out_dest = out_path)
+    def process_video_frames(self, label: str, video_id: str, base_path="./dynamic_signs/frames/", video_path="./video.avi"):
+        vc = cv2.VideoCapture(video_path)
+        i = 0
+        if vc.isOpened():
+            rval , frame = vc.read()
+        else:
+            rval = False
+            
+        path = f"{base_path}{label}"
+        if not os.path.exists(path):
+            os.makedirs(path)
+            
+        while rval:
+            rval, frame = vc.read()
+            if frame is None or frame.size == 0:
+                continue
+            cv2.imwrite(f"{path}/{video_id}_{i}.png", frame)
+            i = i + 1
+        vc.release()
+        res = self.mediapiper.write_dynamic_gestures_from_folder_to_csv(base_path, self.out_path, id=video_id)
+        shutil.rmtree(path)
+    
+    def process_video_dataset(self):
+        with ZipFile(str(Path.cwd().absolute().joinpath(target_path)), 'r') as myzip:
+            try:
+                for file in myzip.filelist:
+                    match = re.match(self.regex, file.filename)
+                    if match is not None:
+                        letter = match.group(1)
+                        id = match.group(2)
+                        video = myzip.open(file.filename).read()
+                        with open("video.avi", "wb") as video_file:
+                            video_file.write(video)
+                        self.process_video_frames(letter, id)
+            finally:
+                os.remove("video.avi")  # Clean up after ourselves
 
-def process_video_frames(letter: str, id: str):
-    vc = cv2.VideoCapture('video.avi')
-    i = 0
-    if vc.isOpened():
-        rval , frame = vc.read()
-    else:
-        rval = False
-    
-    #TODO: here?
-    path_frames = f"./dynamic_signs/frames/"
-    path_sign = f"{path_frames}{letter}"
-    if not os.path.exists(path_frames):
-        os.makedirs(path_frames)
-    if not os.path.exists(path_sign):
-        os.makedirs(path_sign)
-        
-    while rval:
-        rval, frame = vc.read()
-        if frame is None or frame.size == 0:
-            continue
-        cv2.imwrite(f"{path_sign}/{id}_{i}.png", frame)
-        i = i + 1
-    vc.release()
-    mediapiper.write_dynamic_gestures_from_folder_to_csv(path_frames, args.out, id)
-
-    shutil.rmtree(path_frames)
-    
-regex = r".*\/*(.+)\/(.+)\.avi"
-with ZipFile(target_path, 'r') as myzip:
-    try:
-        for file in myzip.filelist:
-            match = re.match(regex, file.filename)
-            if match is not None:
-                letter = match.group(1)
-                id = match.group(2)
-                video = myzip.open(file.filename).read()
-                with open("video.avi", "wb") as video_file:
-                    video_file.write(video)
-                process_video_frames(letter, id)
-    finally:
-        os.remove("video.avi")  # Clean up after ourselves
-    
+if __name__ == "__main__":
+    extractor = DynamicLandmarkExtractor(is_holistic=args.is_holistic, out_path=args.out, target_path=args.zip_file)
+    extractor.process_video_dataset()
