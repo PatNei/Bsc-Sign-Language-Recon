@@ -1,13 +1,23 @@
+from typing import Generator
 import os
 from pathlib import Path
 import csv
+from dataclasses import dataclass
 
+@dataclass
+class HolisticFrame:
+    id: int
+    data: dict[str, list[float]]
+    def __getitem__(self, key):
+        if key not in self.data:
+            raise ValueError(f"HolisticFrame only allows keys: {[k for k in self.data]}.\n\tEither update \"spawn_sequence\" function or check if csv is broken")
+        return self.data[key]
 
 HolisticSequence = dict[str, list[float]]
 
 class HoslisticCsvReader:
     @staticmethod
-    def spawn_sequence() -> HolisticSequence:
+    def spawn_sequence() -> dict[str, list[float]]:
         return {"face": [],
                 "left_hand": [],
                 "pose" : [],
@@ -22,6 +32,36 @@ class HoslisticCsvReader:
     
     def _remove_file_suffix(self, file_name: str):
         return file_name.removesuffix("_out.csv")
+    
+    def frame_generator(self, path:Path) -> Generator[HolisticFrame, None, None]:
+        with open(path, 'r') as f:
+            reader = csv.reader(f)
+            prev_id = -1
+            sequence_start_marker = ""
+
+            cur_entry = self.new_holistic_sequence()
+            for idx, row in enumerate(reader):
+                row_key = row[0]
+                if idx == 0:
+                    sequence_start_marker = row_key
+                if self._avoid(row_key):
+                    continue
+
+                new_id = int(row[1])
+                if sequence_start_marker == row_key and prev_id != -1:
+                    to_yield = HolisticFrame(prev_id, cur_entry)
+                    cur_entry = self.new_holistic_sequence()
+                    yield to_yield
+
+                prev_id = new_id
+                if len(row) > 2:
+                    landmarks = row[2:]
+                    row_marks = list(map(lambda elm : float(elm), landmarks))
+                    if row_key not in cur_entry:
+                        raise ValueError(f"Holistic Sequence only allows keys: {[k for k in self.new_holistic_sequence().keys()]}.\n\tEither update \"spawn_sequence\" function or check if csv is broken")
+                    cur_entry[row_key] = row_marks
+            yield HolisticFrame(prev_id, cur_entry)
+        
 
     def extract_holistic_landmarks(self, path:Path) -> dict[int, HolisticSequence]:
         """Extracts holistic landmarks from a single csv-file
