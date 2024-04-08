@@ -45,9 +45,14 @@ if not out_path.exists():
 print(f"About to process {args.zip_file} using {'Holistic' if args.is_holistic else 'Hands'}, outputting to [{args.out}]")
 
 class DynamicLandmarkExtractor:
-    def __init__(self) -> None:
+    def __init__(self, is_holistic=False, out_path="out.csv", target_path="videos.zip") -> None:
+        self.target_path = target_path
+        self.out_path = out_path
+        if is_holistic:
+            self.mediapiper = HolisticPiper()
+        else:
+            self.mediapiper = MediaPiper()
         self.regex = r".*\/*(.+)\/(.+)\.avi"
-        self.mediapiper = MediaPiper()
         pass
 
     def process_video_frames(self, label: str, video_id: str, base_path="./dynamic_signs/frames/", video_path="./video.avi"):
@@ -69,19 +74,11 @@ class DynamicLandmarkExtractor:
             cv2.imwrite(f"{path}/{video_id}_{i}.png", frame)
             i = i + 1
         vc.release()
-        res = self.mediapiper.process_dynamic_gestures_from_folder(base_path)
-        with open("out.csv", 'a', newline="") as f:
-            for dynamic_gesture in res:
-                writer = csv.writer(f)
-                for gesture_sequence in dynamic_gesture.results:
-                    for landmarks in gesture_sequence:
-                        x = landmarks.multi_hand_landmarks
-                        if x is not None:
-                            writer.writerow([dynamic_gesture.label, video_id, *[[landmark.x, landmark.y, landmark.z] for landmark in x], len(landmarks.multi_handedness if landmarks.multi_handedness is not None else [])])
+        res = self.mediapiper.write_dynamic_gestures_from_folder_to_csv(base_path, self.out_path, id=video_id)
         shutil.rmtree(path)
     
     def process_video_dataset(self):
-        with ZipFile(str(Path.cwd().absolute().joinpath("videos.zip")), 'r') as myzip:
+        with ZipFile(str(Path.cwd().absolute().joinpath(target_path)), 'r') as myzip:
             try:
                 for file in myzip.filelist:
                     match = re.match(self.regex, file.filename)
@@ -94,3 +91,7 @@ class DynamicLandmarkExtractor:
                         self.process_video_frames(letter, id)
             finally:
                 os.remove("video.avi")  # Clean up after ourselves
+
+if __name__ == "__main__":
+    extractor = DynamicLandmarkExtractor(is_holistic=args.is_holistic, out_path=args.out, target_path=args.zip_file)
+    extractor.process_video_dataset()
