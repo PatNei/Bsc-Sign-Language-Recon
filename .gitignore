@@ -177,3 +177,4 @@ backend/data/archive/
 *.tar.zst
 *.tar.sz
 *.avi
+*.csv
