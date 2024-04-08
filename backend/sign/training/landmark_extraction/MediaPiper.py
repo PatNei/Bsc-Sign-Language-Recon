@@ -112,7 +112,7 @@ class MediaPiper(DynamicPiper):
             for image in image_paths:
                 img = cv.imread(image)  
                 img = cv.cvtColor(img, cv.COLOR_BGR2RGB)
-                #img = cv.flip(img, 1)
+                img = cv.flip(img, 1)
                 mp_result = self.process_image(img)
 
                 if mp_result.multi_hand_landmarks is not None:
@@ -172,12 +172,12 @@ if __name__ == "__main__":
     mpr = MediaPiper()
 
     out_file = "bing_bong_out.csv"
-    #data_path = "data/archive/asl_alphabet_train/"
-    data_path = "data/archive/dynamic_gestures/"
+    data_path = "data/archive/asl_alphabet_train/"
+    #data_path = "data/archive/dynamic_gestures/"
 
     print(f"Processing images from ({data_path})...")
-    #mpr.process_images_from_folder_to_csv(data_path, out_file=out_file, limit=10)
+    mpr.process_images_from_folder_to_csv(data_path, out_file=out_file)
     #res = mpr.process_dynamic_gestures_from_folder(data_path)
-    mpr.write_dynamic_gestures_from_folder_to_csv(data_path, out_file, "2")
-    #print(f"Output result to {out_file}")
+    #mpr.write_dynamic_gestures_from_folder_to_csv(data_path, out_file, "2")
+    print(f"Output result to {out_file}")
 

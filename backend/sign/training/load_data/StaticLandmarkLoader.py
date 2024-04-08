@@ -19,9 +19,7 @@ class StaticLandmarkLoader(object):
     def __init__(self) -> None:
         pass
 
-    def load_training_data(self, file_path: str) -> TrainingData:
-        """
-        """
+    def __load_csv_data(self, file_path: str) -> Tuple[LandmarksCSV, list[str]]:
         with open(file_path, newline='') as f:
             reader = csv.reader(f)
             data = list(reader)
@@ -31,8 +29,29 @@ class StaticLandmarkLoader(object):
         for entry in data:
             landmarks_list.append(np.array(entry[1:], dtype=np.float32))
             labels_list.append(entry[0])
+        return landmarks_list, labels_list
 
+    def load_training_data(self, file_path: str) -> TrainingData:
+        """Loads a csv prepared for static image training as train data. The method performs a 
+        train test split, where 20% of the data will be put into a separate array for testing/validation.
+
+        returns:
+            A tuple of 4 elements:
+            1) landmarks_train landmarks encoded as a np array for training. 
+            2) labels_train matching the landmarks_train
+            3) landmarks_test The 20% landmarks selected for testing. 
+            4) labels_test labels matching the landmarks_test 
+        """
+        landmarks_list, labels_list = self.__load_csv_data(file_path)
         return self.__train_test_split(landmarks_list, labels_list)
+    
+    def load_test_data(self, file_path: str) -> Tuple[LandmarksCSV, list[str]]:
+        """Loads a csv prepared for static image training as test data, meaning no train test split
+        
+        returns:
+            A tuple of landmarks encoded as np array and a list of matching labels.
+        """
+        return self.__load_csv_data(file_path)
 
     @staticmethod
     def __train_test_split(landmarks: LandmarksCSV, labels: list[str]) -> TrainingData:
