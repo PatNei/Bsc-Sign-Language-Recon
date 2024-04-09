@@ -12,13 +12,6 @@ export default function LetterRecognizer() {
   const [response, setResponse] = useState<string>("");
   const debugMode = false
 
-  function handleClick(
-    event: React.MouseEvent<HTMLButtonElement, MouseEvent>
-  ): void {
-    event.preventDefault();
-    setShouldCapture((prev) => !prev);
-  }
-
   if (response === letter) {
     if (!boolski) {
       setLetterCounter(letterCounter + 1);
@@ -62,7 +55,10 @@ export default function LetterRecognizer() {
           </p>
         </div>
       {debugMode && (<>
-      <button type="button" onClick={handleClick}>
+      <button type="button" onClick={(event) => {
+          event.preventDefault();
+          setShouldCapture((prev) => !prev)
+        }}>
         { shouldCapture ? "Disable" : "Enable"} camera
       </button>
       </>)}
