@@ -5,6 +5,7 @@ import numpy as np
 from numpy import typing as npt
 from sign.landmarks import NormalizedLandmark, NormalizedLandmarks
 from dataclasses import dataclass
+from typing import cast
 
 NormalizedLandmarksSequence = list[NormalizedLandmarks]
 
@@ -65,10 +66,11 @@ class TrajectoryBuilder:
     def _distance(self, pos1, pos2) -> float:
         return float(np.linalg.norm(pos1 - pos2))
 
-    def remove_outliers(self, seq : list[np.ndarray[Any, np.dtype[np.float32]]]) -> list[np.ndarray[Any, np.dtype[np.float32]]]:
+    def remove_outliers(self, seq: list[T]) -> list[T]:
         positions = []
+        seq_new = cast(np.ndarray,seq)
         for i in range(len(seq)):
-            positions.append(self.landmarks_to_single_mean(seq[i]))
+            positions.append(self.landmarks_to_single_mean(seq_new[i]))
 
         non_outliers = [seq[0]]
         for i in range(1, len(seq) - 1):
@@ -113,12 +115,13 @@ class TrajectoryBuilder:
         
         if (self.target_len <= 2):
             raise Exception("stop it")
+        seq_new = self.remove_outliers(seq)
         random.seed(42)
-        res = [seq[0]]
-        idxs = sorted(random.sample(range(1,len(seq)-1), k=self.target_len-2))
+        res = [seq_new[0]]
+        idxs = sorted(random.sample(range(1,len(seq_new)-1), k=self.target_len-2))
         for index in idxs:
-            res.append(seq[index])
-        res.append(seq[-1])
+            res.append(seq_new[index])
+        res.append(seq_new[-1])
         return res
     
     def extract_keyframes(self, seq: list[np.ndarray[Any, np.dtype[np.float32]]]) -> np.ndarray:
