@@ -1,9 +1,38 @@
 # Weekly meeting
+- [9 April 2024](#Date-9th-April-2024)
 - [26 March 2024](#Date-26th-March-2024)
 - [14 March 2024](#Date-14th-March-2024)
 - [5 March 2024](#Date-5th-March-2024)
 - [29 February 2024](#Date-29th-February-2024)
 - [15 February 2024](#Date-15th-February-2024)
+
+## Date: 9th April 2024 
+
+### What helped you this week?
+- Whiteboards and Excalidraw
+
+### What did you achieve?
+- Took a step back and looked at our project proposal to find out what to priotize(We decided to priotize recognising some common signs) To do that we need to 1. Scrape data 2. Switch from the mediapipe hands library to mediapipe hollistic.
+- Scrape data: The script is ready
+- Hollistic model implementation for training our model: Almost done
+  
+### What did you struggle with?
+
+
+### What would you like to work on next week?
+
+
+
+
+### Where do you need help from Amelia?
+We have sequences of frames of variable size, if there are more than our target number of frames we cut it down by selecting key frames, but if there is less than our desired number of frames we are in doubt of whether we should pad them by calculating an approximate inbetween frame or it would be better if we discard data that does not contain enough frames.
+
+We are in doubt about how to handle the issue of left and right hands
+	- We think it might confuse the model that the data contains signs made by using either left or right hands
+
+
+### What are the agreements after this meeting? (to fill in after the meeting)
+
 
 ## Date: 26th March 2024 
 
