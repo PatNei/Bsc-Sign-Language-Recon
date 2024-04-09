@@ -1,9 +1,13 @@
 
+import argparse
+import csv
 from dataclasses import dataclass
+import os
 import random
-from typing import Tuple
+from typing import Generator, Tuple
 import numpy as np
 from sign.skewness_algorithm import is_it_evenly_distributed
+from sign.training.landmark_extraction.HolisticPiper import HolisticPiper
 from sign.training.load_data.HolisticCsvReader import HolisticFrame as hf, HoslisticCsvReader, holistic_keys as hk
 from pathlib import Path
 
@@ -188,7 +192,6 @@ def frame_mask(video: list[hf],indices:list[int]):
 def extract_keyframes(video:list[hf]):
     if (len(video) <= 2 or FRAME_AMOUNT <= 2):
         raise Exception("stop it")
-    
     random.seed(42)
     res = [video[0]]
     idxs = sorted(random.sample(range(1,len(video)-1), k=FRAME_AMOUNT-2))
@@ -206,13 +209,13 @@ def calculate_trajectories(video:list[hf]):
 
 def process_video(video: list[hf]):
     """
-    Processes a list of holisticframes 
-    (in another words a list of frames with landmarks from 
+    Processes a list of holisticframes (in another words a list of frames with landmarks from 
     the holistic model from media pipe.)
     
-    Returns whether it succeded or not.
+    Returns a list of frames (a video) and None if it fails.
     """
     body_hands_indices = extract_indices_for_frames_with_body_and_hands(video)
+
     if len(body_hands_indices) < 1:
         return None
     indices_no_outliers = extract_indices_without_outliers(video,body_hands_indices)
@@ -228,19 +231,82 @@ def process_video(video: list[hf]):
     return final_frames
 
 
-if __name__ == "__main__":
+def save_list_of_HolisticVideos_to_csv(path:Path, videos:list[list[hf]]):
+    """
+    The new name of the file name will become f"proccessed_{filename}"
     
-    path = Path("")
-    _HolisticCsvReader = HoslisticCsvReader()
-    
-    frame_generator = _HolisticCsvReader.frame_generator(path)
+    """
+    file_name = Path(f"proccessed_{path.name}")
+    file_path = path.parent.absolute()
+    full_path = Path.joinpath(file_path,file_name)
+    if not os.path.exists(full_path):
+        with open(full_path, 'w'): pass
+        
+    with open(full_path) as csvfile:
+        _writer = csv.writer(csvfile,delimiter=',')
+        for video in videos:
+            for frame in video:
+                _writer.writerow([hk.FACE,frame.id,frame[hk.FACE]])
+                _writer.writerow([hk.LEFT_HAND,frame.id,frame[hk.LEFT_HAND]])
+                _writer.writerow([hk.POSE,frame.id,frame[hk.POSE]])
+                _writer.writerow([hk.POSE_WORLD,frame.id])
+                _writer.writerow([hk.RIGHT_HAND,frame.id,frame[hk.RIGHT_HAND]])
+                _writer.writerow([hk.SEGMENTATION_MASK,frame.id])
+                
+def convert_list_of_frames_to_list_of_videos(frame_generator:Generator[hf, None, None]):
+    videos:list[list[hf]] = []
+    previous_id = 0
+    frames_for_single_video: list[hf] = []
     for frame in frame_generator:
-        previous_id = 0
-        frames_for_video: list[hf] = []
-        while frame.id == previous_id:
-            frames_for_video.append(frame)
-        processed_video = process_video(frames_for_video)
+        if frame.id == previous_id:
+            frames_for_single_video.append(frame)
+            continue        
+        previous_id = frame.id
+        videos.append(frames_for_single_video)
+        frames_for_single_video = []
+    return videos
+        
+
+def filter_holistic_csv(path:Path):
+    """
+    Runs our pipeine (process_video()) for a given csv and returns a filtered list of videoes
+    
+    """
+    processed_videos:list[list[hf]]  = []
+    _HolisticCsvReader = HoslisticCsvReader()
+    frame_generator = _HolisticCsvReader.frame_generator(path)
+    list_of_videos = convert_list_of_frames_to_list_of_videos(frame_generator)
+    
+    for video in list_of_videos:
+        processed_video = process_video(video)
         if processed_video is None:
             continue
+        processed_videos.append(processed_video)
+    return processed_videos
+    
+    
+def process_csv():
+    parser = argparse.ArgumentParser(
+                    prog='ProcessHolisticCSV',
+                    description='This program processes a csv of holistic frames',
+                    epilog='Good Luck 🤡🤡🤡🤡🤡🤡🤡🤡')
+    parser.add_argument("filename",help="Filename for the csv")
+    _args = parser.parse_args()
+    path = Path(_args.filename)
+    if not path.is_file():
+        exit(1)
+    if not path.suffix == ".csv":
+        exit(1)
+    processed_videos = filter_holistic_csv(path)
+    save_list_of_HolisticVideos_to_csv(path,processed_videos)
+    exit()
+
+if __name__ == "__main__":
+    process_csv()
+    
+    
+
+        
+        
         
         

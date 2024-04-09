@@ -10,7 +10,7 @@ def calculate_slice_amount(length_of_list:int):
         return 5
     return 7
 
-def is_it_evenly_distributed(original_list:list,filtered_list:list):
+def is_it_evenly_distributed(original_list:list,filtered_list:list,cutoff=CUTOFF):
     if len(filtered_list) > len(original_list):
         raise ValueError("filtered list is bigger than the original list")
     
@@ -21,7 +21,7 @@ def is_it_evenly_distributed(original_list:list,filtered_list:list):
     for chunk in evenly_distributed_list:
         leaf = set(chunk)
         common_indices = leaf.intersection(filtered_set)
-        if len(common_indices) / len(leaf) > CUTOFF:
+        if len(common_indices) / len(leaf) > cutoff:
             continue
         return False
     return True
