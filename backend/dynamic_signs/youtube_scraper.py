@@ -124,4 +124,4 @@ class YouTubeScraper():
 
 yt = YouTubeScraper()
 # yt.find_common_words(min_occurances=10, max=0)
-yt.get_video_signs(max=100,seconds_per_clip=1)
+yt.get_video_signs(max=0,seconds_per_clip=1)
