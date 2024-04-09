@@ -4,14 +4,14 @@ from dataclasses import dataclass
 
 @dataclass
 class ImageSequence:
-    id: int
+    id: str
     filepaths: list[str]
 
 
-def __extract_prefix(filename:str, separator:str = "_"):
+def __extract_prefix(filename:str, separator:str = "#"):
     return filename.split(separator)[0]
 
-def get_image_sequences_from_dir(dir:str, separator:str = "_") -> dict[str, list[ImageSequence]]:
+def get_image_sequences_from_dir(dir:str, separator:str = "#") -> dict[str, list[ImageSequence]]:
     """
         :params: dir -> the parent directory containing all the folders of individual labels.
                 dir:
@@ -32,12 +32,12 @@ def get_image_sequences_from_dir(dir:str, separator:str = "_") -> dict[str, list
 
         prev_prefix = __extract_prefix(files[0])
         cur_sequence = []
-        label_sequences: list[ImageSequence] = [ImageSequence(int(prev_prefix), cur_sequence)]
+        label_sequences: list[ImageSequence] = [ImageSequence(prev_prefix, cur_sequence)]
         for image in files:
             prefix = __extract_prefix(image)
             if not (prefix == prev_prefix):
                 cur_sequence = []
-                label_sequences.append(ImageSequence(int(prefix), cur_sequence))
+                label_sequences.append(ImageSequence(prefix, cur_sequence))
             cur_sequence.append(folder_path + image)
             prev_prefix = prefix
         res_dict[label] = label_sequences

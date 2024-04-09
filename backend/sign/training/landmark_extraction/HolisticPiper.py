@@ -23,7 +23,7 @@ class HolisticPiper(DynamicPiper):
     def __get_attributes_as_dict(obj : NamedTuple) -> dict[str, Any]:
         return {field : getattr(obj, field) for field in obj._fields}
 
-    def write_processed_sequence_to_csv(self, label:str, id: int, 
+    def write_processed_sequence_to_csv(self, label:str, id: str, 
                                         mp_process_results: list[NamedTuple]):
         with open(self.out_dest.joinpath(f"{label}_out.csv"), 'a', newline="") as f:        
             writer = csv.writer(f)
