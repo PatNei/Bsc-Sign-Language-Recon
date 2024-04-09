@@ -178,3 +178,5 @@ backend/data/archive/
 *.tar.sz
 *.avi
 *.csv
+
+*nohup*
