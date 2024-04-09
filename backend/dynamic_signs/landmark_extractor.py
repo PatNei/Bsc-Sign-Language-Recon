@@ -37,7 +37,7 @@ class DynamicLandmarkExtractor:
             rval, frame = vc.read()
             if frame is None or frame.size == 0:
                 continue
-            cv2.imwrite(f"{path}/{video_id}_{i}.png", frame)
+            cv2.imwrite(f"{path}/{video_id}#{i}.png", frame)
             i = i + 1
         vc.release()
         res = self.mediapiper.write_dynamic_gestures_from_folder_to_csv(base_path, self.out_path, id=video_id)

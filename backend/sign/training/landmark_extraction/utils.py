@@ -8,10 +8,10 @@ class ImageSequence:
     filepaths: list[str]
 
 
-def __extract_prefix(filename:str, separator:str = "_"):
+def __extract_prefix(filename:str, separator:str = "#"):
     return filename.split(separator)[0]
 
-def get_image_sequences_from_dir(dir:str, separator:str = "_") -> dict[str, list[ImageSequence]]:
+def get_image_sequences_from_dir(dir:str, separator:str = "#") -> dict[str, list[ImageSequence]]:
     """
         :params: dir -> the parent directory containing all the folders of individual labels.
                 dir:
