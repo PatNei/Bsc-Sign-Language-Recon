@@ -11,7 +11,7 @@ class YouTubeScraper():
         pass
 
     def get_video_signs(self, max=0, seconds_per_clip=1):
-        dynamic_landmark_extractor = DynamicLandmarkExtractor()
+        dynamic_landmark_extractor = DynamicLandmarkExtractor(is_holistic=True, out_path="dynamic_signs/youtube_holistic_signs/")
         captions = self.extract_captions(max=max, only_common_words=True).items()
         if max == 0:
             max = len(captions)
