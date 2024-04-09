@@ -14,7 +14,8 @@ class DynamicLandmarkExtractor:
         self.target_path = target_path
         self.out_path = out_path
         if is_holistic:
-            self.mediapiper = HolisticPiper()
+            os.makedirs(out_path, exist_ok=True)
+            self.mediapiper = HolisticPiper(out_dest=Path(out_path))
         else:
             self.mediapiper = MediaPiper()
         self.regex = r".*\/*(.+)\/(.+)\.avi"
