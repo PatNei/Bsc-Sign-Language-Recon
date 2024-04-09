@@ -5,18 +5,11 @@ import DynamicCanvas from "./DynamicCanvas";
 
 export default function LetterRecognizer() {
   const [boolski, setBoolski] = useState<boolean>(false);
-  const [i, setI] = useState(0);
+  const [i, setI] = useState(25);
   const [[letter, letterImg], setChallenge] = useState(CHALLENGES[i]);
   const [letterCounter, setLetterCounter] = useState(0);
   const [shouldCapture, setShouldCapture] = useState<boolean>(false);
   const [response, setResponse] = useState<string>("");
-
-  function handleClick(
-    event: React.MouseEvent<HTMLButtonElement, MouseEvent>
-  ): void {
-    event.preventDefault();
-    setShouldCapture((prev) => !prev);
-  }
 
   if (response === letter) {
     if (!boolski) {
@@ -45,11 +38,12 @@ export default function LetterRecognizer() {
           <img src={letterImg} alt="ASL letter A" className=" h-20 w-20" />
           <p>{letter}</p>
         </div>
-        {"jz".includes(letter) ? (
-          <DynamicCanvas setLetterRecognizerResponse={setResponse} />
-        ) : (
-          <Canvas setLetterRecognizerResponse={setResponse} />
-        )}
+        {shouldCapture &&
+          ("jz".includes(letter) ? (
+            <DynamicCanvas setLetterRecognizerResponse={setResponse} />
+          ) : (
+            <Canvas setLetterRecognizerResponse={setResponse} />
+          ))}
         <p className=" h-40 text-7xl pt-2">
           {boolski && (
             <>
@@ -61,7 +55,7 @@ export default function LetterRecognizer() {
           )}
         </p>
       </div>
-      <button type="button" onClick={handleClick}>
+      <button type="button" onClick={() => setShouldCapture(!shouldCapture)}>
         {shouldCapture ? "Disable" : "Enable"} camera
       </button>
     </div>

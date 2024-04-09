@@ -1,8 +1,8 @@
 import { Camera } from "@mediapipe/camera_utils";
 // import { Hands, ResultsListener } from "@mediapipe/hands";
 import { Hands } from "@mediapipe/hands";
-import { drawType, renderEverything } from "./draw";
-import { onResult, onResultType } from "./api";
+import { type drawType, renderEverything } from "./draw";
+import { onResult, type onResultType } from "./api";
 import { HANDS_PATH } from "../constants/paths";
 
 // resultFunction: ResultsListener
