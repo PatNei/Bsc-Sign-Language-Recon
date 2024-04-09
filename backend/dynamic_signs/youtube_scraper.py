@@ -10,9 +10,14 @@ class YouTubeScraper():
     def __init__(self) -> None:
         pass
 
-    def get_video_signs(self, seconds_per_clip=1):
+    def get_video_signs(self, max=0, seconds_per_clip=1):
         dynamic_landmark_extractor = DynamicLandmarkExtractor()
-        for video_id, captions in self.extract_captions(max=0, only_common_words=True).items():
+        captions = self.extract_captions(max=max, only_common_words=True).items()
+        if max == 0:
+            max = len(captions)
+        i = 0
+        for video_id, captions in captions:
+            print(f"Step 2: {round(i / max * 100, 2)}%")
             yt = YouTube(f"https://www.youtube.com/watch?v={video_id}")
             video = yt.streams.get_highest_resolution()
             if video is None:
@@ -22,6 +27,7 @@ class YouTubeScraper():
                 with open(f"./dynamic_signs/videos/{video_id}/{text}.mp4", "w") as clip:
                     ffmpeg_extract_subclip(f"./dynamic_signs/videos/{video_id}/{video_id}.mp4", start_time / 1000, start_time / 1000 + seconds_per_clip, targetname=clip.name)
                     dynamic_landmark_extractor.process_video_frames(text, video_id, base_path=f"./dynamic_signs/videos/{video_id}/", video_path=clip.name)
+            i = i + 1
             shutil.rmtree(f"./dynamic_signs/videos/{video_id}")
 
     def extract_captions(self, max=0, only_common_words=False):
@@ -40,7 +46,7 @@ class YouTubeScraper():
             if not cap_num_of_words:
                 max = len(lines)
             for video_id in lines:
-                print(f"{round(i / max * 100, 2)}%")
+                print(f"Step 1: {round(i / max * 100, 2)}%")
                 video_id = video_id.strip()
                 if cap_num_of_words and i >= max:
                     break
@@ -118,4 +124,4 @@ class YouTubeScraper():
 
 yt = YouTubeScraper()
 # yt.find_common_words(min_occurances=10, max=0)
-yt.get_video_signs(seconds_per_clip=1)
+yt.get_video_signs(max=0,seconds_per_clip=1)
