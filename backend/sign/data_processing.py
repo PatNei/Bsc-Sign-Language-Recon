@@ -1,10 +1,9 @@
 
-from ast import Pass, Raise
 from dataclasses import dataclass
-from turtle import position
-from typing import Set, Tuple
+import random
+from typing import Tuple
 import numpy as np
-from sympy import false
+from sign.skewness_algorithm import is_it_evenly_distributed
 from sign.training.load_data.HolisticCsvReader import HolisticFrame as hf, HoslisticCsvReader, holistic_keys as hk
 from pathlib import Path
 
@@ -14,6 +13,9 @@ FRAME_AMOUNT = 12 # How many frames do we want? Depends on the precision we want
 class MeanFrame(hf):
     pass
 
+def can_detect_body_part(frame:MeanFrame,key: hk):
+    body_part = frame[key]
+    return len(body_part) > 0
 
 def can_detect_a_hand(frame:hf):
     """
@@ -25,7 +27,7 @@ def can_detect_a_hand(frame:hf):
     if len(left_hand) < 0 and len(right_hand) < 0:
         return False
     return True
-    
+
 
 def landmarks_to_single_mean(float_landmarks:list[float]) -> Tuple[float,float,float]:
     """
@@ -68,33 +70,60 @@ def can_detect_body(frame:hf):
 def mean_frame_distance(_from:MeanFrame,_to:MeanFrame,key:hk):
     """
     calculate the frame distance between a body part.
-    
     """
+    if not can_detect_body_part(_from,key) or not can_detect_body_part(_to,key):
+        raise ValueError("Can't detect body part")
     from_body_part = _from[key]
     to_body_part = _to[key]
-    if len(from_body_part) < 1 or len(to_body_part) < 1:
-        return None #TODO: FIX THIS This is wrong!
     return float(np.linalg.norm(np.array(from_body_part) - np.array(to_body_part)))
 
+def outlier_calculation(prev_frame:MeanFrame,current_frame:MeanFrame,next_frame:MeanFrame,key:hk):
+    return min(mean_frame_distance(prev_frame, current_frame,key), mean_frame_distance(current_frame, next_frame,key)) > mean_frame_distance(prev_frame, next_frame,key)
 
-def check_minimum_dist(prev_frame:MeanFrame,current_frame:MeanFrame,next_frame:MeanFrame):
+
+def check_for_outlier(prev_frame:MeanFrame,current_frame:MeanFrame,next_frame:MeanFrame):
     """
     Given 3 frames, prev,current,next. 
     We check if the current frame is an outlier.
     We do this for 3 body parts (HolisticKeys.POSE,HolisticKeys.LEFT_HAND,HolisticKeys.RIGHT_HAND)
     If any body part is an outlier we discard the frame.
-    TODO: This might be too extreme. We are also too strict on right and left hands as we often won't have both hands and this is fine.
     
     """
-    min_body = min(mean_frame_distance(prev_frame, current_frame,hk.POSE), mean_frame_distance(current_frame, next_frame,hk.POSE)) > mean_frame_distance(prev_frame, next_frame,hk.POSE)
+    min_body = outlier_calculation(prev_frame,current_frame,next_frame,hk.POSE)
     
-    min_left_hand = min(mean_frame_distance(prev_frame, current_frame,hk.LEFT_HAND), mean_frame_distance(current_frame, next_frame,hk.LEFT_HAND)) > mean_frame_distance(prev_frame, next_frame,hk.LEFT_HAND)
+    min_left_hand = None
+    try: 
+         min_left_hand = outlier_calculation(prev_frame,current_frame,next_frame,hk.LEFT_HAND)
+    except:
+        min_left_hand = None
+
+    min_right_hand = None
+    try:
+        min_right_hand = outlier_calculation(prev_frame,current_frame,next_frame,hk.RIGHT_HAND)
+    except:
+        min_right_hand = None
+        
+    if min_left_hand is None and min_right_hand is None: 
+        # If both hands are not present then it is an outlier
+        return True
     
-    min_right_hand = min(mean_frame_distance(prev_frame, current_frame,hk.RIGHT_HAND), mean_frame_distance(current_frame, next_frame,hk.RIGHT_HAND)) > mean_frame_distance(prev_frame, next_frame,hk.RIGHT_HAND)
-    return min_body or min_left_hand or min_right_hand
+    if min_body: 
+        # If the dist is wrong for the body then it is an outlier
+        return True 
+    
+    if min_left_hand is not None and min_left_hand: 
+        # If the left hand is detected but the dist is wrong then it is an outlier
+        return True 
+    
+    if min_right_hand is not None and min_right_hand: 
+        # If the right hand is detected but the dist is wrong then it is an outlier
+        return True
+    
+    return False # if it passes all checks then it is not an outlier.
+        
                     
 
-def extract_indices_for_outliers(video: list[hf], old_indices: list[int]):
+def extract_indices_without_outliers(video: list[hf], old_indices: list[int]):
     """
     TODO: Might be good to make a trajectory here and then pass it with the indices.
     
@@ -116,7 +145,7 @@ def extract_indices_for_outliers(video: list[hf], old_indices: list[int]):
     # non_outlier_frames = [mean_frames[0]] # If we decide that we also want to make trajectories
     new_indices:list[int] = [old_indices[0]]
     for i in range(1, len(mean_frames) - 1):
-        if check_minimum_dist(mean_frames[i-1],mean_frames[i],mean_frames[i+1]):
+        if check_for_outlier(mean_frames[i-1],mean_frames[i],mean_frames[i+1]):
             # outlier
             print("REMOVING OUTLIER")
             continue
@@ -156,6 +185,25 @@ def frame_mask(video: list[hf],indices:list[int]):
         extracted_frames.append(video[index])
     return extracted_frames
 
+def extract_keyframes(video:list[hf]):
+    if (len(video) <= 2 or FRAME_AMOUNT <= 2):
+        raise Exception("stop it")
+    
+    random.seed(42)
+    res = [video[0]]
+    idxs = sorted(random.sample(range(1,len(video)-1), k=FRAME_AMOUNT-2))
+    for index in idxs:
+        res.append(video[index])
+    res.append(video[-1])
+    return res
+
+def pad_frames():
+    pass
+
+def calculate_trajectories(video:list[hf]):
+    " oh no"
+    pass
+
 def process_video(video: list[hf]):
     """
     Processes a list of holisticframes 
@@ -166,28 +214,22 @@ def process_video(video: list[hf]):
     """
     body_hands_indices = extract_indices_for_frames_with_body_and_hands(video)
     if len(body_hands_indices) < 1:
-        return False
-    good_indices = extract_indices_for_outliers(video,body_hands_indices)
-    good_frames = frame_mask(video,good_indices)
-    if not is_frames_evenly_spaces(frame):
-        continue # discard_frame(frame)
-    amount_of_frames = count_frames_with_hands_and_body(frame)
-        
-    if amount_of_frames < FRAME_AMOUNT:
-        pad_frames(frame)
-    else if amount_of_frames > FRAME_AMOUNT:
-        extract_keyframes(frame)
-        
-    save_to_csv()
-    return True
-            
-        
+        return None
+    indices_no_outliers = extract_indices_without_outliers(video,body_hands_indices)
+    if not is_it_evenly_distributed(video,indices_no_outliers):
+        return None # discard video
     
+    final_frames = frame_mask(video,indices_no_outliers)
+    if len(indices_no_outliers) < FRAME_AMOUNT:
+        return None
+        # final_frames = pad_frames(frame) 
+    elif len(indices_no_outliers) > FRAME_AMOUNT:
+        final_frames = extract_keyframes(final_frames)
+    return final_frames
 
 
 if __name__ == "__main__":
-    # PARSE COMMAND LINE ARGS
-    # SHOULD HAVE CSV PATH
+    
     path = Path("")
     _HolisticCsvReader = HoslisticCsvReader()
     
@@ -197,4 +239,8 @@ if __name__ == "__main__":
         frames_for_video: list[hf] = []
         while frame.id == previous_id:
             frames_for_video.append(frame)
-        process_video(frames_for_video)
+        processed_video = process_video(frames_for_video)
+        if processed_video is None:
+            continue
+        
+        
