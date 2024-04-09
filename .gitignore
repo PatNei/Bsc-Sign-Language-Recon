@@ -168,6 +168,8 @@ backend/dynamic_signs/frames
 backend/dynamic_signs/test
 backend/data/archive/
 
+notebooks/**/*.png
+
 *.zip
 *.tar.gz
 *.tar.bz2
