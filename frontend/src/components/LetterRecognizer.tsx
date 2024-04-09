@@ -10,7 +10,6 @@ export default function LetterRecognizer() {
   const [letterCounter, setLetterCounter] = useState(0);
   const [shouldCapture, setShouldCapture] = useState<boolean>(false);
   const [response, setResponse] = useState<string>("");
-  const debugMode = false
 
   function handleClick(
     event: React.MouseEvent<HTMLButtonElement, MouseEvent>
@@ -41,32 +40,30 @@ export default function LetterRecognizer() {
   }
   return (
     <div className="w-full h-full flex flex-col items-center">
-      
-        <div className="w-full h-full flex flex-col items-center">
-          <div className="w-full flex flex-col items-center">
-            <img src={letterImg} alt="ASL letter A" className=" h-20 w-20" />
-            <p>{letter}</p>
-          </div>
-          {debugMode || "jz".includes(letter) ? (
-            <DynamicCanvas setLetterRecognizerResponse={setResponse} />
-          ) : (
-            <Canvas setLetterRecognizerResponse={setResponse} />
-          )}
-          <p className=" h-40 text-7xl pt-2">
-            {boolski && (
-              <>
-                "✅"
-                <button type="button" onClick={onNext}>Next</button>
-              </>
-            )}
-          </p>
+      <div className="w-full h-full flex flex-col items-center">
+        <div className="w-full flex flex-col items-center">
+          <img src={letterImg} alt="ASL letter A" className=" h-20 w-20" />
+          <p>{letter}</p>
         </div>
-      {debugMode && (<>
+        {"jz".includes(letter) ? (
+          <DynamicCanvas setLetterRecognizerResponse={setResponse} />
+        ) : (
+          <Canvas setLetterRecognizerResponse={setResponse} />
+        )}
+        <p className=" h-40 text-7xl pt-2">
+          {boolski && (
+            <>
+              "✅"
+              <button type="button" onClick={onNext}>
+                Next
+              </button>
+            </>
+          )}
+        </p>
+      </div>
       <button type="button" onClick={handleClick}>
-        { shouldCapture ? "Disable" : "Enable"} camera
+        {shouldCapture ? "Disable" : "Enable"} camera
       </button>
-      </>)}
-    
     </div>
   );
 }
