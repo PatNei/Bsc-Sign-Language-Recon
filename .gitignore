@@ -169,6 +169,8 @@ backend/dynamic_signs/videos/
 backend/dynamic_signs/test/
 backend/data/archive/
 
+notebooks/**/*.png
+
 *.zip
 *.tar.gz
 *.tar.bz2
@@ -179,5 +181,7 @@ backend/data/archive/
 *.tar.sz
 *.avi
 *.csv
+*.log
 *.png
+
 *nohup*

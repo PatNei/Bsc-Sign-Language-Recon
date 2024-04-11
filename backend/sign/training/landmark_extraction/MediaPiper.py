@@ -183,8 +183,8 @@ if __name__ == "__main__":
     mpr = MediaPiper(num_hands=2)
 
     out_file = "bing_bong_out.csv"
-    #data_path = "data/archive/asl_alphabet_train/"
-    data_path = "data/archive/dynamic_gestures/"
+    data_path = "data/archive/asl_alphabet_train/"
+    #data_path = "data/archive/dynamic_gestures/"
 
     print(f"Processing images from ({data_path})...")
     #res = mpr.process_image_from_path("data/test.png")

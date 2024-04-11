@@ -16,12 +16,12 @@ class holistic_keys(StrEnum):
 
 @dataclass
 class HolisticFrame:
-    id: int
+    id: str | int
     
     data: dict[holistic_keys, list[float]]
     def __getitem__(self, key:holistic_keys):
         if key not in self.data:
-            return None
+            return []
         return self.data[key]
 
 HolisticSequence = dict[holistic_keys, list[float]]
@@ -47,7 +47,7 @@ class HoslisticCsvReader:
     def frame_generator(self, path:Path) -> Generator[HolisticFrame, None, None]:
         with open(path, 'r') as f:
             reader = csv.reader(f)
-            prev_id = -1
+            prev_id = ""
             sequence_start_marker = ""
 
             cur_entry = self.new_holistic_sequence()
@@ -58,8 +58,8 @@ class HoslisticCsvReader:
                 if self._avoid(row_key):
                     continue
 
-                new_id = int(row[1])
-                if sequence_start_marker == row_key and prev_id != -1:
+                new_id = row[1]
+                if sequence_start_marker == row_key and prev_id != "":
                     to_yield = HolisticFrame(prev_id, cur_entry)
                     cur_entry = self.new_holistic_sequence()
                     yield to_yield
