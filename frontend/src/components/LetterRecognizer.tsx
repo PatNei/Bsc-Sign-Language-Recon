@@ -5,7 +5,7 @@ import DynamicCanvas from "./DynamicCanvas";
 
 export default function LetterRecognizer() {
   const [boolski, setBoolski] = useState<boolean>(false);
-  const [i, setI] = useState(8);
+  const [i, setI] = useState(0);
   const [[letter, letterImg], setChallenge] = useState(CHALLENGES[i]);
   const [letterCounter, setLetterCounter] = useState(0);
   const [shouldCapture, setShouldCapture] = useState<boolean>(false);
