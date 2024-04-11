@@ -20,7 +20,6 @@ export default function Canvas({
   useEffect(() => {
     if (!canvasRef.current || !videoRef.current) return;
     const canvasCtx = canvasRef.current.getContext("2d");
-    console.log();
     cameraRef.current = createCamera(
       createHands(
         {
