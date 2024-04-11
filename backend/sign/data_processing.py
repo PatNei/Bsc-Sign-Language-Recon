@@ -2,6 +2,8 @@
 import argparse
 import csv
 from dataclasses import dataclass
+from datetime import date
+import datetime
 import os
 import random
 from typing import Generator, Tuple
@@ -10,6 +12,13 @@ from sign.skewness_algorithm import is_it_evenly_distributed
 from sign.training.landmark_extraction.HolisticPiper import HolisticPiper
 from sign.training.load_data.HolisticCsvReader import HolisticFrame as hf, HoslisticCsvReader, holistic_keys as hk
 from pathlib import Path
+import logging
+# Setup Logging
+LOG_PATH = Path().cwd().joinpath("logs")
+if not os.path.exists(LOG_PATH):
+    os.mkdir(LOG_PATH)
+current_time = datetime.datetime.now().strftime("%d-%m-%Y-%H-%M-%S")
+logging.basicConfig(filename=LOG_PATH.joinpath(f"{current_time}.log"),level=logging.INFO)
 
 FRAME_AMOUNT = 12 # How many frames do we want? Depends on the precision we want?
 
@@ -180,7 +189,7 @@ def extract_indices_for_frames_with_body_and_hands(video:list[hf]):
     extracted_indices:list[int] = []
     for idx,frame in enumerate(video):
         if not can_detect_a_hand(frame) and not can_detect_body(frame): # Strictness parameter
-            print("discarded because there are not enough frames")
+            logging.info("discarded because there are not enough frames")
             continue
         extracted_indices.append(idx)
     return extracted_indices
@@ -231,7 +240,7 @@ def process_video(video: list[hf]):
     indices_no_outliers = extract_indices_without_outliers(video) # Filter frames that contain outliers
     #print("We removed",len(indices_no_outliers),"out of",len(video),"frames")
     if (len(indices_no_outliers) / len(video) > 0.40):
-        print("Video with id",video[0].id,"has more than 40 % outliers" , len(video)-len(indices_no_outliers),"out of",len(video))
+        logging.info(f"Video with id {video[0].id} has more than 40 % outliers {len(video)-len(indices_no_outliers)} out of {len(video)}")
     filtered_body_hands_outliers_indices = extract_indices_for_frames_with_body_and_hands([video[index] for index in indices_no_outliers])
     if len(filtered_body_hands_outliers_indices) < 1:
         return None
@@ -241,7 +250,7 @@ def process_video(video: list[hf]):
     
     final_frames = frame_mask(video,filtered_body_hands_outliers_indices)
     if len(filtered_body_hands_outliers_indices) < FRAME_AMOUNT:
-        print("discarded because there are not enough frames")
+        logging.info("discarded because there are not enough frames")
         return None # Discard video
         # final_frames = pad_frames(frame) 
     elif len(filtered_body_hands_outliers_indices) > FRAME_AMOUNT:
@@ -311,7 +320,7 @@ def filter_holistic_csv(path:Path):
             continue
         good_videos += 1
         processed_videos.append(processed_video)
-    print(discard_videos,good_videos)
+    logging.info(f"Discarded Videos: {discard_videos} Good Videoes: {good_videos} Total videos: {len(list_of_videos)}")
     return processed_videos
     
     
