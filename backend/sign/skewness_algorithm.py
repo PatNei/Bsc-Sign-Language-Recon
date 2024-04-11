@@ -1,10 +1,10 @@
 
 import numpy as np
 
-CUTOFF = 0.20 # CUTOFF is %
+CUTOFF = 0.10 # CUTOFF is %
 SLICE_LESS_THAN_24 = 3
-SLICE_LESS_THAN_50 = 3
-SLICE_MORE_THAN_50 = 3
+SLICE_LESS_THAN_50 = 5
+SLICE_MORE_THAN_50 = 7
 
 def calculate_slice_amount(length_of_list:int):
     if length_of_list < 24:
@@ -30,3 +30,9 @@ def is_it_evenly_distributed(unfiltered_list:list,filtered_list:list,cutoff=CUTO
             continue
         return False
     return True
+
+def is_it_evenly_distributed_new(unfiltered_list:list,filtered_list:list,cutoff=CUTOFF):
+    if len(filtered_list) > len(unfiltered_list):
+        raise ValueError("filtered list is larger than the original list")
+    
+    
