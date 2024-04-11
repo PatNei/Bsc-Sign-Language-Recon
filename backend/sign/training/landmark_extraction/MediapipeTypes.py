@@ -11,7 +11,7 @@ class MediapipeLandmark(NamedTuple):
 class MediapipeClassification(NamedTuple):
     """ A raw classification of handedness from Mediapipe
     """
-    index: np.int32
+    index: Literal[0,1]
     score: np.float32
     label: np.str_
 
@@ -26,13 +26,13 @@ class MediapipeResult(NamedTuple):
     multi_hand_world_landmarks: Union[list[MediapipeLandmark], None]
     multi_handedness: Union[list[MediapipeClassification], None]
 
-    def __number_of_hands(self) -> int:
+    def number_of_hands(self) -> int:
         if not self.multi_hand_landmarks:
             return 0
-        return int(len(self.multi_hand_landmarks) / 2)
+        return int(len(self.multi_hand_landmarks) / 21)
     def __assert_hands(self, hand:int):
-        if hand > self.__number_of_hands():
-            raise IndexError(f"MediapipeResult was instantiated with data for {self.__number_of_hands()}, not {hand}")
+        if hand > self.number_of_hands():
+            raise IndexError(f"MediapipeResult was instantiated with data for {self.number_of_hands()}, not {hand}")
 
     def multi_hand_landmarks_by_hand(self, hand:Literal[0,1]):
         self.__assert_hands(hand)

@@ -171,25 +171,47 @@ class MediaPiper(DynamicPiper):
     def write_dynamic_gestures_from_folder_to_csv(self, path_frames:str, out:str, id:str):
         res = self.process_dynamic_gestures_from_folder(path_frames)
         with open(out, 'a', newline="") as f:
+            writer = csv.writer(f)
             for dynamic_gesture in res:
-                writer = csv.writer(f)
                 for gesture_sequence in dynamic_gesture.results:
-                    for landmarks in gesture_sequence:
-                        x = landmarks.multi_hand_landmarks
-                        if x is not None:
-                            writer.writerow([dynamic_gesture.label, id, *[[landmark.x, landmark.y, landmark.z] for landmark in x], len(landmarks.multi_handedness if landmarks.multi_handedness is not None else [])])
+                    for mp_result in gesture_sequence:
+                        if mp_result.number_of_hands() == 1:
+                            x = mp_result.multi_hand_landmarks
+                            if x and mp_result.multi_handedness:
+                                landmarks = [[landmark.x, landmark.y, landmark.z] for landmark in x]
+                                hand_id = mp_result.multi_handedness[0].index
+                                writer.writerow([dynamic_gesture.label, id, hand_id, *landmarks])
+                        else:
+                            if mp_result.multi_handedness and mp_result.multi_hand_landmarks:
+                                if len(mp_result.multi_handedness) > (len(mp_result.multi_hand_landmarks) / 2):
+                                    raise Exception("That ain't suppoed to happend")
+                                row_out:list = [dynamic_gesture.label, id]
+                                for hand_id in map(lambda x: x.index ,mp_result.multi_handedness):
+                                    if hand_id in (0,1):
+                                        landmarks_hand_for_id = mp_result.multi_hand_landmarks_by_hand(hand_id)
+                                        
+                                        if landmarks_hand_for_id:
+                                            landmarks = [[landmark.x, landmark.y, landmark.z] for landmark in landmarks_hand_for_id]
+                                            row_out.append(hand_id)
+                                            row_out.extend(landmarks)
+                                        else:
+                                            raise Exception(f"Something is wrong here {mp_result}")
+                                    else: 
+                                        raise Exception(f"Working with unkown handedness-index: {hand_id}")
+                                writer.writerow(row_out)   
+
 
 if __name__ == "__main__":
-    mpr = MediaPiper(num_hands=2)
+    mpr = MediaPiper(num_hands=1)
 
     out_file = "bing_bong_out.csv"
-    data_path = "data/archive/asl_alphabet_train/"
-    #data_path = "data/archive/dynamic_gestures/"
+    #data_path = "data/archive/asl_alphabet_train/"
+    data_path = "data/archive/dynamic_gestures/"
 
     print(f"Processing images from ({data_path})...")
     #res = mpr.process_image_from_path("data/test.png")
-   # res = mpr.process_image_from_path("data/archive/asl_alphabet_train/A/A1.jpg")
-   # print(f"handedness: --{res.multi_handedness_by_hand(1)}--")
+    #res = mpr.process_image_from_path("data/archive/asl_alphabet_train/A/A1.jpg")
+    #print(f"handedness: --{res.multi_handedness}--")
     #print(len(res.multi_hand_landmarks if res.multi_hand_landmarks else []))
     
     #mpr.process_images_from_folder_to_csv(data_path, out_file=out_file, handedness=True)
