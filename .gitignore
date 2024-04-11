@@ -165,6 +165,7 @@ node_modules
 .env
 
 backend/dynamic_signs/frames/
+backend/dynamic_signs/videos/
 backend/dynamic_signs/test/
 backend/data/archive/
 
