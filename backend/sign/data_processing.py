@@ -103,7 +103,7 @@ def mean_frame_distance(_from:MeanFrame,_to:MeanFrame,key:hk):
     to_body_part = _to[key]
     return float(np.linalg.norm(np.array(from_body_part) - np.array(to_body_part)))
 
-def outlier_calculation(prev_frame:MeanFrame,current_frame:MeanFrame,next_frame:MeanFrame,key:hk):
+def is_it_an_outlier(prev_frame:MeanFrame,current_frame:MeanFrame,next_frame:MeanFrame,key:hk):
     try:
         return min(mean_frame_distance(prev_frame, current_frame,key), mean_frame_distance(current_frame, next_frame,key)) > mean_frame_distance(prev_frame, next_frame,key)
     except:
@@ -119,17 +119,17 @@ def check_for_outlier(prev_frame:MeanFrame,current_frame:MeanFrame,next_frame:Me
     If any body part is an outlier we discard the frame.
     
     """
-    min_body = outlier_calculation(prev_frame,current_frame,next_frame,hk.POSE)
-    min_left_hand = outlier_calculation(prev_frame,current_frame,next_frame,hk.LEFT_HAND)
-    min_right_hand = outlier_calculation(prev_frame,current_frame,next_frame,hk.RIGHT_HAND)
+    # min_body = is_it_an_outlier(prev_frame,current_frame,next_frame,hk.POSE)
+    min_left_hand = is_it_an_outlier(prev_frame,current_frame,next_frame,hk.LEFT_HAND)
+    min_right_hand = is_it_an_outlier(prev_frame,current_frame,next_frame,hk.RIGHT_HAND)
         
     if min_left_hand is None and min_right_hand is None: 
         # If both hands are not present then it is an outlier
         return True
     
-    if min_body: 
+    #if min_body: 
         # If the dist is wrong for the body then it is an outlier
-        return True 
+    #    return True 
     
     if min_left_hand is not None and min_left_hand: 
         # If the left hand is detected but the dist is wrong then it is an outlier
@@ -176,11 +176,12 @@ def extract_indices_for_frames_with_body_and_hands(video:list[hf]):
     """
     Given a list of HolisticFrames 
     Returns a list of indices List[int] where each index match all frames where both a HolisticKeys.LEFT_HAND or HolisticKeys.RIGHT_HAND and a HolisticKeys.Pose is found.
-    
     """
+    
     extracted_indices:list[int] = []
     for idx,frame in enumerate(video):
-        if not can_detect_a_hand(frame) and not can_detect_body(frame):
+        if not can_detect_a_hand(frame) and not can_detect_body(frame): # Strictness parameter
+            print("discarded because there are not enough frames")
             continue
         extracted_indices.append(idx)
     return extracted_indices
@@ -229,6 +230,9 @@ def process_video(video: list[hf]):
     """
     
     indices_no_outliers = extract_indices_without_outliers(video) # Filter frames that contain outliers
+    #print("We removed",len(indices_no_outliers),"out of",len(video),"frames")
+    if (len(indices_no_outliers) / len(video) > 0.40):
+        print("Video with id",video[0].id,"has more than 40 % outliers" , len(video)-len(indices_no_outliers),"out of",len(video))
     filtered_body_hands_outliers_indices = extract_indices_for_frames_with_body_and_hands([video[index] for index in indices_no_outliers])
     if len(filtered_body_hands_outliers_indices) < 1:
         return None
@@ -238,6 +242,7 @@ def process_video(video: list[hf]):
     
     final_frames = frame_mask(video,filtered_body_hands_outliers_indices)
     if len(filtered_body_hands_outliers_indices) < FRAME_AMOUNT:
+        print("discarded because there are not enough frames")
         return None # Discard video
         # final_frames = pad_frames(frame) 
     elif len(filtered_body_hands_outliers_indices) > FRAME_AMOUNT:
@@ -295,6 +300,7 @@ def filter_holistic_csv(path:Path):
     good_videos = 0
     for video in list_of_videos:
         processed_video = process_video(video)
+        # print(len(video)/len(processed_video))
         if processed_video is None:
             discard_videos += 1
             continue
