@@ -16,12 +16,12 @@ class holistic_keys(StrEnum):
 
 @dataclass
 class HolisticFrame:
-    id: int
+    id: str | int
     
     data: dict[holistic_keys, list[float]]
     def __getitem__(self, key:holistic_keys):
         if key not in self.data:
-            return None
+            return []
         return self.data[key]
 
 HolisticSequence = dict[holistic_keys, list[float]]

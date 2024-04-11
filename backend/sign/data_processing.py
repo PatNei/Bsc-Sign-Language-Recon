@@ -2,7 +2,6 @@
 import argparse
 import csv
 from dataclasses import dataclass
-from genericpath import isfile
 import os
 import random
 from typing import Generator, Tuple
@@ -146,14 +145,13 @@ def check_for_outlier(prev_frame:MeanFrame,current_frame:MeanFrame,next_frame:Me
 
 def extract_indices_without_outliers(video: list[hf]):
     """
-    TODO: Might be good to make a trajectory here and then pass it with the indices.
-    x
     Throws an error if there are more indices than frames.
     
     Finds all outliers for a list of HolisticFrames and a set of indices.
     
     Returns a new list of indices with outliers removed.
     
+    TODO: Might be good to make a trajectory here and then pass it with the indices.
     TODO: Tobias wants to make an algorithm that checks if the first or last index is an outlier.
     """
     mean_frames:list[MeanFrame] = []
@@ -193,7 +191,7 @@ def frame_mask(video: list[hf],indices:list[int]):
     
     Throws an error if there are more indices than frames.
     
-    Returns an list of HolisticFrames.
+    Returns a list of HolisticFrames.
     """
     if len(video) < len(indices):
         raise ValueError("Length of indices are larger than length of frames.")
@@ -254,15 +252,19 @@ def process_video(video: list[hf]):
 def save_list_of_HolisticVideos_to_csv(path:Path, videos:list[list[hf]]):
     """
     The new name of the file name will become f"proccessed_{filename}"
+    and it will be saved in a folder called "processed" relative to the current path.
     
     """
     file_name = Path(f"proccessed_{path.name}")
     file_path = path.parent.absolute()
-    full_path = Path.joinpath(file_path,file_name)
-    if not os.path.exists(full_path):
-        with open(full_path, 'w'): pass
+    file_path = file_path.joinpath("./processed")
+    if not os.path.exists(file_path):
+        os.mkdir(file_path)
+    processed_file_path = Path.joinpath(file_path,file_name)
+    if not os.path.exists(processed_file_path):
+        with open(processed_file_path, 'w'): pass
         
-    with open(full_path,"w") as csvfile:
+    with open(processed_file_path,"w") as csvfile:
         _writer = csv.writer(csvfile,delimiter=',')
         for video in videos:
             for frame in video:
@@ -319,18 +321,16 @@ def process_csv():
                     description='This program processes a csv of holistic frames',
                     epilog='Good Luck 🤡🤡🤡🤡🤡🤡🤡🤡')
     parser.add_argument("filename",help="Filename for the csv")
-    parser.add_argument("-f","--folder",dest="folder",help="")
     _args = parser.parse_args()
     path = Path(_args.filename)
     if not path.exists():
         exit(1)
-    
-    if path.is_dir():
+    if path.is_dir(): # Processes all .csv in a directory
         for file in os.listdir(path):
             file_path = path.joinpath(file)
-            if not file_path.suffix == ".csv":
-                continue
             if not file_path.is_file():
+                continue
+            if not file_path.suffix == ".csv":
                 continue
             processed_videos = filter_holistic_csv(file_path)
             save_list_of_HolisticVideos_to_csv(file_path,processed_videos)
@@ -340,7 +340,7 @@ def process_csv():
         exit(1)
     if not path.suffix == ".csv":
         exit(1)
-    processed_videos = filter_holistic_csv(path)
+    processed_videos = filter_holistic_csv(path) # process a single file
     save_list_of_HolisticVideos_to_csv(path,processed_videos)
     exit()
 
