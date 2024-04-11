@@ -29,8 +29,10 @@ def get_image_sequences_from_dir(dir:str, separator:str = "#") -> dict[str, list
         folder_path = dir + os.sep + label + os.sep
         files = natsorted([file for file in os.listdir(folder_path)
                                if os.path.isfile(folder_path + file)])
-
-        prev_prefix = __extract_prefix(files[0])
+        try:
+            prev_prefix = __extract_prefix(files[0])
+        except:
+            continue
         cur_sequence = []
         label_sequences: list[ImageSequence] = [ImageSequence(prev_prefix, cur_sequence)]
         for image in files:
