@@ -2,6 +2,7 @@
 import argparse
 import csv
 from dataclasses import dataclass
+from genericpath import isfile
 import os
 import random
 from typing import Generator, Tuple
@@ -316,8 +317,23 @@ def process_csv():
                     description='This program processes a csv of holistic frames',
                     epilog='Good Luck 🤡🤡🤡🤡🤡🤡🤡🤡')
     parser.add_argument("filename",help="Filename for the csv")
+    parser.add_argument("-f","--folder",dest="folder",help="")
     _args = parser.parse_args()
     path = Path(_args.filename)
+    if not path.exists():
+        exit(1)
+    
+    if path.is_dir():
+        for file in os.listdir(path):
+            file_path = path.joinpath(file)
+            if not file_path.suffix == ".csv":
+                continue
+            if not file_path.is_file():
+                continue
+            processed_videos = filter_holistic_csv(path)
+            save_list_of_HolisticVideos_to_csv(path,processed_videos)
+        exit()
+    
     if not path.is_file():
         exit(1)
     if not path.suffix == ".csv":
