@@ -38,9 +38,15 @@ def landmarks_to_single_mean(float_landmarks:list[float]) -> Tuple[float,float,f
     Reduces all values on an axis to a single mean value.
     Returns a tuple of mean(x,y,z)
     
+    TODO: Verify that this is actually correct (especially in the reshape function, I.E should it be divided by three).
+    
+    
     """
+    length_landmarks = len(float_landmarks)
+    if length_landmarks < 3:
+        raise ValueError("Length of landmark list is less than 3, we can't reshape")
     landmarks = np.array(float_landmarks,dtype=np.float32)
-    reshaped = landmarks.reshape((-1,len(float_landmarks),3))
+    reshaped = landmarks.reshape((-1,int(len(float_landmarks)/3),3))
     np_array:np.ndarray =  np.mean(reshaped, axis=1).flatten() 
     return (np_array[0],np_array[1],np_array[2])
 
@@ -50,16 +56,32 @@ def raw_frame_to_mean_values(frame:hf):
     
     Returns MeanFrame. Why is it so mean???
     
+    TODO: Is exceptions the best way to handle this ?
+    TODO: Do we really want to use the mean for arms ? (pose / body)
+    TODO: We take all values for the pose (even the ones media pipe predicts)
+    
     """
-    mean_body_landmarks = landmarks_to_single_mean(frame.data[hk.POSE])
-    mean_right_hand_landmarks = landmarks_to_single_mean(frame.data[hk.RIGHT_HAND])
-    mean_left_hand_landmarks = landmarks_to_single_mean(frame.data[hk.LEFT_HAND])
+    mean_body_landmarks:Tuple[float,float,float] | None = None
+    mean_right_hand_landmarks:Tuple[float,float,float] | None = None
+    mean_left_hand_landmarks:Tuple[float,float,float] | None = None
+    try:
+        mean_body_landmarks = landmarks_to_single_mean(frame.data[hk.POSE])
+    except:
+        pass
+    try:
+        mean_right_hand_landmarks = landmarks_to_single_mean(frame.data[hk.RIGHT_HAND])
+    except:
+        pass
+    try: 
+        mean_left_hand_landmarks = landmarks_to_single_mean(frame.data[hk.LEFT_HAND])
+    except:
+        pass 
 
     return MeanFrame(
         frame.id,{
-        hk.POSE: [*mean_body_landmarks],
-        hk.RIGHT_HAND: [*mean_right_hand_landmarks],
-        hk.LEFT_HAND: [*mean_left_hand_landmarks]
+        hk.POSE: [*mean_body_landmarks] if mean_body_landmarks is not None else [],
+        hk.RIGHT_HAND: [*mean_right_hand_landmarks] if mean_right_hand_landmarks is not None else [],
+        hk.LEFT_HAND: [*mean_left_hand_landmarks] if mean_left_hand_landmarks is not None else []
     })
 
 def can_detect_body(frame:hf):
@@ -82,7 +104,11 @@ def mean_frame_distance(_from:MeanFrame,_to:MeanFrame,key:hk):
     return float(np.linalg.norm(np.array(from_body_part) - np.array(to_body_part)))
 
 def outlier_calculation(prev_frame:MeanFrame,current_frame:MeanFrame,next_frame:MeanFrame,key:hk):
-    return min(mean_frame_distance(prev_frame, current_frame,key), mean_frame_distance(current_frame, next_frame,key)) > mean_frame_distance(prev_frame, next_frame,key)
+    try:
+        return min(mean_frame_distance(prev_frame, current_frame,key), mean_frame_distance(current_frame, next_frame,key)) > mean_frame_distance(prev_frame, next_frame,key)
+    except:
+        return None
+        
 
 
 def check_for_outlier(prev_frame:MeanFrame,current_frame:MeanFrame,next_frame:MeanFrame):
@@ -94,18 +120,8 @@ def check_for_outlier(prev_frame:MeanFrame,current_frame:MeanFrame,next_frame:Me
     
     """
     min_body = outlier_calculation(prev_frame,current_frame,next_frame,hk.POSE)
-    
-    min_left_hand = None
-    try: 
-         min_left_hand = outlier_calculation(prev_frame,current_frame,next_frame,hk.LEFT_HAND)
-    except:
-        min_left_hand = None
-
-    min_right_hand = None
-    try:
-        min_right_hand = outlier_calculation(prev_frame,current_frame,next_frame,hk.RIGHT_HAND)
-    except:
-        min_right_hand = None
+    min_left_hand = outlier_calculation(prev_frame,current_frame,next_frame,hk.LEFT_HAND)
+    min_right_hand = outlier_calculation(prev_frame,current_frame,next_frame,hk.RIGHT_HAND)
         
     if min_left_hand is None and min_right_hand is None: 
         # If both hands are not present then it is an outlier
@@ -127,37 +143,33 @@ def check_for_outlier(prev_frame:MeanFrame,current_frame:MeanFrame,next_frame:Me
         
                     
 
-def extract_indices_without_outliers(video: list[hf], old_indices: list[int]):
+def extract_indices_without_outliers(video: list[hf]):
     """
     TODO: Might be good to make a trajectory here and then pass it with the indices.
-    
+    x
     Throws an error if there are more indices than frames.
     
     Finds all outliers for a list of HolisticFrames and a set of indices.
     
     Returns a new list of indices with outliers removed.
     
+    TODO: Tobias wants to make an algorithm that checks if the first or last index is an outlier.
     """
-    if len(video) < len(old_indices):
-        raise ValueError("Length of indices are larger than length of frames.")
-    
-    
     mean_frames:list[MeanFrame] = []
-    for i in old_indices:
-        mean_frames.append(raw_frame_to_mean_values(video[i]))
+    for frame in video:
+        mean_frames.append(raw_frame_to_mean_values(frame))
         
     # non_outlier_frames = [mean_frames[0]] # If we decide that we also want to make trajectories
-    new_indices:list[int] = [old_indices[0]]
+    new_indices:list[int] = [0]
     for i in range(1, len(mean_frames) - 1):
         if check_for_outlier(mean_frames[i-1],mean_frames[i],mean_frames[i+1]):
             # outlier
-            print("REMOVING OUTLIER")
             continue
-        new_indices[i]
+        new_indices.append(i)
         # non_outlier_frames.append(mean_frames[i]) # If we decide that we also want to make trajectories
 
     # non_outlier_frames.append(mean_frames[-1]) # If we decide that we also want to make trajectories
-    new_indices.append(old_indices[-1])
+    new_indices.append(len(mean_frames)-1)
     return new_indices
 
 def extract_indices_for_frames_with_body_and_hands(video:list[hf]):
@@ -213,20 +225,22 @@ def process_video(video: list[hf]):
     the holistic model from media pipe.)
     
     Returns a list of frames (a video) and None if it fails.
+    TODO: We might actually have to pad otherwise we loose to much data.
     """
-    body_hands_indices = extract_indices_for_frames_with_body_and_hands(video)
-
-    if len(body_hands_indices) < 1:
+    
+    indices_no_outliers = extract_indices_without_outliers(video) # Filter frames that contain outliers
+    filtered_body_hands_outliers_indices = extract_indices_for_frames_with_body_and_hands([video[index] for index in indices_no_outliers])
+    if len(filtered_body_hands_outliers_indices) < 1:
         return None
-    indices_no_outliers = extract_indices_without_outliers(video,body_hands_indices)
-    if not is_it_evenly_distributed(video,indices_no_outliers):
+    
+    if not is_it_evenly_distributed(video,filtered_body_hands_outliers_indices):
         return None # discard video
     
-    final_frames = frame_mask(video,indices_no_outliers)
-    if len(indices_no_outliers) < FRAME_AMOUNT:
-        return None
+    final_frames = frame_mask(video,filtered_body_hands_outliers_indices)
+    if len(filtered_body_hands_outliers_indices) < FRAME_AMOUNT:
+        return None # Discard video
         # final_frames = pad_frames(frame) 
-    elif len(indices_no_outliers) > FRAME_AMOUNT:
+    elif len(filtered_body_hands_outliers_indices) > FRAME_AMOUNT:
         final_frames = extract_keyframes(final_frames)
     return final_frames
 
@@ -242,28 +256,29 @@ def save_list_of_HolisticVideos_to_csv(path:Path, videos:list[list[hf]]):
     if not os.path.exists(full_path):
         with open(full_path, 'w'): pass
         
-    with open(full_path) as csvfile:
+    with open(full_path,"w") as csvfile:
         _writer = csv.writer(csvfile,delimiter=',')
         for video in videos:
             for frame in video:
-                _writer.writerow([hk.FACE,frame.id,frame[hk.FACE]])
-                _writer.writerow([hk.LEFT_HAND,frame.id,frame[hk.LEFT_HAND]])
-                _writer.writerow([hk.POSE,frame.id,frame[hk.POSE]])
-                _writer.writerow([hk.POSE_WORLD,frame.id])
-                _writer.writerow([hk.RIGHT_HAND,frame.id,frame[hk.RIGHT_HAND]])
-                _writer.writerow([hk.SEGMENTATION_MASK,frame.id])
+                for body_part in hk:
+                    _writer.writerow([body_part,frame.id,frame[body_part]])
                 
 def convert_list_of_frames_to_list_of_videos(frame_generator:Generator[hf, None, None]):
     videos:list[list[hf]] = []
-    previous_id = 0
+    previous_id = None
     frames_for_single_video: list[hf] = []
     for frame in frame_generator:
+        if previous_id is None:
+            frames_for_single_video.append(frame)
+            previous_id = frame.id
+            continue
         if frame.id == previous_id:
             frames_for_single_video.append(frame)
             continue        
         previous_id = frame.id
         videos.append(frames_for_single_video)
         frames_for_single_video = []
+    videos.append(frames_for_single_video)
     return videos
         
 
@@ -276,12 +291,16 @@ def filter_holistic_csv(path:Path):
     _HolisticCsvReader = HoslisticCsvReader()
     frame_generator = _HolisticCsvReader.frame_generator(path)
     list_of_videos = convert_list_of_frames_to_list_of_videos(frame_generator)
-    
+    discard_videos = 0
+    good_videos = 0
     for video in list_of_videos:
         processed_video = process_video(video)
         if processed_video is None:
+            discard_videos += 1
             continue
+        good_videos += 1
         processed_videos.append(processed_video)
+    print(discard_videos,good_videos)
     return processed_videos
     
     

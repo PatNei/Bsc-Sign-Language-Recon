@@ -21,7 +21,7 @@ class HolisticFrame:
     data: dict[holistic_keys, list[float]]
     def __getitem__(self, key:holistic_keys):
         if key not in self.data:
-            raise ValueError(f"HolisticFrame only allows keys: {[k for k in self.data.keys()]}.\n\tEither update \"spawn_sequence\" function or check if csv is broken")
+            return None
         return self.data[key]
 
 HolisticSequence = dict[holistic_keys, list[float]]
