@@ -17,11 +17,12 @@
 - Hollistic model implementation for training our model: Almost done
   
 ### What did you struggle with?
-
+- just about everything
 
 ### What would you like to work on next week?
-
-
+- Testing/Fixing left and right hands for static images
+- Evaluate dynamic data using home-made dynamic data
+- Compare Kaggle and YT dataset.
 
 
 ### Where do you need help from Amelia?
@@ -32,6 +33,8 @@ We are in doubt about how to handle the issue of left and right hands
 
 
 ### What are the agreements after this meeting? (to fill in after the meeting)
+- 2nd of May - draft of thesis
+	- Send draft on the beginning of week, 29th of April.
 
 
 ## Date: 26th March 2024 
