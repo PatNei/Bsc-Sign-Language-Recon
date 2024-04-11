@@ -267,7 +267,9 @@ def save_list_of_HolisticVideos_to_csv(path:Path, videos:list[list[hf]]):
         for video in videos:
             for frame in video:
                 for body_part in hk:
-                    _writer.writerow([body_part,frame.id,frame[body_part]])
+                    frame_coordinates = frame[body_part] # we do this because python linting is actually stupid
+                    coordinates = frame_coordinates if frame_coordinates is not None else []
+                    _writer.writerow([body_part,frame.id,*coordinates])
                 
 def convert_list_of_frames_to_list_of_videos(frame_generator:Generator[hf, None, None]):
     videos:list[list[hf]] = []
@@ -330,8 +332,8 @@ def process_csv():
                 continue
             if not file_path.is_file():
                 continue
-            processed_videos = filter_holistic_csv(path)
-            save_list_of_HolisticVideos_to_csv(path,processed_videos)
+            processed_videos = filter_holistic_csv(file_path)
+            save_list_of_HolisticVideos_to_csv(file_path,processed_videos)
         exit()
     
     if not path.is_file():
