@@ -10,7 +10,6 @@ from sign.training.landmark_extraction.DynamicPiper import DynamicPiper
 from sign.training.landmark_extraction.utils import get_image_sequences_from_dir
 from sign.training.landmark_extraction.MediapipeTypes import MediapipeLandmark, MediapipeResult, MediapipeClassification
 from dataclasses import dataclass
-from natsort import natsorted
 
 GestureSequence = list[MediapipeResult]
 
@@ -42,6 +41,7 @@ class MediaPiper(DynamicPiper):
             min_detection_confidence=min_detection_confidence, 
             min_tracking_confidence=min_tracking_confidence,
         )
+        self.__num_hands = num_hands
         self.__hands = hands
         self.__seq_sep = gesture_sequence_sep
 
@@ -51,22 +51,25 @@ class MediaPiper(DynamicPiper):
         Returns:
             A NamedTuple object, that should mimic actual mediapipe.python.solution_base.SolutionOutputs
         """
-        res = self.__hands.process(img)
+        res = self.__hands.process(img)    
         # This is cursed, avoid the ignored pylance error that type NamedTuple
         #   doesn't have fields, multi_hand_landmarks etc.
         # [multi_hand_landmarks, multi_hand_world_landmarks, multi_handedness]
         cursed = [getattr(res, field) for field in res._fields]
-        
-        if cursed[0] is not None and cursed[2] is not None:
+        if cursed[0] and cursed[1] and cursed[2]:
             # TODO: Does this cause any trouble handling more than a single hand?
             # Converts the multi_hand_landmarks which has the form: 
             #   'mediapipe.framework.formats.landmark_pb2.NormalizedLandmark'
             # into a simple python list of MediapipeTypes.MediapipeLandmark
-            cursed[0] = [MediapipeLandmark(l.x, l.y, l.z) 
-                         for _, l in enumerate(cursed[0][0].landmark)]
-            
-            cursed[2] = [MediapipeClassification(c.index, c.score, c.label) 
-                         for _, c in enumerate(cursed[2][0].classification)]
+            cursed[0] = [ MediapipeLandmark(l.x, l.y, l.z) 
+                          for hand in cursed[0] 
+                          for _,l in enumerate(hand.landmark) ]
+            cursed[1] = [ MediapipeLandmark(l.x, l.y, l.z) 
+                          for hand in cursed[1] 
+                          for _,l in enumerate(hand.landmark)]
+            cursed[2] = [ MediapipeClassification(c.index, c.score, c.label) 
+                          for handed in cursed[2] 
+                          for _,c in enumerate(handed.classification) ]
 
         return MediapipeResult(
             multi_hand_landmarks=cursed[0],
@@ -86,7 +89,7 @@ class MediaPiper(DynamicPiper):
         
         return self.process_image(img)
 
-    def process_images_from_folder_to_csv(self, base_path, out_file = "out.csv", limit = 0) -> None:
+    def process_images_from_folder_to_csv(self, base_path, out_file = "out.csv", limit = 0, handedness = False) -> None:
         """Given a base_path to a directory with subdirectories containing images, the method
         creates training data from all images. IF Mediapipe is unable to find identify hands in an image
         the imaged is skipped, so there may be missing "lines" in the output csv file
@@ -106,27 +109,37 @@ class MediaPiper(DynamicPiper):
                 return folder_path + os.sep + image
             image_paths:list[str] = [ gen_img_path(image) for image in os.listdir(folder_path)
                                       if os.path.isfile(gen_img_path(image))]
-            if limit != 0:
+            if limit > 0:
                 image_paths = image_paths[:limit]
 
             for image in image_paths:
                 img = cv.imread(image)  
                 img = cv.cvtColor(img, cv.COLOR_BGR2RGB)
-                img = cv.flip(img, 1)
-                mp_result = self.process_image(img)
+                img_versions = [img] if not handedness else [img, cv.flip(img, 1)]
+                for img in img_versions:
+                    #TODO: For static images, we just always get the result for the first hand
+                    mp_result = self.process_image(img).get_hand_result(0)
+                        
+                    if mp_result.multi_hand_landmarks is not None:
+                        if mp_result.multi_handedness is None:
+                            err_msg = f"!!Image: {image} had hand_landmarks, but no handedness!!"
+                            print(err_msg)
+                            raise Exception(err_msg)
+                        
+                        image_width, image_height = img.shape[1], img.shape[0]
 
-                if mp_result.multi_hand_landmarks is not None:
-                    image_width, image_height = img.shape[1], img.shape[0]
+                        # TODO: This used to be inside of a loop, does this pose any challenges when doing more than a single hand?
+                        landmark_list = calc_landmark_list(mp_result.multi_hand_landmarks,
+                                                        image_width=image_width, 
+                                                        image_height=image_height)
+                        pre_processed_landmark_list = pre_process_landmark(landmark_list)
 
-                    # TODO: This used to be inside of a loop, does this pose any challenges when doing more than a single hand?
-                    landmark_list = calc_landmark_list(mp_result.multi_hand_landmarks,
-                                                       image_width=image_width, 
-                                                       image_height=image_height)
-                    pre_processed_landmark_list = pre_process_landmark(landmark_list)
-
-                    with open(out_file, 'a', newline="") as f:
-                        writer = csv.writer(f)
-                        writer.writerow([folder, *pre_processed_landmark_list])
+                        with open(out_file, 'a', newline="") as f:
+                            writer = csv.writer(f)
+                            if handedness:
+                                writer.writerow([folder, mp_result.multi_handedness[0].label.lower(), *pre_processed_landmark_list])
+                            else:
+                                writer.writerow([folder, *pre_processed_landmark_list])
         return None
 
     def process_dynamic_gestures_from_folder(self, base_path:str) -> list[DynamicGesture]:
@@ -166,18 +179,20 @@ class MediaPiper(DynamicPiper):
                         if x is not None:
                             writer.writerow([dynamic_gesture.label, id, *[[landmark.x, landmark.y, landmark.z] for landmark in x], len(landmarks.multi_handedness if landmarks.multi_handedness is not None else [])])
 
-
-import numpy as np
 if __name__ == "__main__":
-    mpr = MediaPiper()
+    mpr = MediaPiper(num_hands=2)
 
     out_file = "bing_bong_out.csv"
     #data_path = "data/archive/asl_alphabet_train/"
     data_path = "data/archive/dynamic_gestures/"
 
     print(f"Processing images from ({data_path})...")
-    #mpr.process_images_from_folder_to_csv(data_path, out_file=out_file, limit=10)
+    #res = mpr.process_image_from_path("data/test.png")
+   # res = mpr.process_image_from_path("data/archive/asl_alphabet_train/A/A1.jpg")
+   # print(f"handedness: --{res.multi_handedness_by_hand(1)}--")
+    #print(len(res.multi_hand_landmarks if res.multi_hand_landmarks else []))
+    
+    #mpr.process_images_from_folder_to_csv(data_path, out_file=out_file, handedness=True)
     #res = mpr.process_dynamic_gestures_from_folder(data_path)
     mpr.write_dynamic_gestures_from_folder_to_csv(data_path, out_file, "2")
-    #print(f"Output result to {out_file}")
-
+    print(f"Output result to {out_file}")

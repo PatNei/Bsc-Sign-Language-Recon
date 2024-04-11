@@ -1,4 +1,4 @@
-from typing import NamedTuple, Union
+from typing import Literal, NamedTuple, Self, Union
 import numpy as np
 
 class MediapipeLandmark(NamedTuple):
@@ -25,3 +25,37 @@ class MediapipeResult(NamedTuple):
     multi_hand_landmarks: Union[list[MediapipeLandmark], None]
     multi_hand_world_landmarks: Union[list[MediapipeLandmark], None]
     multi_handedness: Union[list[MediapipeClassification], None]
+
+    def __number_of_hands(self) -> int:
+        if not self.multi_hand_landmarks:
+            return 0
+        return int(len(self.multi_hand_landmarks) / 2)
+    def __assert_hands(self, hand:int):
+        if hand > self.__number_of_hands():
+            raise IndexError(f"MediapipeResult was instantiated with data for {self.__number_of_hands()}, not {hand}")
+
+    def multi_hand_landmarks_by_hand(self, hand:Literal[0,1]):
+        self.__assert_hands(hand)
+        if not self.multi_hand_landmarks:
+            return None
+        return self.multi_hand_landmarks[hand*21:(hand+1)*21]
+    
+    def multi_handedness_by_hand(self, hand:Literal[0,1]):
+        self.__assert_hands(hand)
+        if not self.multi_handedness:
+            return None
+        return self.multi_handedness[hand]
+
+    def multi_hand_world_landmarks_by_hand(self, hand:Literal[0,1]):
+        self.__assert_hands(hand)
+        if not self.multi_hand_world_landmarks:
+            return None
+        return self.multi_hand_world_landmarks[hand*21:(hand+1)*21]
+    
+    def get_hand_result(self, hand:Literal[0,1]) -> Self:
+        hand_landmarks = self.multi_hand_landmarks_by_hand(hand)
+        hand_world_landmarks = self.multi_hand_world_landmarks_by_hand(hand)
+        self_handedness = self.multi_handedness_by_hand(hand)
+        if self_handedness:
+            self_handedness = [self_handedness]
+        return type(self)(hand_landmarks, hand_world_landmarks, self_handedness)
