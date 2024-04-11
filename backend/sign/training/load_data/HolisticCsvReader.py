@@ -1,34 +1,45 @@
+from enum import StrEnum
 from typing import Generator
 import os
 from pathlib import Path
 import csv
 from dataclasses import dataclass
 
+class holistic_keys(StrEnum):
+    FACE = "face"
+    LEFT_HAND = "left_hand"
+    RIGHT_HAND = "right_hand"
+    POSE = "pose"    
+    SEGMENTATION_MASK = "segmentation_mask"
+    POSE_WORLD = "pose_world"
+
+
 @dataclass
 class HolisticFrame:
     id: int
-    data: dict[str, list[float]]
-    def __getitem__(self, key):
+    
+    data: dict[holistic_keys, list[float]]
+    def __getitem__(self, key:holistic_keys):
         if key not in self.data:
-            raise ValueError(f"HolisticFrame only allows keys: {[k for k in self.data]}.\n\tEither update \"spawn_sequence\" function or check if csv is broken")
+            return None
         return self.data[key]
 
-HolisticSequence = dict[str, list[float]]
+HolisticSequence = dict[holistic_keys, list[float]]
 
 class HoslisticCsvReader:
     @staticmethod
-    def spawn_sequence() -> dict[str, list[float]]:
-        return {"face": [],
-                "left_hand": [],
-                "pose" : [],
-                "right_hand" : [],
+    def spawn_sequence() -> dict[holistic_keys, list[float]]:
+        return {holistic_keys.FACE: [],
+                holistic_keys.LEFT_HAND: [],
+                holistic_keys.POSE : [],
+                holistic_keys.RIGHT_HAND : [],
                 }
 
     def __init__(self, sequence_spawner = spawn_sequence):
         self.new_holistic_sequence = sequence_spawner
 
-    def _avoid(self, row_val: str):
-        return row_val == "segmentation_mask" or row_val == "pose_world"
+    def _avoid(self, row_val: holistic_keys):
+        return row_val == holistic_keys.SEGMENTATION_MASK or row_val == holistic_keys.POSE_WORLD
     
     def _remove_file_suffix(self, file_name: str):
         return file_name.removesuffix("_out.csv")
@@ -41,7 +52,7 @@ class HoslisticCsvReader:
 
             cur_entry = self.new_holistic_sequence()
             for idx, row in enumerate(reader):
-                row_key = row[0]
+                row_key = holistic_keys(row[0])
                 if idx == 0:
                     sequence_start_marker = row_key
                 if self._avoid(row_key):
@@ -82,7 +93,7 @@ class HoslisticCsvReader:
 
             cur_entry: HolisticSequence = self.new_holistic_sequence()
             for row in reader:
-                row_key = row[0]
+                row_key = holistic_keys(row[0])
                 if self._avoid(row_key):
                     continue
 
@@ -98,7 +109,7 @@ class HoslisticCsvReader:
                     row_marks = list(map(lambda elm : float(elm), landmarks))
                     if row_key not in cur_entry:
                         raise ValueError(f"Holistic Sequence only allows keys: {[k for k in self.new_holistic_sequence().keys()]}.\n\tEither update \"spawn_sequence\" function or check if csv is broken")
-                    cur_entry[row_key].extend( row_marks)
+                    cur_entry[row_key].extend(row_marks)
             if len(list(cur_entry.values())[0]) > 0:
                 res[prev_id] = cur_entry
         return res

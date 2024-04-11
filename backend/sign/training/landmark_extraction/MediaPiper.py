@@ -30,7 +30,7 @@ class MediaPiper(DynamicPiper):
         MediaPiper, a home made interface for interacting with the mediapipe hands library.
         The class is used to create training data.
     """
-    def __init__(self, num_hands = 1, gesture_sequence_sep = "_") -> None:
+    def __init__(self, num_hands = 1, gesture_sequence_sep = "#") -> None:
         # TODO: How kwargs?
         use_static_image_mode = True
         min_detection_confidence = 0.7

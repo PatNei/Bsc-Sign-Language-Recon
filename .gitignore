@@ -164,8 +164,9 @@ node_modules
 .devbox
 .env
 
-backend/dynamic_signs/frames
-backend/dynamic_signs/test
+backend/dynamic_signs/frames/
+backend/dynamic_signs/videos/
+backend/dynamic_signs/test/
 backend/data/archive/
 
 *.zip
@@ -177,3 +178,6 @@ backend/data/archive/
 *.tar.zst
 *.tar.sz
 *.avi
+*.csv
+
+*nohup*
