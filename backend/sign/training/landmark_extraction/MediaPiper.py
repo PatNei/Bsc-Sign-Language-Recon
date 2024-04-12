@@ -186,9 +186,9 @@ class MediaPiper(DynamicPiper):
                                 if len(mp_result.multi_handedness) > (len(mp_result.multi_hand_landmarks) / 2):
                                     raise Exception("That ain't suppoed to happend")
                                 row_out:list = [dynamic_gesture.label, id]
-                                for hand_id in map(lambda x: x.index ,mp_result.multi_handedness):
-                                    if hand_id in (0,1):
-                                        landmarks_hand_for_id = mp_result.multi_hand_landmarks_by_hand(hand_id)
+                                for idx, hand_id in enumerate(map(lambda x: x.index ,mp_result.multi_handedness)):
+                                    if idx in (0,1):
+                                        landmarks_hand_for_id = mp_result.multi_hand_landmarks_by_hand(idx)
                                         
                                         if landmarks_hand_for_id:
                                             landmarks = [[landmark.x, landmark.y, landmark.z] for landmark in landmarks_hand_for_id]
