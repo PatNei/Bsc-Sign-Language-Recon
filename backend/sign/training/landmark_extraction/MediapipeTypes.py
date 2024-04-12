@@ -6,7 +6,7 @@ MediapipeHandIndexLabel: dict[Literal["left", "right", "both"], Literal[0,1] | T
     "right" : 1,
     "both": (0,1)
 }
-MediapipeHandIndex: dict[Literal[0,1] | Tuple[Literal[0], Literal[1]], str] = {
+MediapipeHandIndex: dict[Literal[0,1] | Tuple[Literal[0], Literal[1]], Literal["left", "right", "both"]] = {
     0: "left",
     1: "right",
     (0,1): "both"
