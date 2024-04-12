@@ -1,5 +1,17 @@
-from typing import Literal, NamedTuple, Self, Union
+from typing import Literal, NamedTuple, Self, Union, Tuple
 import numpy as np
+
+MediapipeHandIndexLabel: dict[Literal["left", "right", "both"], Literal[0,1] | Tuple[Literal[0], Literal[1]]] = {
+    "left": 0,
+    "right" : 1,
+    "both": (0,1)
+}
+MediapipeHandIndex: dict[Literal[0,1] | Tuple[Literal[0], Literal[1]], str] = {
+    0: "left",
+    1: "right",
+    (0,1): "both"
+}
+
 
 class MediapipeLandmark(NamedTuple):
     """ A raw landmark directly from Mediapipe hands

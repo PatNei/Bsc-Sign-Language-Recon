@@ -1,10 +1,11 @@
+from turtle import right
 import mediapipe.python.solutions.hands as mp_hands
 import cv2 as cv
 
 import csv
 import os
 from sign.landmarks import calc_landmark_list, pre_process_landmark
-from sign.CONST import DATA_BASE_PATH, TRAIN_PATH
+from sign.CONST import MEDIAPIPER_VERSION_2
 
 from sign.training.landmark_extraction.DynamicPiper import DynamicPiper
 from sign.training.landmark_extraction.utils import get_image_sequences_from_dir
@@ -168,24 +169,32 @@ class MediaPiper(DynamicPiper):
             res.append(DynamicGesture(label, label_res))
         return res
     
-    def write_dynamic_gestures_from_folder_to_csv(self, path_frames:str, out:str, id:str):
+    def write_dynamic_gestures_from_folder_to_csv(self, path_frames:str, out:str, id:str = ""):
+        """Extract landmarks from a folder of folders of image sequences: like folder[folder[img_sequence]]
+        NOTE: The provided id will be used for ALL the sequences if provided.
+
+        :param: id (string) - if provided all entries written to CSV will have this ID, this functionality
+        is primarily used for the landmark_extractor.py. IF left empty, sequences will receive arbitrary numeric ids. 
+        """
         res = self.process_dynamic_gestures_from_folder(path_frames)
         with open(out, 'a', newline="") as f:
             writer = csv.writer(f)
+            writer.writerow([MEDIAPIPER_VERSION_2])
             for dynamic_gesture in res:
-                for gesture_sequence in dynamic_gesture.results:
+                for sequence_id, gesture_sequence in enumerate(dynamic_gesture.results):
+                    seq_id = id if id else sequence_id
                     for mp_result in gesture_sequence:
                         if mp_result.number_of_hands() == 1:
                             x = mp_result.multi_hand_landmarks
                             if x and mp_result.multi_handedness:
                                 landmarks = [[landmark.x, landmark.y, landmark.z] for landmark in x]
                                 hand_id = mp_result.multi_handedness[0].index
-                                writer.writerow([dynamic_gesture.label, id, hand_id, *landmarks])
+                                writer.writerow([dynamic_gesture.label, seq_id, hand_id, *landmarks])
                         else:
                             if mp_result.multi_handedness and mp_result.multi_hand_landmarks:
                                 if len(mp_result.multi_handedness) > (len(mp_result.multi_hand_landmarks) / 2):
-                                    raise Exception("That ain't suppoed to happend")
-                                row_out:list = [dynamic_gesture.label, id]
+                                    raise Exception(f"Mediapipe found landmarks for {len(mp_result.multi_hand_landmarks)} hands, but reported handedness for {len(mp_result.multi_handedness)} hands")
+                                row_out:list = [dynamic_gesture.label, seq_id]
                                 for idx, hand_id in enumerate(map(lambda x: x.index ,mp_result.multi_handedness)):
                                     if idx in (0,1):
                                         landmarks_hand_for_id = mp_result.multi_hand_landmarks_by_hand(idx)
@@ -200,13 +209,12 @@ class MediaPiper(DynamicPiper):
                                         raise Exception(f"Working with unkown handedness-index: {hand_id}")
                                 writer.writerow(row_out)   
 
-
 if __name__ == "__main__":
-    mpr = MediaPiper(num_hands=1)
+    mpr = MediaPiper(num_hands=2, gesture_sequence_sep="_")
 
     out_file = "bing_bong_out.csv"
     #data_path = "data/archive/asl_alphabet_train/"
-    data_path = "data/archive/dynamic_gestures/"
+    data_path = "data/archive/dynamic_gestures"
 
     print(f"Processing images from ({data_path})...")
     #res = mpr.process_image_from_path("data/test.png")
@@ -216,5 +224,7 @@ if __name__ == "__main__":
     
     #mpr.process_images_from_folder_to_csv(data_path, out_file=out_file, handedness=True)
     #res = mpr.process_dynamic_gestures_from_folder(data_path)
-    mpr.write_dynamic_gestures_from_folder_to_csv(data_path, out_file, "2")
+    
+    ##Make MediaPiper spit out a csv from a folder of folders
+    mpr.write_dynamic_gestures_from_folder_to_csv(data_path, out_file)
     print(f"Output result to {out_file}")

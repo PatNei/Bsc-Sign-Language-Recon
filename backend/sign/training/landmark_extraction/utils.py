@@ -30,13 +30,13 @@ def get_image_sequences_from_dir(dir:str, separator:str = "#") -> dict[str, list
         files = natsorted([file for file in os.listdir(folder_path)
                                if os.path.isfile(folder_path + file)])
         try:
-            prev_prefix = __extract_prefix(files[0])
+            prev_prefix = __extract_prefix(files[0], separator)
         except:
             continue
         cur_sequence = []
         label_sequences: list[ImageSequence] = [ImageSequence(prev_prefix, cur_sequence)]
         for image in files:
-            prefix = __extract_prefix(image)
+            prefix = __extract_prefix(image, separator)
             if not (prefix == prev_prefix):
                 cur_sequence = []
                 label_sequences.append(ImageSequence(prefix, cur_sequence))
