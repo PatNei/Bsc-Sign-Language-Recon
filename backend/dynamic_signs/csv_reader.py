@@ -1,6 +1,33 @@
 import csv
+from dataclasses import dataclass
+from typing import Literal, Tuple
+from sign.CONST import MEDIAPIPER_VERSION_2
 
 import numpy as np
+
+LENGTH_LANDMARKS = 21
+LENGTH_HANDID_AND_LANDMARKS = 1 + LENGTH_LANDMARKS #1 for hand_id, 21 for the amount of tuple
+EMPTY_ID = "___empty-id___"
+EMPTY_LABEL = "___empty-label___"
+
+@dataclass
+class MultiHandStaticFrame:
+    """Keeps all the landmarks as a single list.
+    IMPORTANT: The list will always be ordered as 63 landmarks for hand_0,
+    then 63 landmarks for hand_1, IFF. there are landmarks for both hands.
+    Otherwise the list will only contain the 63 landmarks
+    """
+    present_hands: Literal[0] | Literal[1] | Tuple[Literal[0], Literal[1]]
+    landmarks: list[float]
+
+    def get_landmarks(self) -> Tuple[list[float] | None, list[float] | None]:
+        if isinstance(self.present_hands, tuple):
+            return self.landmarks[:LENGTH_LANDMARKS * 3], self.landmarks[LENGTH_LANDMARKS*3:]
+        elif self.present_hands == 0:
+            return self.landmarks, None
+        elif self.present_hands == 1:
+            return None, self.landmarks
+        return None,None
 
 class csv_reader:
     def __init__(self):
@@ -35,3 +62,88 @@ class csv_reader:
                         landmarks[label] = {id:parsed_landmarks}
                 parsed_landmarks = []
             return landmarks
+        
+    def extract_two_handed_landmarks(self, path:str) -> dict[str, dict[str, list[MultiHandStaticFrame]]]:
+        """
+        Like extract_landmarks, it extracts all the data from a CSV.
+        
+        returns: a dictionary from label -> dictionary of sequence_id -> list[MultiHandStaticFrame]
+            The MultiHandStaticFrame class remembers which hands were present in the data. Useful for data cleanup later?
+        """
+        def parse_tuple_list_of_xyz(row) -> np.ndarray:
+            return np.fromstring(row.strip(",").strip("[").strip("]"), dtype=np.float32, sep=",")
+
+        def extract_hand_id_and_landmarks(row:list[str], i:int) -> Tuple[int,list[float]]:
+            b = LENGTH_HANDID_AND_LANDMARKS
+            return int(rest_row[i*b]), list(parse_tuple_list_of_xyz(rest_row[i*b:(i+1)*b]))
+
+        with open(path, 'r') as f:
+            reader = csv.reader(f)
+            res: dict[str, dict[str, list[MultiHandStaticFrame]]] = {}
+
+            prev_id = EMPTY_ID
+            label = EMPTY_LABEL
+            
+            cur_sequence: list[MultiHandStaticFrame] = []
+            for line, row in enumerate(reader):
+                if line == 0:
+                    if row[0] != MEDIAPIPER_VERSION_2:
+                        raise Exception("Expected input created using MediaPipe that is able to handle 2 hands... see commit '5ff5831e4f00a62ade91feb91e913f742012030a'")
+                    else:
+                        continue
+                prev_label = label
+                label = row[0]
+                if label not in res:
+                    res[label] = {}
+                
+                next_id = row[1]
+                is_new_video = (prev_id != next_id) or (prev_label != label)
+                if is_new_video and prev_id != EMPTY_ID:
+                    res[prev_label][prev_id] = cur_sequence
+                    cur_sequence = []
+
+                prev_id = next_id
+                rest_row = row[2:]
+                
+                rest_length = len(rest_row)
+                if rest_length == LENGTH_HANDID_AND_LANDMARKS :
+                    #There's only a single hand in here
+                    hand_id = int(rest_row[0])
+                    if hand_id not in (0,1):
+                        raise ValueError(f"Invalid hand_id at line {line+1} for file {path}")
+                    parsed_landmarks = sum([list(parse_tuple_list_of_xyz(landmark_tuple)) for landmark_tuple in rest_row[1:]], [])
+                    cur_sequence.append(MultiHandStaticFrame(hand_id, parsed_landmarks))
+                elif rest_length == 2 * LENGTH_HANDID_AND_LANDMARKS:
+                    #There should be two hands in this line
+                    hands = [
+                        (extract_hand_id_and_landmarks(rest_row,i)) 
+                        for i in range(int(len(rest_row) / 64))
+                    ]
+                    hands.sort(key = lambda x: x[0]) #sort by the hand_id
+                    to_append = MultiHandStaticFrame((0,1), list(sum(map(lambda x: x[1], hands),[])))
+                    cur_sequence.append(to_append)
+                else:
+                    raise ValueError(f"More than two hands for line {line+1}")
+            #The loop above is not complete, so we'll add on the last curr
+            if len(cur_sequence) > 0:
+                res[label][prev_id] = cur_sequence
+            return res
+        
+if __name__ == "__main__":
+    from dynamic_signs.csv_reader import csv_reader
+    from dynamic_signs.csv_reader import MultiHandStaticFrame
+    from sign.training.landmark_extraction.MediapipeTypes import MediapipeHandIndex
+    from pathlib import Path
+
+    out_file = str(Path().cwd().joinpath("bing_bong_out.csv").absolute())
+    reader = csv_reader()
+    res = reader.extract_two_handed_landmarks(out_file)
+    
+    ##look at the handedness of the read csv
+    for label, sequences in res.items():
+        for video_id, frames in sequences.items():
+            mapped_frames = list(map(lambda frame : MediapipeHandIndex[frame.present_hands], frames))
+            right_handed_frames = list(filter(lambda x: x == "right",mapped_frames))
+            left_handed_frames = list(filter(lambda x: x == "left",mapped_frames))
+            both_handed_frames = list(filter(lambda x: x == "both",mapped_frames))
+            print(f"Video {label}-{video_id} has {len(frames)} frames, which hands are in use? \n\tboth: {len(both_handed_frames)} frames\n\tleft: {len(left_handed_frames)} frames\n\tright: {len(right_handed_frames)} frames")

@@ -2,7 +2,8 @@
 import argparse
 import csv
 from dataclasses import dataclass
-from genericpath import isfile
+from datetime import date
+import datetime
 import os
 import random
 from typing import Generator, Tuple
@@ -11,6 +12,13 @@ from sign.skewness_algorithm import is_it_evenly_distributed
 from sign.training.landmark_extraction.HolisticPiper import HolisticPiper
 from sign.training.load_data.HolisticCsvReader import HolisticFrame as hf, HoslisticCsvReader, holistic_keys as hk
 from pathlib import Path
+import logging
+# Setup Logging
+LOG_PATH = Path().cwd().joinpath("logs")
+if not os.path.exists(LOG_PATH):
+    os.mkdir(LOG_PATH)
+current_time = datetime.datetime.now().strftime("%d-%m-%Y-%H-%M-%S")
+logging.basicConfig(filename=LOG_PATH.joinpath(f"{current_time}.log"),level=logging.INFO)
 
 FRAME_AMOUNT = 12 # How many frames do we want? Depends on the precision we want?
 
@@ -146,14 +154,13 @@ def check_for_outlier(prev_frame:MeanFrame,current_frame:MeanFrame,next_frame:Me
 
 def extract_indices_without_outliers(video: list[hf]):
     """
-    TODO: Might be good to make a trajectory here and then pass it with the indices.
-    x
     Throws an error if there are more indices than frames.
     
     Finds all outliers for a list of HolisticFrames and a set of indices.
     
     Returns a new list of indices with outliers removed.
     
+    TODO: Might be good to make a trajectory here and then pass it with the indices.
     TODO: Tobias wants to make an algorithm that checks if the first or last index is an outlier.
     """
     mean_frames:list[MeanFrame] = []
@@ -182,7 +189,7 @@ def extract_indices_for_frames_with_body_and_hands(video:list[hf]):
     extracted_indices:list[int] = []
     for idx,frame in enumerate(video):
         if not can_detect_a_hand(frame) and not can_detect_body(frame): # Strictness parameter
-            print("discarded because there are not enough frames")
+            logging.info("discarded because there are not enough frames")
             continue
         extracted_indices.append(idx)
     return extracted_indices
@@ -193,7 +200,7 @@ def frame_mask(video: list[hf],indices:list[int]):
     
     Throws an error if there are more indices than frames.
     
-    Returns an list of HolisticFrames.
+    Returns a list of HolisticFrames.
     """
     if len(video) < len(indices):
         raise ValueError("Length of indices are larger than length of frames.")
@@ -233,7 +240,7 @@ def process_video(video: list[hf]):
     indices_no_outliers = extract_indices_without_outliers(video) # Filter frames that contain outliers
     #print("We removed",len(indices_no_outliers),"out of",len(video),"frames")
     if (len(indices_no_outliers) / len(video) > 0.40):
-        print("Video with id",video[0].id,"has more than 40 % outliers" , len(video)-len(indices_no_outliers),"out of",len(video))
+        logging.info(f"Video with id {video[0].id} has more than 40 % outliers {len(video)-len(indices_no_outliers)} out of {len(video)}")
     filtered_body_hands_outliers_indices = extract_indices_for_frames_with_body_and_hands([video[index] for index in indices_no_outliers])
     if len(filtered_body_hands_outliers_indices) < 1:
         return None
@@ -243,7 +250,7 @@ def process_video(video: list[hf]):
     
     final_frames = frame_mask(video,filtered_body_hands_outliers_indices)
     if len(filtered_body_hands_outliers_indices) < FRAME_AMOUNT:
-        print("discarded because there are not enough frames")
+        logging.info("discarded because there are not enough frames")
         return None # Discard video
         # final_frames = pad_frames(frame) 
     elif len(filtered_body_hands_outliers_indices) > FRAME_AMOUNT:
@@ -254,20 +261,26 @@ def process_video(video: list[hf]):
 def save_list_of_HolisticVideos_to_csv(path:Path, videos:list[list[hf]]):
     """
     The new name of the file name will become f"proccessed_{filename}"
+    and it will be saved in a folder called "processed" relative to the current path.
     
     """
     file_name = Path(f"proccessed_{path.name}")
     file_path = path.parent.absolute()
-    full_path = Path.joinpath(file_path,file_name)
-    if not os.path.exists(full_path):
-        with open(full_path, 'w'): pass
+    file_path = file_path.joinpath("./processed")
+    if not os.path.exists(file_path):
+        os.mkdir(file_path)
+    processed_file_path = Path.joinpath(file_path,file_name)
+    if not os.path.exists(processed_file_path):
+        with open(processed_file_path, 'w'): pass
         
-    with open(full_path,"w") as csvfile:
+    with open(processed_file_path,"w") as csvfile:
         _writer = csv.writer(csvfile,delimiter=',')
         for video in videos:
             for frame in video:
                 for body_part in hk:
-                    _writer.writerow([body_part,frame.id,frame[body_part]])
+                    frame_coordinates = frame[body_part] # we do this because python linting is actually stupid
+                    coordinates = frame_coordinates if frame_coordinates is not None else []
+                    _writer.writerow([body_part,frame.id,*coordinates])
                 
 def convert_list_of_frames_to_list_of_videos(frame_generator:Generator[hf, None, None]):
     videos:list[list[hf]] = []
@@ -307,7 +320,7 @@ def filter_holistic_csv(path:Path):
             continue
         good_videos += 1
         processed_videos.append(processed_video)
-    print(discard_videos,good_videos)
+    logging.info(f"Discarded Videos: {discard_videos} Good Videoes: {good_videos} Total videos: {len(list_of_videos)}")
     return processed_videos
     
     
@@ -317,28 +330,26 @@ def process_csv():
                     description='This program processes a csv of holistic frames',
                     epilog='Good Luck 🤡🤡🤡🤡🤡🤡🤡🤡')
     parser.add_argument("filename",help="Filename for the csv")
-    parser.add_argument("-f","--folder",dest="folder",help="")
     _args = parser.parse_args()
     path = Path(_args.filename)
     if not path.exists():
         exit(1)
-    
-    if path.is_dir():
+    if path.is_dir(): # Processes all .csv in a directory
         for file in os.listdir(path):
             file_path = path.joinpath(file)
-            if not file_path.suffix == ".csv":
-                continue
             if not file_path.is_file():
                 continue
-            processed_videos = filter_holistic_csv(path)
-            save_list_of_HolisticVideos_to_csv(path,processed_videos)
+            if not file_path.suffix == ".csv":
+                continue
+            processed_videos = filter_holistic_csv(file_path)
+            save_list_of_HolisticVideos_to_csv(file_path,processed_videos)
         exit()
     
     if not path.is_file():
         exit(1)
     if not path.suffix == ".csv":
         exit(1)
-    processed_videos = filter_holistic_csv(path)
+    processed_videos = filter_holistic_csv(path) # process a single file
     save_list_of_HolisticVideos_to_csv(path,processed_videos)
     exit()
 

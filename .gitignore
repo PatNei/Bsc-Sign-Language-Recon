@@ -181,7 +181,7 @@ notebooks/**/*.png
 *.tar.sz
 *.avi
 *.csv
-
+*.log
 *.png
 
 *nohup*
