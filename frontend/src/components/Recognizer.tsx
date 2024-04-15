@@ -65,7 +65,7 @@ export default function Recognizer({ challenges, dynamic }: props) {
                 )
             )
           )}
-          <p>{sign}</p>
+          <p>{`${sign[0].toUpperCase()}${sign.slice(1)}`}</p>
         </div>
         {shouldCapture &&
           (dynamic || "JZ".includes(sign) ? (
