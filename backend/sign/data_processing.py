@@ -4,15 +4,19 @@ import csv
 from dataclasses import dataclass
 from datetime import date
 import datetime
+from enum import StrEnum
 import os
 import random
 from typing import Generator, Tuple
 import numpy as np
+from dynamic_signs.csv_reader import MultiHandStaticFrame
 from sign.skewness_algorithm import is_it_evenly_distributed
 from sign.training.landmark_extraction.HolisticPiper import HolisticPiper
 from sign.training.load_data.HolisticCsvReader import HolisticFrame as hf, HoslisticCsvReader, holistic_keys as hk
 from pathlib import Path
 import logging
+
+from sign.trajectory import TrajectoryBuilder, direction, trajectory_element
 # Setup Logging
 LOG_PATH = Path().cwd().joinpath("logs")
 if not os.path.exists(LOG_PATH):
@@ -25,6 +29,11 @@ FRAME_AMOUNT = 12 # How many frames do we want? Depends on the precision we want
 @dataclass
 class MeanFrame(hf):
     pass
+
+class coordinate(StrEnum):
+    x = "x"
+    y = "y"
+    z = "z"
 
 def can_detect_body_part(frame:MeanFrame,key: hk):
     body_part = frame[key]
@@ -224,9 +233,80 @@ def extract_keyframes(video:list[hf]):
 def pad_frames():
     pass
 
-def calculate_trajectories(video:list[hf]):
-    " oh no"
-    pass
+def calculate_trajectories(hand_landmarks:list[list[float]]):
+    """
+    Given a list of a list of floats (a video or a list of frames), extract landmarks and convert them to a trajectory.
+    
+    """
+    if len(hand_landmarks) < 3:
+        raise ValueError("You parsed a list which was less than 3 frames long")
+    
+    bob = TrajectoryBuilder()
+    hand_trajectories: list[trajectory_element] = []
+    for frame in hand_landmarks:
+        prev_frame = frame[:3] # has the form x,y,z
+        for index in range(3,len(frame)-3,3):
+            current_frame = frame[index:index+3] # has the form x,y,z
+            trajectory = bob.create_trajectory_element(np.array(prev_frame),np.array(current_frame))
+            hand_trajectories.append(trajectory)
+            prev_frame = current_frame
+        last_frame = frame[len(frame)-3:] # has the form x,y,z
+        trajectory = bob.create_trajectory_element(np.array(prev_frame),np.array(last_frame))
+        hand_trajectories.append(trajectory)
+    return hand_trajectories
+    
+
+def calculate_movement_score(trajectories:list[trajectory_element]):
+    """
+    Calculates the movement for a trajectory
+    it works by taking the direction of movement for x,y,z and accumulates the amount of occurences that are not equal to direction.STATIONARY.
+    Finally it returns the sum of x,y,z scores.
+    
+    """
+    x_score = 0
+    y_score = 0
+    z_score = 0
+    for trajectory in trajectories:
+        if trajectory.x != direction.STATIONARY:
+            x_score += 1
+        if trajectory.y != direction.STATIONARY:
+            y_score += 1
+        if trajectory.z != direction.STATIONARY:
+            z_score += 1
+    return x_score + y_score + z_score
+
+
+
+def which_hand_has_most_movement(video:list[MultiHandStaticFrame]):
+    """
+    Takes a list of MultiHandStaticFrames, finds their trajectory and tries to predict which hand has most movement. 
+    It defaults to the left hand in case of both hands have equal movement.
+    
+    """
+    
+    left_hand_trajectories: list[trajectory_element] = []
+    right_hand_trajectories: list[trajectory_element] = []
+    
+    left_hand_landmarks:list[list[float]] = []
+    right_hand_landmarks:list[list[float]] = []
+    
+    for frame in video:
+        _left_hand_landmarks,_right_hand_landmarks = frame.get_landmarks() 
+        if _left_hand_landmarks: left_hand_landmarks.append(_left_hand_landmarks)
+        if _right_hand_landmarks: right_hand_landmarks.append(_right_hand_landmarks)
+    
+    if left_hand_landmarks:
+        left_hand_trajectories = calculate_trajectories(left_hand_landmarks)
+    if right_hand_landmarks:
+        right_hand_trajectories = calculate_trajectories(right_hand_landmarks)
+
+    left_hand_score = calculate_movement_score(left_hand_trajectories)
+    right_hand_score = calculate_movement_score(right_hand_trajectories)
+    
+    if left_hand_score < right_hand_score:
+        return hk.RIGHT_HAND
+    
+    return hk.LEFT_HAND
 
 def process_video(video: list[hf]):
     """
@@ -238,9 +318,10 @@ def process_video(video: list[hf]):
     """
     
     indices_no_outliers = extract_indices_without_outliers(video) # Filter frames that contain outliers
+    number_of_outliers = len(video)-len(indices_no_outliers)
     #print("We removed",len(indices_no_outliers),"out of",len(video),"frames")
-    if (len(indices_no_outliers) / len(video) > 0.40):
-        logging.info(f"Video with id {video[0].id} has more than 40 % outliers {len(video)-len(indices_no_outliers)} out of {len(video)}")
+    if (number_of_outliers / len(video) > 0.40):
+        logging.info(f"Video with id {video[0].id} has more than 40 % outliers {number_of_outliers} out of {len(video)}")
     filtered_body_hands_outliers_indices = extract_indices_for_frames_with_body_and_hands([video[index] for index in indices_no_outliers])
     if len(filtered_body_hands_outliers_indices) < 1:
         return None
@@ -250,7 +331,7 @@ def process_video(video: list[hf]):
     
     final_frames = frame_mask(video,filtered_body_hands_outliers_indices)
     if len(filtered_body_hands_outliers_indices) < FRAME_AMOUNT:
-        logging.info("discarded because there are not enough frames")
+        logging.info(f"video with id: {video[0].id} discarded because there are not enough frames")
         return None # Discard video
         # final_frames = pad_frames(frame) 
     elif len(filtered_body_hands_outliers_indices) > FRAME_AMOUNT:

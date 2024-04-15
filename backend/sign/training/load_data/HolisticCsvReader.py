@@ -21,7 +21,8 @@ class HolisticFrame:
     data: dict[holistic_keys, list[float]]
     def __getitem__(self, key:holistic_keys):
         if key not in self.data:
-            return []
+            empty_list:list[float] = [] # We do it like this otherwise pythons type system whines
+            return empty_list
         return self.data[key]
 
 HolisticSequence = dict[holistic_keys, list[float]]

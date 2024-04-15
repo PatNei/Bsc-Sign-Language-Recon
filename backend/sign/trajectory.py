@@ -49,10 +49,11 @@ class trajectory:
         return asd
 
 class TrajectoryBuilder:
-    def __init__(self, bertram_mode = True, boundary = 0.01, target_len = 3):
+    def __init__(self, bertram_mode = True, boundary = 0.01, target_len = 3, dimensions = DIMENSIONS):
         self.target_len = target_len
         self.bertram_mode = bertram_mode
         self.boundary = boundary
+        self.dimensions = dimensions
         if bertram_mode: 
             print("🔥🔥 TrajectoryBuilder is now running in BERTRAM_MODE 🔥🔥")
 
@@ -182,9 +183,13 @@ class TrajectoryBuilder:
             return lower <= cur_mean <= upper
 
     def create_trajectory_element(self, prev:np.ndarray, cur:np.ndarray) -> trajectory_element:
+        """
+        Each array should have the form [x,y,z]
+        
+        """
         directions: list[direction] = []
 
-        for dim in range(DIMENSIONS):
+        for dim in range(self.dimensions):
             mean_p_dim:np.float32 = prev[dim]
             mean_c_dim:np.float32 = cur[dim]
 

@@ -16,11 +16,23 @@ class MultiHandStaticFrame:
     IMPORTANT: The list will always be ordered as 63 landmarks for hand_0,
     then 63 landmarks for hand_1, IFF. there are landmarks for both hands.
     Otherwise the list will only contain the 63 landmarks
+    0 -> Left
+    1 -> Right
     """
     present_hands: Literal[0] | Literal[1] | Tuple[Literal[0], Literal[1]]
     landmarks: list[float]
 
     def get_landmarks(self) -> Tuple[list[float] | None, list[float] | None]:
+        """
+        Keeps all the landmarks as a single list.
+        IMPORTANT: The list will always be ordered as 63 landmarks for hand_0,
+        then 63 landmarks for hand_1, IFF. there are landmarks for both hands.
+        Otherwise the list will only contain the 63 landmarks
+        
+        0 -> Left hand
+        
+        1 -> Right hand
+        """
         if isinstance(self.present_hands, tuple):
             return self.landmarks[:LENGTH_LANDMARKS * 3], self.landmarks[LENGTH_LANDMARKS*3:]
         elif self.present_hands == 0:
