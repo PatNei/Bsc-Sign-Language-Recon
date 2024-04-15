@@ -47,18 +47,23 @@ export default function Recognizer({ challenges, dynamic }: props) {
               className=" h-20 w-20"
             />
           ) : (
-            signSrc.map((clip, i) => (
-              <iframe
-                key={i}
-                width="420"
-                height="315"
-                src={`https://www.youtube.com/embed/${
-                  clip.split(":")[0]
-                }?start=${Math.floor(
-                  +clip.split(":")[1] / 1000
-                )}&cc_load_policy=1`}
-              ></iframe>
-            ))
+            signSrc.map(
+              (clip, i) =>
+                // Max 2 clips will be shown
+                i < 2 && (
+                  <iframe
+                    className="pb-2"
+                    key={i}
+                    width="420"
+                    height="315"
+                    src={`https://www.youtube.com/embed/${
+                      clip.split(":")[0]
+                    }?start=${Math.floor(
+                      +clip.split(":")[1] / 1000
+                    )}&cc_load_policy=1`}
+                  ></iframe>
+                )
+            )
           )}
           <p>{sign}</p>
         </div>
