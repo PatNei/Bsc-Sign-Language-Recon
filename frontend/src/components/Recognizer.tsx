@@ -12,6 +12,7 @@ export default function Recognizer({ challenges, dynamic }: props) {
   const [boolski, setBoolski] = useState<boolean>(false);
   const [i, setI] = useState(0);
   const [[sign, signSrc], setChallenge] = useState(challenges[i]);
+  const [srcIndex, setSrcIndex] = useState(0);
   const [letterCounter, setLetterCounter] = useState(0);
   const [shouldCapture, setShouldCapture] = useState<boolean>(false);
   const [response, setResponse] = useState<string>("");
@@ -47,25 +48,28 @@ export default function Recognizer({ challenges, dynamic }: props) {
               className=" h-20 w-20"
             />
           ) : (
-            signSrc.map(
-              (clip, i) =>
-                // Max 2 clips will be shown
-                i < 2 && (
-                  <iframe
-                    className="pb-2"
-                    key={i}
-                    width="420"
-                    height="315"
-                    src={`https://www.youtube.com/embed/${
-                      clip.split(":")[0]
-                    }?start=${Math.floor(
-                      +clip.split(":")[1] / 1000
-                    )}&cc_load_policy=1`}
-                  ></iframe>
-                )
-            )
+            <div className="grid grid-cols-1">
+              <iframe
+                className="pb-2"
+                key={i}
+                width="420"
+                height="315"
+                src={`https://www.youtube.com/embed/${
+                  signSrc[srcIndex].split(":")[0]
+                }?start=${Math.floor(
+                  +signSrc[srcIndex].split(":")[1] / 1000
+                )}&cc_load_policy=1&autoplay=1`}
+              />
+              <button
+                className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+                type="button"
+                onClick={() => setSrcIndex((i) => (i + 1) % signSrc.length)}
+              >
+                Next Clip {`(${srcIndex + 1}/${signSrc.length})`}
+              </button>
+            </div>
           )}
-          <p>{`${sign[0].toUpperCase()}${sign.slice(1)}`}</p>
+          <p className="pt-2">{`${sign[0].toUpperCase()}${sign.slice(1)}`}</p>
         </div>
         {shouldCapture &&
           (dynamic || "JZ".includes(sign) ? (
