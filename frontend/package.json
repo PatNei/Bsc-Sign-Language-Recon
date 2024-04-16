@@ -19,6 +19,7 @@
     "@mediapipe/holistic": "^0.5.1675471629",
     "@mediapipe/tasks-vision": "^0.10.9",
     "axios": "^1.6.7",
+    "csv-parse": "^5.5.5",
     "localforage": "^1.10.0",
     "match-sorter": "^6.3.4",
     "react": "^18.2.0",

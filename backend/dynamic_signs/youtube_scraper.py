@@ -108,20 +108,41 @@ class YouTubeScraper():
         
     def find_common_words(self, max=0, min_occurances=3):
         words = {}
-        for captions in self.extract_captions(max=max, only_common_words=False).values():
-            for caption in captions.values():
+        for video_id, captions in self.extract_captions(max=max, only_common_words=False).items():
+            for time, caption in captions.items():
+                clip = (video_id, time)
                 if caption in words:
-                    words[caption] = words[caption] + 1
+                    existing = words[caption]
+                    clips = existing["clips"]
+                    count = existing["count"]
+                    clips.append(clip)
+                    words[caption] = dict(count=count + 1, clips=clips)
                 else:
-                    words[caption] = 1
+                    words[caption] = dict(count=1, clips=[clip])
         
         with open('dynamic_signs/common_words.csv', 'w') as csvfile:
-            writer = csv.DictWriter(csvfile, fieldnames=['word'])
+            writer = csv.DictWriter(csvfile, fieldnames=['word', 'count', 'clips'])
             writer.writeheader()
-            for word, count in words.items():
-                if (count >= min_occurances):
-                    writer.writerow({'word': word})
+            for word, info in words.items():
+                clips = ""
+                for clip in info["clips"]:
+                    clips += f"{clip[0]}:{clip[1]}#"
+                if (info["count"] >= min_occurances):
+                    writer.writerow({'word': word, 'count': info["count"], 'clips': clips[:-1]})
+                    
+    def write_common_words(self):
+        with open('dynamic_signs/common_words.csv', 'r') as common_words:
+            with open('dynamic_signs/common_words.txt', 'w') as common_words_txt:
+                reader = csv.DictReader(common_words)
+                res = ""
+                for row in reader:
+                    word = row["word"]
+                    clips = row["clips"]
+                    res = res + f"{word}?{clips},"
+                common_words_txt.write(res[:-1])
 
 yt = YouTubeScraper()
+# yt.get_video_signs(max=0,seconds_per_clip=1)
 # yt.find_common_words(min_occurances=50, max=0)
-yt.get_video_signs(max=0,seconds_per_clip=1)
+yt.find_common_words(min_occurances=0, max=20)
+yt.write_common_words()
