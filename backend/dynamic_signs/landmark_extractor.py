@@ -10,14 +10,14 @@ import shutil
 
 
 class DynamicLandmarkExtractor:
-    def __init__(self, is_holistic=False, out_path="out.csv", target_path="videos.zip") -> None:
+    def __init__(self, out_path="out.csv", target_path="videos.zip",num_hands=1) -> None:
         self.target_path = target_path
         self.out_path = out_path
-        if is_holistic:
-            os.makedirs(out_path, exist_ok=True)
-            self.mediapiper = HolisticPiper(out_dest=Path(out_path))
-        else:
-            self.mediapiper = MediaPiper()
+        # if is_holistic:
+        #     os.makedirs(out_path, exist_ok=True)
+        #     self.mediapiper = HolisticPiper(out_dest=Path(out_path))
+        # else:
+        self.mediapiper = MediaPiper(num_hands=num_hands)
         self.regex = r".*\/*(.+)\/(.+)\.avi"
         pass
 
@@ -44,7 +44,7 @@ class DynamicLandmarkExtractor:
         shutil.rmtree(path)
     
     def process_video_dataset(self):
-        with ZipFile(str(Path.cwd().absolute().joinpath(target_path)), 'r') as myzip:
+        with ZipFile(str(Path.cwd().absolute().joinpath(self.target_path)), 'r') as myzip:
             try:
                 for file in myzip.filelist:
                     match = re.match(self.regex, file.filename)
@@ -63,12 +63,7 @@ if __name__ == "__main__":
     parser.add_argument("zip_file", 
                         help="The .zip file containing videos.",
                         type=str)
-    parser.add_argument("-holi", "--holistic", 
-                        dest="is_holistic", 
-                        help="Extract holistic landmarks.",
-                        action=argparse.BooleanOptionalAction,
-                        default=False,
-                        type=bool)
+
     parser.add_argument("--out", 
                         help="name of the out file. Must be a folder when combined with --holistic flag.",
                         dest="out", 
@@ -78,11 +73,8 @@ if __name__ == "__main__":
 
     out_path = Path(args.out)
     target_path = Path(args.zip_file)
-    if args.is_holistic and out_path.is_file():
-        raise ValueError(f"--out must set to a directory when using the holistic flag")
-    elif not args.is_holistic and out_path.suffix != '.csv':
-        raise ValueError(f"--out must set to a .csv file when using MP hands")
-    elif not target_path.exists() or target_path.suffix != '.zip':
+
+    if not target_path.exists() or target_path.suffix != '.zip':
         raise ValueError(f"videoes must be in a .zip file AND exists :thinking:")
 
     if not out_path.exists():
@@ -94,5 +86,5 @@ if __name__ == "__main__":
 
     print(f"About to process {args.zip_file} using {'Holistic' if args.is_holistic else 'Hands'}, outputting to [{args.out}]")
 
-    extractor = DynamicLandmarkExtractor(is_holistic=args.is_holistic, out_path=args.out, target_path=args.zip_file)
+    extractor = DynamicLandmarkExtractor(out_path=args.out, target_path=args.zip_file)
     extractor.process_video_dataset()

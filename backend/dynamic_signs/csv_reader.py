@@ -86,11 +86,11 @@ class csv_reader:
             
             cur_sequence: list[MultiHandStaticFrame] = []
             for line, row in enumerate(reader):
-                if line == 0:
-                    if row[0] != MEDIAPIPER_VERSION_2:
-                        raise Exception("Expected input created using MediaPipe that is able to handle 2 hands... see commit '5ff5831e4f00a62ade91feb91e913f742012030a'")
-                    else:
-                        continue
+                # if line == 0:
+                #     if row[0] != MEDIAPIPER_VERSION_2:
+                #         raise Exception("Expected input created using MediaPipe that is able to handle 2 hands... see commit '5ff5831e4f00a62ade91feb91e913f742012030a'")
+                #     else:
+                #         continue
                 prev_label = label
                 label = row[0]
                 if label not in res:

@@ -179,7 +179,7 @@ class MediaPiper(DynamicPiper):
         res = self.process_dynamic_gestures_from_folder(path_frames)
         with open(out, 'a', newline="") as f:
             writer = csv.writer(f)
-            writer.writerow([MEDIAPIPER_VERSION_2])
+            # writer.writerow([MEDIAPIPER_VERSION_2])
             for dynamic_gesture in res:
                 for sequence_id, gesture_sequence in enumerate(dynamic_gesture.results):
                     seq_id = id if id else sequence_id
@@ -195,7 +195,7 @@ class MediaPiper(DynamicPiper):
                                 if len(mp_result.multi_handedness) > (len(mp_result.multi_hand_landmarks) / 2):
                                     raise Exception(f"Mediapipe found landmarks for {len(mp_result.multi_hand_landmarks)} hands, but reported handedness for {len(mp_result.multi_handedness)} hands")
                                 row_out:list = [dynamic_gesture.label, seq_id]
-                                for idx, hand_id in enumerate(map(lambda x: x.index ,mp_result.multi_handedness)):
+                                for idx, hand_id in enumerate(sorted(map(lambda x: x.index ,mp_result.multi_handedness))):
                                     if idx in (0,1):
                                         landmarks_hand_for_id = mp_result.multi_hand_landmarks_by_hand(idx)
                                         
