@@ -16,9 +16,10 @@ class NormalizedLandmarkDTO(BaseModel):
     
 class NormalizedLandmarksDTO(BaseModel):
     data: list[NormalizedLandmarkDTO]
+    handedness: str
 
 class NormalizedLandmarksSequenceDTO(BaseModel):
-    data: list[list[NormalizedLandmarkDTO]]
+    data: list[NormalizedLandmarkDTO]
 
 class NormalizedLandmark():
     x: np.float32
@@ -34,6 +35,7 @@ class NormalizedLandmark():
 @dataclass
 class NormalizedLandmarks():
     data: list[NormalizedLandmark]
+    handedness: str
     
 @dataclass()
 class NormalizedLandmarksSequence(): 
@@ -47,9 +49,9 @@ class NormalizedLandmarksSequence():
 ##                                                                                    ##
 ##------------------------------------------------------------------------------------##
 
-def calc_landmark_list(landmarks : Union[list[MediapipeLandmark], list[NormalizedLandmark]],
+def calc_landmark_list(landmarks : Union[list[MediapipeLandmark], list[NormalizedLandmark]], handedness: str,
                        image_width = 1280, 
-                       image_height = 720) -> list[Tuple[int, int]]:
+                       image_height = 720) -> Tuple[list[Tuple[int, int]], str]:
     """ Turns a list of MediapipeLandmarks into a list of screen coordinates
 
         Returns: 
@@ -65,9 +67,9 @@ def calc_landmark_list(landmarks : Union[list[MediapipeLandmark], list[Normalize
 
         landmark_point.append([landmark_x, landmark_y])
 
-    return landmark_point
+    return (landmark_point, handedness)
 
-def pre_process_landmark(landmark_list: list[Tuple[int, int]]) -> list[float]:
+def pre_process_landmark(landmark_list: list[Tuple[int, int]], handedness: str) -> Tuple[list[float], str]:
     """ Takes a list of landmarks that have been converted using calc_landmark_list
         and performs the final preprocessing step. That is normalizing all the landmarks
         according to the max absolut value 
@@ -94,4 +96,4 @@ def pre_process_landmark(landmark_list: list[Tuple[int, int]]) -> list[float]:
 
     res = list(map(normalize_, res))
 
-    return res
+    return (res, handedness)

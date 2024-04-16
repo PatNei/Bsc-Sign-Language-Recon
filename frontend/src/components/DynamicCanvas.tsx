@@ -2,6 +2,7 @@ import { type ReactElement, useRef, useState, useEffect } from "react";
 import { createCamera, createHands } from "../utility/camera";
 import type { Camera } from "@mediapipe/camera_utils";
 import type { LandmarkDTO } from "../utility/api";
+import { Handedness, NormalizedLandmark } from "@mediapipe/hands";
 
 type CanvasProps = {
   setLetterRecognizerResponse: (r: string) => void;
@@ -12,7 +13,7 @@ export default function Canvas({
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
   const [dynamicSignLandmarks, setDynamicSignLandmarks] = useState<
-    LandmarkDTO[][]
+    [NormalizedLandmark[], Handedness][]
   >([]);
   const cameraRef = useRef<Camera | null>(null);
 

@@ -21,7 +21,7 @@ class SignClassifier:
         path = str(Path.cwd().absolute().joinpath(model_path))
         self.model: scikitModel = load(path)
 
-    def predict(self, target:npt.NDArray[np.float32]) -> npt.NDArray[np.str_]:
+    def predict(self, target:npt.NDArray[np.float32], handedness: str) -> npt.NDArray[np.str_]:
         return self.model.predict(target)
 
 if __name__ == '__main__':
