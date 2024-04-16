@@ -195,7 +195,7 @@ class MediaPiper(DynamicPiper):
                                 if len(mp_result.multi_handedness) > (len(mp_result.multi_hand_landmarks) / 2):
                                     raise Exception(f"Mediapipe found landmarks for {len(mp_result.multi_hand_landmarks)} hands, but reported handedness for {len(mp_result.multi_handedness)} hands")
                                 row_out:list = [dynamic_gesture.label, seq_id]
-                                for idx, hand_id in enumerate(sorted(map(lambda x: x.index ,mp_result.multi_handedness))):
+                                for idx, hand_id in enumerate(map(lambda x: x.index ,mp_result.multi_handedness)):
                                     if idx in (0,1):
                                         landmarks_hand_for_id = mp_result.multi_hand_landmarks_by_hand(idx)
                                         

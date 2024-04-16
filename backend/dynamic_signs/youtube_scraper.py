@@ -8,11 +8,14 @@ from moviepy.video.io.ffmpeg_tools import ffmpeg_extract_subclip
 from dynamic_signs.landmark_extractor import DynamicLandmarkExtractor
 
 class YouTubeScraper():
-    def __init__(self) -> None:
+    def __init__(self,common_words_path:Path,text_id_path:Path) -> None:
+        self.text_id_path = text_id_path
+        self.common_words_path = common_words_path
         pass
 
-    def get_video_signs(self, max=0, seconds_per_clip=1):
-        dynamic_landmark_extractor = DynamicLandmarkExtractor(out_path="dynamic_signs/youtube.csv")
+    def get_video_signs(self, max=0, seconds_per_clip=1,num_hands=1):
+
+        dynamic_landmark_extractor = DynamicLandmarkExtractor(out_path="youtube.csv",num_hands=num_hands)
         captions = self.extract_captions(max=max, only_common_words=True).items()
         if max == 0:
             max = len(captions)
@@ -31,18 +34,18 @@ class YouTubeScraper():
             i = i + 1
             shutil.rmtree(f"./dynamic_signs/videos/{video_id}")
 
-    def extract_captions(self, max=0, only_common_words=False,path=Path("dynamic_signs/video_ids.txt")):
+    def extract_captions(self, max=0, only_common_words=False):
         cap_num_of_words = max != 0
         common_words = []
         if only_common_words:
-            with open("dynamic_signs/common_words.csv") as csvfile:
+            with open(self.common_words_path) as csvfile:
                 reader = csv.DictReader(csvfile)
                 for row in reader:
                     common_words.append(row['word'])
         
         res = {}
         i = 0
-        with open(path) as video_ids:
+        with open(self.text_id_path) as video_ids:
             lines = video_ids.readlines()
             if not cap_num_of_words:
                 max = len(lines)
@@ -116,13 +119,14 @@ class YouTubeScraper():
                 else:
                     words[caption] = 1
         
-        with open('dynamic_signs/common_words.csv', 'w') as csvfile:
+        with open(self.common_words_path, 'w') as csvfile:
             writer = csv.DictWriter(csvfile, fieldnames=['word'])
             writer.writeheader()
             for word, count in words.items():
                 if (count >= min_occurances):
                     writer.writerow({'word': word})
 
-yt = YouTubeScraper()
-# yt.find_common_words(min_occurances=50, max=0)
-yt.get_video_signs(max=0,seconds_per_clip=1)
+if __name__ == "__main__":
+    yt = YouTubeScraper(Path("dynamic_signs/video_ids.txt"),Path("dynamic_signs/video_ids.txt"))
+    # yt.find_common_words(min_occurances=50, max=0)
+    yt.get_video_signs(max=100,seconds_per_clip=1)

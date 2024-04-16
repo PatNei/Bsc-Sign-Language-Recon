@@ -62,6 +62,9 @@ class TrajectoryBuilder:
         else: 
             return self.extract_keyframes_sample(seq)
     
+    def landmark_list_to_trajectories():
+        
+    
     # Just the length of 3D vector difference, don't worry bout it
     def _distance(self, pos1, pos2) -> float:
         return float(np.linalg.norm(pos1 - pos2))
