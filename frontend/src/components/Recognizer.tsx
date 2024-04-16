@@ -58,7 +58,9 @@ export default function Recognizer({ challenges, dynamic }: props) {
                   signSrc[srcIndex].split(":")[0]
                 }?start=${Math.floor(
                   +signSrc[srcIndex].split(":")[1] / 1000
-                )}&cc_load_policy=1&autoplay=1`}
+                )}&cc_load_policy=1&autoplay=1&end=${
+                  Math.floor(+signSrc[srcIndex].split(":")[1] / 1000) + 1
+                }&loop=1&fs=0&iv_load_policy=3`}
               />
               <button
                 className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
