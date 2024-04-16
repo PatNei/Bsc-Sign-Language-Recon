@@ -155,7 +155,11 @@ export default function Recognizer({ challenges, dynamic }: props) {
           )}
         </p>
       </div>
-      <button type="button" onClick={(_) => setShouldCapture(!shouldCapture)}>
+      <button
+        className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+        type="button"
+        onClick={(_) => setShouldCapture(!shouldCapture)}
+      >
         {shouldCapture ? "Disable" : "Enable"} camera
       </button>
     </div>
