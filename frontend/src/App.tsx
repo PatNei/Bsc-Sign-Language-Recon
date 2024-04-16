@@ -35,15 +35,15 @@ function App() {
           <Route index element={<Welcome />} />
           <Route
             path="alphabet"
-            element={
+            Component={() => (
               <Recognizer dynamic={false} challenges={alphabetChallenges} />
-            }
+            )}
           />
           <Route
             path="common-signs"
-            element={
+            Component={() => (
               <Recognizer dynamic={true} challenges={commonSignsChallenges} />
-            }
+            )}
           />
           <Route path="mirror" element={<Mirror />} />
         </Route>
