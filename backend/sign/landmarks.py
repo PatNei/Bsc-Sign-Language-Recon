@@ -19,7 +19,7 @@ class NormalizedLandmarksDTO(BaseModel):
 class NormalizedLandmarksSequenceDTO(BaseModel):
     data: list[NormalizedLandmarksDTO]
 
-class NormalizedLandmarkSequencesDTO(BaseModel):
+class NormalizedLandmarksSequencesDTO(BaseModel):
     data: list[NormalizedLandmarksSequenceDTO]
 
 class NormalizedLandmark():
