@@ -143,6 +143,9 @@ class TrajectoryBuilder:
         if (self.target_len <= 2):
             raise Exception("stop it")
         seq_new = self.remove_outliers(seq)
+        if len(seq_new) < self.target_len:
+            seq_new = self.pad_sequences_of_landmarks(seq_new)
+        print(len(seq_new))
         random.seed(42)
         res = [seq_new[0]]
         idxs = sorted(random.sample(range(1,len(seq_new)-1), k=self.target_len-2))

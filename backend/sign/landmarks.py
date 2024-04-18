@@ -50,7 +50,7 @@ class NormalizedLandmarksSequence():
 ##                                                                                    ##
 ##------------------------------------------------------------------------------------##
 
-def calc_landmark_list(landmarks : Union[list[MediapipeLandmark], list[NormalizedLandmark]], handedness: str,
+def calc_landmark_list(landmarks : Union[list[MediapipeLandmark], list[NormalizedLandmark]],
                        image_width = 1280, 
                        image_height = 720) -> Tuple[list[Tuple[int, int]], str]:
     """ Turns a list of MediapipeLandmarks into a list of screen coordinates
@@ -68,9 +68,9 @@ def calc_landmark_list(landmarks : Union[list[MediapipeLandmark], list[Normalize
 
         landmark_point.append([landmark_x, landmark_y])
 
-    return (landmark_point, handedness)
+    return landmark_point
 
-def pre_process_landmark(landmark_list: list[Tuple[int, int]], handedness: str) -> Tuple[list[float], str]:
+def pre_process_landmark(landmark_list: list[Tuple[int, int]]) -> Tuple[list[float], str]:
     """ Takes a list of landmarks that have been converted using calc_landmark_list
         and performs the final preprocessing step. That is normalizing all the landmarks
         according to the max absolut value 
@@ -97,4 +97,4 @@ def pre_process_landmark(landmark_list: list[Tuple[int, int]], handedness: str) 
 
     res = list(map(normalize_, res))
 
-    return (res, handedness)
+    return res

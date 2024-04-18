@@ -13,7 +13,6 @@ export async function APIPost(url: string, body: unknown): Promise<PostState> {
     response: undefined,
     error: undefined,
   };
-  console.log(body);
   try {
     const response = await axios.post<string>(baseURL + url, body);
     state = { ...state, response: response.data };
@@ -136,13 +135,11 @@ async function gameLogicDynamicSign(
 
   setDynamicSignLandmarks((prevDynamicSignLandmarks) => {
     let res = prevDynamicSignLandmarks;
-    res.data.push(multiHandLandmarks);
-    console.log(res);
+    if (res.data.length < min_frames_per_sign)
+      res.data.push(multiHandLandmarks);
     return res;
   });
-  console.log(dynamicSignLandmarks.data.length);
-  if (dynamicSignLandmarks.data.length >= min_frames_per_sign) {
-    console.log(JSON.stringify(dynamicSignLandmarks));
+  if (dynamicSignLandmarks.data.length === min_frames_per_sign) {
     const postState = await APIPost("dynamic_annotation", dynamicSignLandmarks);
     if (postState?.response && !postState.error) {
       setLetterRecognizerResponse(postState.response);
