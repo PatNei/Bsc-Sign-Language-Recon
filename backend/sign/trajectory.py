@@ -1,6 +1,6 @@
 from enum import IntEnum, Enum
 import random
-from typing import Any, TypeVar, Union
+from typing import Any, Tuple, TypeVar, Union
 import numpy as np
 from numpy import typing as npt
 from sign.landmarks import NormalizedLandmark, NormalizedLandmarks
@@ -62,8 +62,32 @@ class TrajectoryBuilder:
         else: 
             return self.extract_keyframes_sample(seq)
     
-    def landmark_list_to_trajectories():
+    def landmark_list_to_trajectories(self,landmarks:list[list[float]],num_landmarks=21,dimensions=3):
+        """Creates a trajectory(representing a gesture ) from a sequence of landmarks.
+
+            :param image_landmark_sequence: list of pictures, that have been reduced to landmarks
+                np.array(np.array(landmarks)), where each landmark has 3 float coordinates (x,y,z).
+                
+            :return: A trajectory object.
+        """
+        res: list[trajectory_element] = []
         
+        if len(landmarks) < 3:
+           raise ValueError(f"landmark list is shorter than 3 elements and can't be processed")
+        
+        for previous,current in zip(landmarks[0:],landmarks[1:]):
+            mean_prev = self.frame_to_single_mean(previous,num_landmarks=num_landmarks,dimensions=dimensions)
+            mean_cur = self.frame_to_single_mean(current,num_landmarks=num_landmarks,dimensions=dimensions)
+            if len(mean_prev) < 1 or len(mean_cur) < 1:
+                continue
+            try:
+                next_elm_of_trajectory = self.create_trajectory_element(mean_prev, mean_cur)
+            except Exception as e:
+                print(e)
+                continue
+            res.append(next_elm_of_trajectory)
+
+        return trajectory(res)            
     
     # Just the length of 3D vector difference, don't worry bout it
     def _distance(self, pos1, pos2) -> float:
@@ -141,7 +165,7 @@ class TrajectoryBuilder:
         for i in range(1, len(seq)):
             pos = self.landmarks_to_single_mean(seq[i])
             displacements.append(self._distance(last_pos, pos))
-            last_pos = pos.copy()
+            last_pos = pos
 
         total = sum(displacements)
         # this is how often a key frame should be placed
@@ -166,10 +190,14 @@ class TrajectoryBuilder:
             raise Exception(f"expected {self.target_len} but got {len(toReturn)}.. not enough keyframes >:(")
                 
         return np.array(toReturn)
+    def frame_to_single_mean(self,frame:list[float],num_landmarks=21,dimensions=3):
+        np_landmarks = np.array([coord for coord in frame])
+        return self.landmarks_to_single_mean(np_landmarks,num_landmarks,dimensions)
 
-    def landmarks_to_single_mean(self, landmarks: np.ndarray) -> np.ndarray:
-        reshaped = landmarks.reshape((-1,21,3))
-        return np.mean(reshaped, axis=1).flatten()
+    def landmarks_to_single_mean(self, landmarks: np.ndarray,num_landmarks=21,dimensions=3) -> Tuple[float,float,float]:
+        reshaped = landmarks.reshape((-1,num_landmarks,dimensions))
+        mean = np.mean(reshaped, axis=1).flatten()
+        return tuple(mean)
 
     def is_within_boundaries(self, 
                              prev_mean:Union[float, np.float32], cur_mean:Union[float, np.float32]
@@ -184,12 +212,14 @@ class TrajectoryBuilder:
 
             return lower <= cur_mean <= upper
 
-    def create_trajectory_element(self, prev:np.ndarray, cur:np.ndarray) -> trajectory_element:
+    def create_trajectory_element(self, prev:Tuple[float,float,float], cur:Tuple[float,float,float],dimensions=DIMENSIONS) -> trajectory_element:
         directions: list[direction] = []
-
-        for dim in range(DIMENSIONS):
-            mean_p_dim:np.float32 = prev[dim]
-            mean_c_dim:np.float32 = cur[dim]
+        if (len(prev) < dimensions) or (len(cur) < dimensions):
+            raise ValueError("You provided a list with less than 3 elements \n prev: {prev}\n curr: {cur}")
+        
+        for dim in range(dimensions):
+            mean_p_dim = prev[dim]
+            mean_c_dim = cur[dim]
 
             if self.is_within_boundaries(mean_p_dim, mean_c_dim):
                 directions.append(direction.STATIONARY)
