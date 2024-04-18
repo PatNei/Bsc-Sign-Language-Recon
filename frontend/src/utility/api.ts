@@ -25,6 +25,19 @@ export async function APIPost(url: string, body: unknown): Promise<PostState> {
   }
 }
 
+export interface LandmarkSequencesDTO {
+  data: LandmarkSequenceDTO[];
+}
+
+export interface LandmarkSequenceDTO {
+  data: LandmarksDTO[];
+}
+
+export interface LandmarksDTO {
+  data: LandmarkDTO[];
+  handedness: string;
+}
+
 export interface LandmarkDTO {
   x: string;
   y: string;
@@ -33,10 +46,10 @@ export interface LandmarkDTO {
 
 export interface onResultType {
   multiHandLandmarks: [NormalizedLandmark[], Handedness][];
-  dynamicSignLandmarks: [NormalizedLandmark[], Handedness][];
+  dynamicSignLandmarks: LandmarkSequencesDTO;
   shouldCaptureDynamicSign: boolean;
   setDynamicSignLandmarks: React.Dispatch<
-    React.SetStateAction<[NormalizedLandmark[], Handedness][]>
+    React.SetStateAction<LandmarkSequencesDTO>
   >;
   setLetterRecognizerResponse: (r: string) => void;
 }
@@ -49,33 +62,31 @@ export const onResult = async ({
   setDynamicSignLandmarks,
 }: onResultType) => {
   if (!shouldCaptureDynamicSign) {
-    setDynamicSignLandmarks([]);
-    await gameLogicStaticSign(
-      normalizedLandmarksToDTOs(multiHandLandmarks),
-      async (landmarkDTOs) => {
-        landmarkDTOs.forEach(async (landmarkDTO) => {
-          const postState = await APIPost("annotation", {
-            data: landmarkDTO[0],
-            handedness: landmarkDTO[1],
-          });
-          if (
-            postState?.response &&
-            !postState.error &&
-            setLetterRecognizerResponse
-          ) {
-            setLetterRecognizerResponse(postState.response);
-          }
-          if (postState?.error) {
-            console.log(postState.error);
-          }
+    setDynamicSignLandmarks({ data: [] });
+    normalizedLandmarksToDTOs(multiHandLandmarks).data.forEach(
+      async (landmarkDTO, i) => {
+        let handedness = multiHandLandmarks[i][1];
+        const postState = await APIPost("annotation", {
+          data: landmarkDTO,
+          handedness: handedness.label,
         });
+        if (
+          postState?.response &&
+          !postState.error &&
+          setLetterRecognizerResponse
+        ) {
+          setLetterRecognizerResponse(postState.response);
+        }
+        if (postState?.error) {
+          console.log(postState.error);
+        }
       }
     );
   } else {
     await gameLogicDynamicSign(
       dynamicSignLandmarks,
-      dynamicSignLandmarks,
       setDynamicSignLandmarks,
+      normalizedLandmarksToDTOs(multiHandLandmarks),
       setLetterRecognizerResponse
     );
   }
@@ -83,57 +94,64 @@ export const onResult = async ({
 
 function normalizedLandmarksToDTOs(
   landmarks: [NormalizedLandmark[], Handedness][]
-): [LandmarkDTO[], string][] {
-  return landmarks.map((e) => {
-    return normalizedLandmarkToDTO(e[0], e[1]);
+): LandmarkSequenceDTO {
+  return {
+    data: landmarks.map((e) => {
+      return normalizedLandmarkToDTO(e[0], e[1]);
+    }),
+  };
+}
+
+function normalizedLandmarkSequenceToDTOs(
+  landmarks: [NormalizedLandmark[], Handedness][][]
+): LandmarksDTO[][] {
+  return landmarks.map((e): LandmarksDTO[] => {
+    return e.map((landmarks): LandmarksDTO => {
+      return normalizedLandmarkToDTO(landmarks[0], landmarks[1]);
+    });
   });
 }
 
 function normalizedLandmarkToDTO(
   landmarks: NormalizedLandmark[],
   hand: Handedness
-): [LandmarkDTO[], string] {
-  if (!landmarks || !hand) return [[], ""];
-  return [
-    landmarks.map((landmark: NormalizedLandmark): LandmarkDTO => {
+): LandmarksDTO {
+  if (!landmarks || !hand) return { data: [], handedness: "" };
+  return {
+    data: landmarks.map((landmark: NormalizedLandmark): LandmarkDTO => {
       return {
         x: landmark.x.toFixed(20),
         y: landmark.y.toFixed(20),
         z: landmark.z ? landmark.z.toFixed(20) : "0",
       };
     }),
-    hand.label,
-  ];
-}
-
-async function gameLogicStaticSign(
-  multiHandLandmarks: [LandmarkDTO[], string][],
-  sendFunction: (landmarkDTO: [LandmarkDTO[], string][]) => Promise<void>
-) {
-  await sendFunction(multiHandLandmarks);
+    handedness: hand.label,
+  };
 }
 
 async function gameLogicDynamicSign(
-  dynamicSignLandmarks: [NormalizedLandmark[], Handedness][],
-  multiHandLandmarks: [NormalizedLandmark[], Handedness][],
+  dynamicSignLandmarks: LandmarkSequencesDTO,
   setDynamicSignLandmarks: React.Dispatch<
-    React.SetStateAction<[NormalizedLandmark[], Handedness][]>
+    React.SetStateAction<LandmarkSequencesDTO>
   >,
+  multiHandLandmarks: LandmarkSequenceDTO,
   setLetterRecognizerResponse: (r: string) => void
 ) {
-  if (!multiHandLandmarks || multiHandLandmarks.length === 0) return;
+  if (!multiHandLandmarks || multiHandLandmarks.data.length === 0) return;
 
   setDynamicSignLandmarks((prevDynamicSignLandmarks) => {
     let res = prevDynamicSignLandmarks;
-    res.concat(multiHandLandmarks);
+    res.data.push(multiHandLandmarks);
+    console.log(res);
     return res;
   });
-
-  if (dynamicSignLandmarks.length === min_frames_per_sign) {
+  console.log(dynamicSignLandmarks.data.length);
+  if (dynamicSignLandmarks.data.length >= min_frames_per_sign) {
+    console.log(JSON.stringify(dynamicSignLandmarks));
     const postState = await APIPost("dynamic_annotation", dynamicSignLandmarks);
     if (postState?.response && !postState.error) {
       setLetterRecognizerResponse(postState.response);
     } else if (postState.error) console.log(postState.error);
-    setDynamicSignLandmarks([]);
+    setDynamicSignLandmarks({ data: [] });
   }
 }

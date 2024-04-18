@@ -22,7 +22,7 @@ class Recogniser:
     
         landmarks_sequence: list[NormalizedLandmarks] = []
         for image_landmarks in landmarksDTO.data:
-            image_normalized_landmarks = [NormalizedLandmark(lnd_mrk) for lnd_mrk in image_landmarks]        
+            image_normalized_landmarks = [NormalizedLandmark(lnd_mrk) for lnd_mrk in image_landmarks.data]        
             mrks = NormalizedLandmarks(data = image_normalized_landmarks)
             landmarks_sequence.append(mrks)
         

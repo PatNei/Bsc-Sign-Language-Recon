@@ -15,8 +15,12 @@ class NormalizedLandmarksDTO(BaseModel):
     data: list[NormalizedLandmarkDTO]
     handedness: str
 
+
 class NormalizedLandmarksSequenceDTO(BaseModel):
-    data: list[NormalizedLandmarkDTO]
+    data: list[NormalizedLandmarksDTO]
+
+class NormalizedLandmarkSequencesDTO(BaseModel):
+    data: list[NormalizedLandmarksSequenceDTO]
 
 class NormalizedLandmark():
     x: np.float32
