@@ -22,7 +22,7 @@ class KeyPointClassifier(object):
         # Conversion to relative coordinates / normalized coordinates
         landmarks = pre_process_landmark(landmarks[0], landmarks[1])
         
-        landmarks = np.array([landmarks], dtype=np.float32)    
-        predictions = self.classifier.predict(landmarks[0], landmarks[1])
+        numpy_landmarks = np.array([landmarks[0]], dtype=np.float32)
+        predictions = self.classifier.predict(numpy_landmarks, landmarks[1])
 
         return predictions[0]
