@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 import numpy as np
-from sign.landmarks import NormalizedLandmark, NormalizedLandmarks, NormalizedLandmarksDTO, NormalizedLandmarksSequence, NormalizedLandmarksSequenceDTO
+from sign.landmarks import NormalizedLandmark, NormalizedLandmarkSequencesDTO, NormalizedLandmarks, NormalizedLandmarksDTO, NormalizedLandmarksSequenceDTO
 from sign.recogniser import Recogniser
 from fastapi.middleware.cors import CORSMiddleware
 import uvicorn
@@ -40,7 +40,7 @@ def get_annotation(landmarksDTO: NormalizedLandmarksDTO) -> str:
     return recogniser.get_annotation(landmarks)
 
 @app.post("/dynamic_annotation")
-def get_dynamic_annotation(landmarksDTO: NormalizedLandmarksSequenceDTO) -> str:
+def get_dynamic_annotation(landmarksDTO: NormalizedLandmarkSequencesDTO) -> str:
     return recogniser.get_dynamic_annotation(landmarksDTO)
     
 if __name__ == "__main__":
