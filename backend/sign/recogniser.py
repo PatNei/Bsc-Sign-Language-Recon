@@ -1,4 +1,5 @@
 from pathlib import Path
+from typing import Tuple
 
 import numpy as np
 from sign.CONST import CLASSIFIER_PATH
@@ -6,7 +7,7 @@ from sign.keypoint_classifier import KeyPointClassifier, NormalizedLandmarks
 from sign.dynamic_classifier import DynamicClassifier
 import csv
 
-from sign.landmarks import NormalizedLandmark, NormalizedLandmarksSequenceDTO
+from sign.landmarks import NormalizedLandmark, NormalizedLandmarksSequencesDTO
 
 class Recogniser:
     def __init__(self) -> None:
@@ -17,14 +18,14 @@ class Recogniser:
 
         return self.keypoint_classifier(landmarks)
     
-    def get_dynamic_annotation(self, landmarksDTO: NormalizedLandmarksSequenceDTO) -> str:
+    def get_dynamic_annotation(self, landmarkSequencesDTO: NormalizedLandmarksSequencesDTO) -> str:
         # target_length = 24
-    
-        landmarks_sequence: list[NormalizedLandmarks] = []
-        for image_landmarks in landmarksDTO.data:
-            image_normalized_landmarks = [NormalizedLandmark(lnd_mrk) for lnd_mrk in image_landmarks.data]        
-            mrks = NormalizedLandmarks(data = image_normalized_landmarks)
-            landmarks_sequence.append(mrks)
+        landmarks_sequence: list[Tuple[NormalizedLandmarks, str]] = []
+        for landmarksDTO in landmarkSequencesDTO.data:
+            for image_landmarks in landmarksDTO.data:
+                image_normalized_landmarks = [NormalizedLandmark(lnd_mrk) for lnd_mrk in image_landmarks.data]        
+                mrks = NormalizedLandmarks(data = image_normalized_landmarks, handedness=image_landmarks.handedness)
+                landmarks_sequence.append([mrks.data, mrks.handedness])
         
         # frames_list : list = []
 

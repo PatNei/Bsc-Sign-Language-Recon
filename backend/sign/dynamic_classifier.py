@@ -13,15 +13,16 @@ class DynamicClassifier():
         self.classifier = SignClassifier(DYNAMIC_MODEL_PATH)
         self.bob = TrajectoryBuilder(target_len=24)
     
-    def __call__(self, landmark_list: list[NormalizedLandmarks]) -> str:
+    def __call__(self, landmark_list: list[Tuple[NormalizedLandmarks, str]]) -> str:
         new_landmark_list: list[np.ndarray] = []
         
-        for landmarks in landmark_list:
-            new_landmark_list.append(np.array([(mrk.x,mrk.y,mrk.z) for mrk in landmarks.data]).flatten())
+        for landmarks_and_handedness in landmark_list:
+            landmarks, handedness = landmarks_and_handedness
+            new_landmark_list.append(np.array([(mrk.x,mrk.y,mrk.z) for mrk in landmarks]).flatten())
                 
         
         new_frames = self.bob.enforce_target_length(new_landmark_list)
-        res = self._preprocess_mediapipe_landmarks(new_frames)
+        res, handedness = self._preprocess_mediapipe_landmarks(new_frames, handedness)
         hand_landmarks_raw = [ hand_landmark for hand_landmark, _ in res ]
             
         flatmarks = [ flatmark for _, flatmark in res ] #without Z values
@@ -36,7 +37,7 @@ class DynamicClassifier():
 
         return predictions[0]
     
-    def _preprocess_mediapipe_landmarks(self, ldnmrks:list[np.ndarray]) -> list[Tuple[npt.NDArray[np.float32], list[float]]]:
+    def _preprocess_mediapipe_landmarks(self, ldnmrks:list[np.ndarray], handedness: str) -> Tuple[list[Tuple[npt.NDArray[np.float32], list[float]]], str]:
         """Converts mediapipe landmarks to a list of tuples.
         Tuples consist of the "raw" mediapipe multi_hand_landmarks, and the 
         preprocessed landmarks (that we also use for static models)
@@ -50,9 +51,10 @@ class DynamicClassifier():
             for i in range(0, len(image_landmarks), 3):
                 landmark = NormalizedLandmark(NormalizedLandmarkDTO(x=str(image_landmarks[i]), y=str(image_landmarks[i+1]), z=str(image_landmarks[i+2])))
                 arr.append(landmark)
-            preprocessed = pre_process_landmark(calc_landmark_list(arr))
+            lndmrk_list, handedness = calc_landmark_list(arr, handedness)
+            preprocessed = pre_process_landmark(lndmrk_list, handedness)
             converted_lndmrks.append( (image_landmarks.flatten(), preprocessed) )
-        return converted_lndmrks
+        return [converted_lndmrks, handedness]
 
     #TODO: Should probably be part of trajectory builder
     def _extract_keyframes_sample_keep_preprocessed_landmarks(self,

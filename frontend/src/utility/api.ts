@@ -63,25 +63,20 @@ export const onResult = async ({
 }: onResultType) => {
   if (!shouldCaptureDynamicSign) {
     setDynamicSignLandmarks({ data: [] });
-    normalizedLandmarksToDTOs(multiHandLandmarks).data.forEach(
-      async (landmarkDTO, i) => {
-        let handedness = multiHandLandmarks[i][1];
-        const postState = await APIPost("annotation", {
-          data: landmarkDTO,
-          handedness: handedness.label,
-        });
-        if (
-          postState?.response &&
-          !postState.error &&
-          setLetterRecognizerResponse
-        ) {
-          setLetterRecognizerResponse(postState.response);
-        }
-        if (postState?.error) {
-          console.log(postState.error);
-        }
+    let landmarksDTO = normalizedLandmarksToDTOs(multiHandLandmarks);
+    landmarksDTO.data.forEach(async (landmarkDTO, i) => {
+      const postState = await APIPost("annotation", landmarkDTO);
+      if (
+        postState?.response &&
+        !postState.error &&
+        setLetterRecognizerResponse
+      ) {
+        setLetterRecognizerResponse(postState.response);
       }
-    );
+      if (postState?.error) {
+        console.log(postState.error);
+      }
+    });
   } else {
     await gameLogicDynamicSign(
       dynamicSignLandmarks,
