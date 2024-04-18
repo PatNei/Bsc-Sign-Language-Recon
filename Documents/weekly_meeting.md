@@ -1,10 +1,34 @@
 # Weekly meeting
+- [18 April 2024](#Date-18th-April-2024)
 - [9 April 2024](#Date-9th-April-2024)
 - [26 March 2024](#Date-26th-March-2024)
 - [14 March 2024](#Date-14th-March-2024)
 - [5 March 2024](#Date-5th-March-2024)
 - [29 February 2024](#Date-29th-February-2024)
 - [15 February 2024](#Date-15th-February-2024)
+## Date: 18th April 2024 
+
+### What helped you this week?
+Reading in the book. (Chapter 7)
+
+### What did you achieve?
+Created more data for the static asl alfabet.
+Created a better model for static asl alfabet classification.
+Improved our frontend.
+
+
+### What did you struggle with?
+React, Our old code.
+
+### What would you like to work on next week?
+Finishing touches on the frontend.
+Train/Adjust dynamic model for common signs.
+Begin writing on the report.
+
+### Where do you need help from Amelia?
+
+
+### What are the agreements after this meeting? (to fill in after the meeting)
 
 ## Date: 9th April 2024 
 
