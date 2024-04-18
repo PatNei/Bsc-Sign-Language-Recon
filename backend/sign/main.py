@@ -5,6 +5,7 @@ from sign.recogniser import Recogniser
 from fastapi.middleware.cors import CORSMiddleware
 import uvicorn
 
+
 from sign.trajectory import TrajectoryBuilder
 
     
@@ -12,7 +13,7 @@ from sign.trajectory import TrajectoryBuilder
 app = FastAPI()
 origins = [
     "http://127.0.0.1:5173",
-    "http://localhost:3000",
+    "http://localhost:3000/",
     "http://0.0.0.0:3000",
     "http://localhost:8001",
     "*"
@@ -35,7 +36,7 @@ def read_root():
 
 @app.post("/annotation")
 def get_annotation(landmarksDTO: NormalizedLandmarksDTO) -> str:
-    landmarks:NormalizedLandmarks = NormalizedLandmarks(handedness=landmarks.handedness,data=[NormalizedLandmark(element) for element in landmarksDTO.data])
+    landmarks:NormalizedLandmarks = NormalizedLandmarks(handedness=landmarksDTO.handedness,data=[NormalizedLandmark(element) for element in landmarksDTO.data])
     return recogniser.get_annotation(landmarks)
 
 @app.post("/dynamic_annotation")

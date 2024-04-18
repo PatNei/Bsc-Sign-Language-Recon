@@ -13,9 +13,9 @@ export async function APIPost(url: string, body: unknown): Promise<PostState> {
     response: undefined,
     error: undefined,
   };
-  console.log(JSON.stringify(body));
+  console.log(body);
   try {
-    const response = await axios.post<string>(baseURL + url, { data: body });
+    const response = await axios.post<string>(baseURL + url, body);
     state = { ...state, response: response.data };
     return state;
     // biome-ignore lint/suspicious/noExplicitAny: <explanation>
