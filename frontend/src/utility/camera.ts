@@ -1,6 +1,6 @@
 import { Camera } from "@mediapipe/camera_utils";
 // import { Hands, ResultsListener } from "@mediapipe/hands";
-import { Hands } from "@mediapipe/hands";
+import { Handedness, Hands, NormalizedLandmark } from "@mediapipe/hands";
 import { type drawType, renderEverything } from "./draw";
 import { onResult, type onResultType } from "./api";
 import { HANDS_PATH } from "../constants/paths";
@@ -26,7 +26,15 @@ export const createHands = (
 
   hands.onResults((result) => {
     renderEverything(result, draw);
-    onResult({ ...props, multiHandLandmarks: result.multiHandLandmarks });
+    onResult({
+      ...props,
+      multiHandLandmarks: result.multiHandLandmarks.map(
+        (e, i): [NormalizedLandmark[], Handedness] => [
+          e,
+          result.multiHandedness[i],
+        ]
+      ),
+    });
   });
   return hands;
 };

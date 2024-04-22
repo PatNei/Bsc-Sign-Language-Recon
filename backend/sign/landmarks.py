@@ -13,9 +13,14 @@ class NormalizedLandmarkDTO(BaseModel):
     
 class NormalizedLandmarksDTO(BaseModel):
     data: list[NormalizedLandmarkDTO]
+    handedness: str
+
 
 class NormalizedLandmarksSequenceDTO(BaseModel):
-    data: list[list[NormalizedLandmarkDTO]]
+    data: list[NormalizedLandmarksDTO]
+
+class NormalizedLandmarksSequencesDTO(BaseModel):
+    data: list[NormalizedLandmarksSequenceDTO]
 
 class NormalizedLandmark():
     x: np.float32
@@ -31,6 +36,7 @@ class NormalizedLandmark():
 @dataclass
 class NormalizedLandmarks():
     data: list[NormalizedLandmark]
+    handedness: str
     
 @dataclass()
 class NormalizedLandmarksSequence(): 
@@ -46,7 +52,7 @@ class NormalizedLandmarksSequence():
 
 def calc_landmark_list(landmarks : Union[list[MediapipeLandmark], list[NormalizedLandmark]],
                        image_width = 1280, 
-                       image_height = 720) -> list[Tuple[int, int]]:
+                       image_height = 720) -> Tuple[list[Tuple[int, int]], str]:
     """ Turns a list of MediapipeLandmarks into a list of screen coordinates
 
         Returns: 
@@ -64,7 +70,7 @@ def calc_landmark_list(landmarks : Union[list[MediapipeLandmark], list[Normalize
 
     return landmark_point
 
-def pre_process_landmark(landmark_list: list[Tuple[int, int]]) -> list[float]:
+def pre_process_landmark(landmark_list: list[Tuple[int, int]]) -> Tuple[list[float], str]:
     """ Takes a list of landmarks that have been converted using calc_landmark_list
         and performs the final preprocessing step. That is normalizing all the landmarks
         according to the max absolut value 

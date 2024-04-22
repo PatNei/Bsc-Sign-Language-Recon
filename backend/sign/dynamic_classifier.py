@@ -13,13 +13,12 @@ class DynamicClassifier():
         self.classifier = SignClassifier(DYNAMIC_MODEL_PATH)
         self.bob = TrajectoryBuilder(target_len=24)
     
-    def __call__(self, landmark_list: list[NormalizedLandmarks]) -> str:
+    def __call__(self, landmark_list: list[Tuple[NormalizedLandmarks, str]]) -> str:
         new_landmark_list: list[np.ndarray] = []
         
-        for landmarks in landmark_list:
-            new_landmark_list.append(np.array([(mrk.x,mrk.y,mrk.z) for mrk in landmarks.data]).flatten())
-                
-        
+        for landmarks, handedness in landmark_list:
+            # WE GOT HANDEDNESS HERE FOLKS
+            new_landmark_list.append(np.array([(mrk.x,mrk.y,mrk.z) for mrk in landmarks]).flatten())
         new_frames = self.bob.enforce_target_length(new_landmark_list)
         res = self._preprocess_mediapipe_landmarks(new_frames)
         hand_landmarks_raw = [ hand_landmark for hand_landmark, _ in res ]
@@ -29,7 +28,6 @@ class DynamicClassifier():
         model_input = sequence_trajectory.to_numpy_array()
         for flat_landmark in flatmarks:
             model_input = np.append(model_input, flat_landmark)
-        print(len(sequence_trajectory.directions))
         # Model now expects input to be of the form:
         # <simple-trajectory-as-xyz-values><42-xy-values-from-yt-algo><42-xy-values-from-yt-algo>...
         predictions = self.classifier.predict(np.array([model_input]))
@@ -50,7 +48,8 @@ class DynamicClassifier():
             for i in range(0, len(image_landmarks), 3):
                 landmark = NormalizedLandmark(NormalizedLandmarkDTO(x=str(image_landmarks[i]), y=str(image_landmarks[i+1]), z=str(image_landmarks[i+2])))
                 arr.append(landmark)
-            preprocessed = pre_process_landmark(calc_landmark_list(arr))
+            lndmrk_list = calc_landmark_list(arr)
+            preprocessed = pre_process_landmark(lndmrk_list)
             converted_lndmrks.append( (image_landmarks.flatten(), preprocessed) )
         return converted_lndmrks
 
