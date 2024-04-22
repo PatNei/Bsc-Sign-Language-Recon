@@ -13,7 +13,7 @@ class DynamicClassifier():
         self.classifier = SignClassifier(DYNAMIC_MODEL_PATH)
         self.bob = TrajectoryBuilder(target_len=24)
     
-    def __call__(self, landmark_list: list[NormalizedLandmarks]) -> str:
+    def __call__(self, landmark_list: list[Tuple[NormalizedLandmarks, str]]) -> str:
         new_landmark_list: list[np.ndarray] = []
         
         for landmarks in landmark_list:
