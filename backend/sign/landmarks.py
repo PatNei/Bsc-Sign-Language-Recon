@@ -52,7 +52,7 @@ class NormalizedLandmarksSequence():
 
 def calc_landmark_list(landmarks : Union[list[MediapipeLandmark], list[NormalizedLandmark]],
                        image_width = 1280, 
-                       image_height = 720) -> Tuple[list[Tuple[int, int]], str]:
+                       image_height = 720) -> list[Tuple[int, int]]: # 
     """ Turns a list of MediapipeLandmarks into a list of screen coordinates
 
         Returns: 

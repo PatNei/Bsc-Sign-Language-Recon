@@ -19,10 +19,10 @@ class Recogniser:
     
     def get_dynamic_annotation(self, landmarkSequencesDTO: NormalizedLandmarksSequencesDTO) -> str:
         # target_length = 24
-        landmarks_sequence: list[Tuple[NormalizedLandmarks, str]] = []
+        landmarks_sequence: list[NormalizedLandmarks] = []
         for landmarksDTO in landmarkSequencesDTO.data:
             for image_landmarks in landmarksDTO.data:
                 image_normalized_landmarks = [NormalizedLandmark(lnd_mrk) for lnd_mrk in image_landmarks.data]        
                 mrks = NormalizedLandmarks(data = image_normalized_landmarks, handedness=image_landmarks.handedness)
-                landmarks_sequence.append([mrks.data, mrks.handedness])
+                landmarks_sequence.append(mrks)
         return self.dynamic_classifier(landmarks_sequence)

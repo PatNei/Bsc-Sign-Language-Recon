@@ -79,12 +79,9 @@ if __name__ == "__main__":
 
     if not out_path.exists():
         print(f"Couldn't find {out_path.absolute()}, so created it.")
-        if args.is_holistic:
-            out_path.mkdir()
-        else:
-            out_path.touch()
+        out_path.touch()
 
-    print(f"About to process {args.zip_file} using {'Holistic' if args.is_holistic else 'Hands'}, outputting to [{args.out}]")
+    print(f"About to process {args.zip_file} outputting to [{args.out}]")
 
     extractor = DynamicLandmarkExtractor(out_path=args.out, target_path=args.zip_file)
     extractor.process_video_dataset()
