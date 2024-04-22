@@ -70,7 +70,7 @@ def calc_landmark_list(landmarks : Union[list[MediapipeLandmark], list[Normalize
 
     return landmark_point
 
-def pre_process_landmark(landmark_list: list[Tuple[int, int]]) -> Tuple[list[float], str]:
+def pre_process_landmark(landmark_list: list[Tuple[int, int]]) -> list[float]:
     """ Takes a list of landmarks that have been converted using calc_landmark_list
         and performs the final preprocessing step. That is normalizing all the landmarks
         according to the max absolut value 
