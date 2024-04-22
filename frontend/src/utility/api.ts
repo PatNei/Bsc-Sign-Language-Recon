@@ -45,23 +45,16 @@ export interface LandmarkDTO {
 
 export interface onResultType {
   multiHandLandmarks: [NormalizedLandmark[], Handedness][];
-  dynamicSignLandmarks: LandmarkSequencesDTO;
   shouldCaptureDynamicSign: boolean;
-  setDynamicSignLandmarks: React.Dispatch<
-    React.SetStateAction<LandmarkSequencesDTO>
-  >;
   setLetterRecognizerResponse: (r: string) => void;
 }
 
 export const onResult = async ({
   multiHandLandmarks,
-  dynamicSignLandmarks,
   shouldCaptureDynamicSign,
   setLetterRecognizerResponse,
-  setDynamicSignLandmarks,
 }: onResultType) => {
   if (!shouldCaptureDynamicSign) {
-    setDynamicSignLandmarks({ data: [] });
     let landmarksDTO = normalizedLandmarksToDTOs(multiHandLandmarks);
     landmarksDTO.data.forEach(async (landmarkDTO, i) => {
       const postState = await APIPost("annotation", landmarkDTO);
@@ -77,12 +70,9 @@ export const onResult = async ({
       }
     });
   } else {
-    setDynamicSignLandmarks(
-      await gameLogicDynamicSign(
-        dynamicSignLandmarks,
-        normalizedLandmarksToDTOs(multiHandLandmarks),
-        setLetterRecognizerResponse
-      )
+    await gameLogicDynamicSign(
+      normalizedLandmarksToDTOs(multiHandLandmarks),
+      setLetterRecognizerResponse
     );
   }
 };
@@ -125,16 +115,14 @@ function normalizedLandmarkToDTO(
 }
 
 let i = 0;
+let dynamicSignLandmarks: LandmarkSequencesDTO = { data: [] };
 async function gameLogicDynamicSign(
-  dynamicSignLandmarks: LandmarkSequencesDTO,
   multiHandLandmarks: LandmarkSequenceDTO,
   setLetterRecognizerResponse: (r: string) => void
-): Promise<LandmarkSequencesDTO> {
-  console.log(i);
-  if (!multiHandLandmarks || multiHandLandmarks.data.length === 0)
-    return dynamicSignLandmarks;
+): Promise<void> {
+  if (!multiHandLandmarks || multiHandLandmarks.data.length === 0) return;
+  console.log(`LENGTH: ${dynamicSignLandmarks.data.length}`);
   if (i >= min_frames_per_sign) {
-    console.log(`LENGTH: ${dynamicSignLandmarks.data.length}`);
     const postState = await APIPost("dynamic_annotation", dynamicSignLandmarks);
     if (postState?.response && !postState.error) {
       console.log(postState.response);
@@ -143,10 +131,9 @@ async function gameLogicDynamicSign(
       console.log(postState.error);
     }
     i = 0;
-    return { data: [] };
+    dynamicSignLandmarks = { data: [] };
   } else {
-    dynamicSignLandmarks.data.concat(multiHandLandmarks);
+    dynamicSignLandmarks.data.push(multiHandLandmarks);
     i++;
-    return dynamicSignLandmarks;
   }
 }
