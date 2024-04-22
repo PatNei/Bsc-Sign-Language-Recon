@@ -8,9 +8,10 @@ from moviepy.video.io.ffmpeg_tools import ffmpeg_extract_subclip
 from dynamic_signs.landmark_extractor import DynamicLandmarkExtractor
 
 class YouTubeScraper():
-    def __init__(self,common_words_path:Path,text_id_path:Path) -> None:
+    def __init__(self,common_words_path_input:Path,text_id_path:Path,common_words_path_output=Path('dynamic_signs/common_words.txt')) -> None:
         self.text_id_path = text_id_path
-        self.common_words_path = common_words_path
+        self.common_words_path_csv = common_words_path_input
+        self.common_words_path_txt = common_words_path_output
         pass
 
     def get_video_signs(self, max=0, seconds_per_clip=1,num_hands=1):
@@ -38,7 +39,7 @@ class YouTubeScraper():
         cap_num_of_words = max != 0
         common_words = []
         if only_common_words:
-            with open(self.common_words_path) as csvfile:
+            with open(self.common_words_path_csv) as csvfile:
                 reader = csv.DictReader(csvfile)
                 for row in reader:
                     common_words.append(row['word'])
@@ -124,7 +125,7 @@ class YouTubeScraper():
                 else:
                     words[caption] = dict(count=1, clips=[clip])
         
-        with open(self.common_words_path, 'w') as csvfile:
+        with open(self.common_words_path_csv, 'w') as csvfile:
             writer = csv.DictWriter(csvfile, fieldnames=['word', 'count', 'clips'])
             writer.writeheader()
             for word, info in words.items():
@@ -135,8 +136,8 @@ class YouTubeScraper():
                     writer.writerow({'word': word, 'count': info["count"], 'clips': clips[:-1]})
                     
     def write_common_words(self):
-        with open('dynamic_signs/common_words.csv', 'r') as common_words:
-            with open('dynamic_signs/common_words.txt', 'w') as common_words_txt:
+        with open(self.common_words_path_csv, 'r') as common_words:
+            with open(self.common_words_path_txt, 'w') as common_words_txt:
                 reader = csv.DictReader(common_words)
                 res = ""
                 for row in reader:
