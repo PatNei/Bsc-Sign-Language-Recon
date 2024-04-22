@@ -78,8 +78,10 @@ class csv_reader:
             return np.fromstring(row.strip(",").strip("[").strip("]"), dtype=np.float32, sep=",")
 
         def extract_hand_id_and_landmarks(row:list[str], i:int) -> Tuple[int,list[float]]:
-            b = LENGTH_HANDID_AND_LANDMARKS
-            return int(rest_row[i*b]), list(parse_tuple_list_of_xyz(rest_row[i*b:(i+1)*b]))
+            xyz_tuples = [x for x in row[i*LENGTH_HANDID_AND_LANDMARKS+1:(i+1)*LENGTH_HANDID_AND_LANDMARKS]]
+            xyz_parsed_and_flattened = sum([list(parse_tuple_list_of_xyz(xyz_tuple)) for xyz_tuple in xyz_tuples], []) 
+            hand_id = int(row[i * LENGTH_HANDID_AND_LANDMARKS])
+            return hand_id, xyz_parsed_and_flattened
 
         counter = 0
         with open(path, 'r') as f:
@@ -121,9 +123,10 @@ class csv_reader:
                     cur_sequence.append(MultiHandStaticFrame(hand_id, parsed_landmarks))
                 elif rest_length == 2 * LENGTH_HANDID_AND_LANDMARKS:
                     #There should be two hands in this line
+                    
                     hands = [
                         (extract_hand_id_and_landmarks(rest_row,i)) 
-                        for i in range(int(len(rest_row) / 64))
+                        for i in range(2)
                     ]
                     hands.sort(key = lambda x: x[0]) #sort by the hand_id
                     to_append = MultiHandStaticFrame((0,1), list(sum(map(lambda x: x[1], hands),[])))
@@ -141,7 +144,7 @@ if __name__ == "__main__":
     from sign.training.landmark_extraction.MediapipeTypes import MediapipeHandIndex
     from pathlib import Path
 
-    out_file = str(Path().cwd().joinpath("bing_bong_out.csv").absolute())
+    out_file = str(Path().cwd().joinpath("data", "dynamic_train", "dyn_j_z_test.csv").absolute())
     reader = csv_reader()
     res = reader.extract_two_handed_landmarks(out_file)
     
