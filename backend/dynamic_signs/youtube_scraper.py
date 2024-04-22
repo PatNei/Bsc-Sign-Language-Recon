@@ -8,11 +8,14 @@ from moviepy.video.io.ffmpeg_tools import ffmpeg_extract_subclip
 from dynamic_signs.landmark_extractor import DynamicLandmarkExtractor
 
 class YouTubeScraper():
-    def __init__(self) -> None:
+    num_hands: str
+    
+    def __init__(self, num_hands=1) -> None:
+        self.num_hands = num_hands
         pass
 
     def get_video_signs(self, max=0, seconds_per_clip=1):
-        dynamic_landmark_extractor = DynamicLandmarkExtractor(out_path="dynamic_signs/youtube.csv")
+        dynamic_landmark_extractor = DynamicLandmarkExtractor(out_path="dynamic_signs/youtube.csv", num_hands=self.num_hands)
         captions = self.extract_captions(max=max, only_common_words=True).items()
         if max == 0:
             max = len(captions)
@@ -146,8 +149,8 @@ class YouTubeScraper():
                     res = res + f"{word}?{clips},"
                 common_words_txt.write(res[:-1])
 
-yt = YouTubeScraper()
-# yt.get_video_signs(max=0,seconds_per_clip=1)
+yt = YouTubeScraper(num_hands=2)
+yt.get_video_signs(max=0,seconds_per_clip=1)
 # yt.find_common_words(min_occurances=50, max=0)
-yt.find_common_words(min_occurances=0, max=20)
-yt.write_common_words()
+# yt.find_common_words(min_occurances=0, max=20)
+# yt.write_common_words()
