@@ -104,7 +104,7 @@ class TrajectoryBuilder:
             if min(self._distance(positions[i-1], positions[i]), self._distance(positions[i], positions[i+1])) > \
                     self._distance(positions[i-1], positions[i+1]):
                 # outlier
-                print("REMOVING OUTLIER")
+                # print("REMOVING OUTLIER")
                 continue
             non_outliers.append(seq[i])
 
@@ -145,7 +145,7 @@ class TrajectoryBuilder:
         seq_new = self.remove_outliers(seq)
         if len(seq_new) < self.target_len:
             seq_new = self.pad_sequences_of_landmarks(seq_new)
-        print(len(seq_new))
+        # print(len(seq_new))
         random.seed(42)
         res = [seq_new[0]]
         idxs = sorted(random.sample(range(1,len(seq_new)-1), k=self.target_len-2))
