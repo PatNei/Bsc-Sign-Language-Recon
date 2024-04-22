@@ -1,0 +1,18 @@
+Moviepy - Command successful
+Step 2: 54.99%
+Traceback (most recent call last):
+  File "/root/Bsc-Sign-Language-Recon/backend/dynamic_signs/youtube_scraper.py", line 132, in <module>
+    yt.get_video_signs(max=0,seconds_per_clip=1, num_hands=2)
+  File "/root/Bsc-Sign-Language-Recon/backend/dynamic_signs/youtube_scraper.py", line 29, in get_video_signs
+    video.download(output_path=f"dynamic_signs/videos/{video_id}", filename=f"{video_id}.mp4")
+  File "/root/Bsc-Sign-Language-Recon/backend/.venv/lib/python3.11/site-packages/pytube/streams.py", line 314, in download
+    for chunk in request.stream(
+  File "/root/Bsc-Sign-Language-Recon/backend/.venv/lib/python3.11/site-packages/pytube/request.py", line 189, in stream
+    chunk = response.read()
+            ^^^^^^^^^^^^^^^
+  File "/root/.pyenv/versions/3.11.9/lib/python3.11/http/client.py", line 489, in read
+    s = self._safe_read(self.length)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/root/.pyenv/versions/3.11.9/lib/python3.11/http/client.py", line 640, in _safe_read
+    raise IncompleteRead(data, amt-len(data))
+http.client.IncompleteRead: IncompleteRead(2571180 bytes read, 6866004 more expected)

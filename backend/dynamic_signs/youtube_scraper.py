@@ -127,6 +127,6 @@ class YouTubeScraper():
                     writer.writerow({'word': word})
 
 if __name__ == "__main__":
-    yt = YouTubeScraper(Path("dynamic_signs/video_ids.txt"),Path("dynamic_signs/video_ids.txt"))
+    yt = YouTubeScraper(Path("dynamic_signs/common_words.csv"),Path("dynamic_signs/video_ids.txt"))
     # yt.find_common_words(min_occurances=50, max=0)
-    yt.get_video_signs(max=100,seconds_per_clip=1)
+    yt.get_video_signs(max=0,seconds_per_clip=1, num_hands=2)
