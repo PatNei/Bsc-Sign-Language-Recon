@@ -1,6 +1,7 @@
 import csv
 from dataclasses import dataclass
 from typing import Literal, Tuple
+from pathlib import Path
 from sign.CONST import MEDIAPIPER_VERSION_2
 
 import numpy as np
@@ -64,7 +65,7 @@ class csv_reader:
             return landmarks
         
     def extract_two_handed_landmarks(self, 
-                                     path:str, 
+                                     path: str | Path, 
                                      id_counter_marker = "~") -> dict[str, dict[str, list[MultiHandStaticFrame]]]:
         """
         Like extract_landmarks, it extracts all the data from a CSV.
