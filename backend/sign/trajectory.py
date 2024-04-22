@@ -197,10 +197,10 @@ class TrajectoryBuilder:
         np_landmarks = np.array([coord for coord in frame])
         return self.landmarks_to_single_mean(np_landmarks,num_landmarks,dimensions)
 
-    def landmarks_to_single_mean(self, landmarks: np.ndarray,num_landmarks=21,dimensions=3) -> Tuple[float,float,float]:
+    def landmarks_to_single_mean(self, landmarks: np.ndarray,num_landmarks=21,dimensions=3):
         reshaped = landmarks.reshape((-1,num_landmarks,dimensions))
         mean = np.mean(reshaped, axis=1).flatten()
-        return tuple(mean)
+        return mean
 
     def is_within_boundaries(self, 
                              prev_mean:Union[float, np.float32], cur_mean:Union[float, np.float32]

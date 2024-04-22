@@ -13,12 +13,13 @@ class DynamicClassifier():
         self.classifier = SignClassifier(DYNAMIC_MODEL_PATH)
         self.bob = TrajectoryBuilder(target_len=24)
     
-    def __call__(self, landmark_list: list[Tuple[NormalizedLandmarks, str]]) -> str:
+    def __call__(self, landmark_list: list[NormalizedLandmarks]) -> str:
         new_landmark_list: list[np.ndarray] = []
         
-        for landmarks, handedness in landmark_list:
+        for landmarks in landmark_list:
+            # landmarks.handedness # here is something you might want to use?
             # WE GOT HANDEDNESS HERE FOLKS
-            new_landmark_list.append(np.array([(mrk.x,mrk.y,mrk.z) for mrk in landmarks]).flatten())
+            new_landmark_list.append(np.array([(mrk.x,mrk.y,mrk.z) for mrk in landmarks.data]).flatten())
         new_frames = self.bob.enforce_target_length(new_landmark_list)
         res = self._preprocess_mediapipe_landmarks(new_frames)
         hand_landmarks_raw = [ hand_landmark for hand_landmark, _ in res ]
