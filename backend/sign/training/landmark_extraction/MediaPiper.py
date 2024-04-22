@@ -212,11 +212,11 @@ class MediaPiper(DynamicPiper):
 if __name__ == "__main__":
     mpr = MediaPiper(num_hands=2, gesture_sequence_sep="_")
 
-    out_file = "bing_bong_out.csv"
+    # out_file = "bing_bong_out.csv"
     #data_path = "data/archive/asl_alphabet_train/"
-    data_path = "data/archive/dynamic_gestures"
+    # data_path = "data/archive/dynamic_gestures"
 
-    print(f"Processing images from ({data_path})...")
+    # print(f"Processing images from ({data_path})...")
     #res = mpr.process_image_from_path("data/test.png")
     #res = mpr.process_image_from_path("data/archive/asl_alphabet_train/A/A1.jpg")
     #print(f"handedness: --{res.multi_handedness}--")
@@ -226,5 +226,6 @@ if __name__ == "__main__":
     #res = mpr.process_dynamic_gestures_from_folder(data_path)
     
     ##Make MediaPiper spit out a csv from a folder of folders
-    mpr.write_dynamic_gestures_from_folder_to_csv(data_path, out_file)
-    print(f"Output result to {out_file}")
+    # mpr.write_dynamic_gestures_from_folder_to_csv(data_path, out_file)
+    # print(f"Output result to {out_file}")
+    mpr.process_images_from_folder_to_csv(handedness=True, out_file="K-Y.csv", base_path="dynamic_signs/frames/")

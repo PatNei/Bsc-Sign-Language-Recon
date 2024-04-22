@@ -8,9 +8,10 @@ from moviepy.video.io.ffmpeg_tools import ffmpeg_extract_subclip
 from dynamic_signs.landmark_extractor import DynamicLandmarkExtractor
 
 class YouTubeScraper():
-    def __init__(self,common_words_path:Path,text_id_path:Path) -> None:
+    def __init__(self,common_words_path_input:Path,text_id_path:Path,common_words_path_output=Path('dynamic_signs/common_words.txt')) -> None:
         self.text_id_path = text_id_path
-        self.common_words_path = common_words_path
+        self.common_words_path_csv = common_words_path_input
+        self.common_words_path_txt = common_words_path_output
         pass
 
     def get_video_signs(self, max=0, seconds_per_clip=1,num_hands=1):
@@ -38,7 +39,7 @@ class YouTubeScraper():
         cap_num_of_words = max != 0
         common_words = []
         if only_common_words:
-            with open(self.common_words_path) as csvfile:
+            with open(self.common_words_path_csv) as csvfile:
                 reader = csv.DictReader(csvfile)
                 for row in reader:
                     common_words.append(row['word'])
@@ -112,21 +113,44 @@ class YouTubeScraper():
         
     def find_common_words(self, max=0, min_occurances=3):
         words = {}
-        for captions in self.extract_captions(max=max, only_common_words=False).values():
-            for caption in captions.values():
+        for video_id, captions in self.extract_captions(max=max, only_common_words=False).items():
+            for time, caption in captions.items():
+                clip = (video_id, time)
                 if caption in words:
-                    words[caption] = words[caption] + 1
+                    existing = words[caption]
+                    clips = existing["clips"]
+                    count = existing["count"]
+                    clips.append(clip)
+                    words[caption] = dict(count=count + 1, clips=clips)
                 else:
-                    words[caption] = 1
+                    words[caption] = dict(count=1, clips=[clip])
         
-        with open(self.common_words_path, 'w') as csvfile:
-            writer = csv.DictWriter(csvfile, fieldnames=['word'])
+        with open(self.common_words_path_csv, 'w') as csvfile:
+            writer = csv.DictWriter(csvfile, fieldnames=['word', 'count', 'clips'])
             writer.writeheader()
-            for word, count in words.items():
-                if (count >= min_occurances):
-                    writer.writerow({'word': word})
+            for word, info in words.items():
+                clips = ""
+                for clip in info["clips"]:
+                    clips += f"{clip[0]}:{clip[1]}#"
+                if (info["count"] >= min_occurances):
+                    writer.writerow({'word': word, 'count': info["count"], 'clips': clips[:-1]})
+                    
+    def write_common_words(self):
+        with open(self.common_words_path_csv, 'r') as common_words:
+            with open(self.common_words_path_txt, 'w') as common_words_txt:
+                reader = csv.DictReader(common_words)
+                res = ""
+                for row in reader:
+                    word = row["word"]
+                    clips = row["clips"]
+                    res = res + f"{word}?{clips},"
+                common_words_txt.write(res[:-1])
 
 if __name__ == "__main__":
     yt = YouTubeScraper(Path("dynamic_signs/common_words.csv"),Path("dynamic_signs/video_ids.txt"))
     # yt.find_common_words(min_occurances=50, max=0)
     yt.get_video_signs(max=0,seconds_per_clip=1, num_hands=2)
+    # yt.get_video_signs(max=0,seconds_per_clip=1)
+    # yt.find_common_words(min_occurances=50, max=0)
+    # yt.find_common_words(min_occurances=0, max=20)
+    # yt.write_common_words()
