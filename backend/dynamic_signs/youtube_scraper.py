@@ -1,4 +1,5 @@
 import csv
+from pathlib import Path
 import shutil
 import string
 from pytube import YouTube
@@ -30,7 +31,7 @@ class YouTubeScraper():
             i = i + 1
             shutil.rmtree(f"./dynamic_signs/videos/{video_id}")
 
-    def extract_captions(self, max=0, only_common_words=False):
+    def extract_captions(self, max=0, only_common_words=False,path=Path("dynamic_signs/video_ids.txt")):
         cap_num_of_words = max != 0
         common_words = []
         if only_common_words:
@@ -41,7 +42,7 @@ class YouTubeScraper():
         
         res = {}
         i = 0
-        with open("dynamic_signs/video_ids.txt") as video_ids:
+        with open(path) as video_ids:
             lines = video_ids.readlines()
             if not cap_num_of_words:
                 max = len(lines)

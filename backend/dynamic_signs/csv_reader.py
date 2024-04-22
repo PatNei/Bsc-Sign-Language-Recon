@@ -63,11 +63,15 @@ class csv_reader:
                 parsed_landmarks = []
             return landmarks
         
-    def extract_two_handed_landmarks(self, path:str) -> dict[str, dict[str, list[MultiHandStaticFrame]]]:
+    def extract_two_handed_landmarks(self, 
+                                     path:str, 
+                                     id_counter_marker = "~") -> dict[str, dict[str, list[MultiHandStaticFrame]]]:
         """
         Like extract_landmarks, it extracts all the data from a CSV.
         
-        returns: a dictionary from label -> dictionary of sequence_id -> list[MultiHandStaticFrame]
+        Returns
+        -------
+        A dictionary from label -> dictionary of sequence_id -> list[MultiHandStaticFrame]
             The MultiHandStaticFrame class remembers which hands were present in the data. Useful for data cleanup later?
         """
         def parse_tuple_list_of_xyz(row) -> np.ndarray:
@@ -77,6 +81,7 @@ class csv_reader:
             b = LENGTH_HANDID_AND_LANDMARKS
             return int(rest_row[i*b]), list(parse_tuple_list_of_xyz(rest_row[i*b:(i+1)*b]))
 
+        counter = 0
         with open(path, 'r') as f:
             reader = csv.reader(f)
             res: dict[str, dict[str, list[MultiHandStaticFrame]]] = {}
@@ -86,11 +91,6 @@ class csv_reader:
             
             cur_sequence: list[MultiHandStaticFrame] = []
             for line, row in enumerate(reader):
-                if line == 0:
-                    if row[0] != MEDIAPIPER_VERSION_2:
-                        raise Exception("Expected input created using MediaPipe that is able to handle 2 hands... see commit '5ff5831e4f00a62ade91feb91e913f742012030a'")
-                    else:
-                        continue
                 prev_label = label
                 label = row[0]
                 if label not in res:
@@ -99,7 +99,13 @@ class csv_reader:
                 next_id = row[1]
                 is_new_video = (prev_id != next_id) or (prev_label != label)
                 if is_new_video and prev_id != EMPTY_ID:
-                    res[prev_label][prev_id] = cur_sequence
+                    if res[prev_label].get(prev_id) is not None:
+                        #Youtube videoes may have the same id multiple times for the same label :)
+                        modified_id = prev_id + f"{id_counter_marker}{counter}"
+                        counter = counter + 1
+                        res[prev_label][modified_id] = cur_sequence
+                    else: 
+                        res[prev_label][prev_id] = cur_sequence
                     cur_sequence = []
 
                 prev_id = next_id
