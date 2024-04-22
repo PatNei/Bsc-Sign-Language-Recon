@@ -23,7 +23,11 @@ class YouTubeScraper():
             video = yt.streams.get_highest_resolution()
             if video is None:
                 continue
-            video.download(output_path=f"dynamic_signs/videos/{video_id}", filename=f"{video_id}.mp4")
+            try:
+                video.download(output_path=f"dynamic_signs/videos/{video_id}", filename=f"{video_id}.mp4")
+            except:
+                continue
+            
             for start_time, text in captions.items():
                 with open(f"./dynamic_signs/videos/{video_id}/{text}.mp4", "w") as clip:
                     ffmpeg_extract_subclip(f"./dynamic_signs/videos/{video_id}/{video_id}.mp4", start_time / 1000, start_time / 1000 + seconds_per_clip, targetname=clip.name)
