@@ -66,89 +66,91 @@ export default function Recognizer({ challenges, dynamic }: props) {
               className=" h-20 w-20"
             />
           ) : (
-            <div className="grid grid-cols-1">
-              {currentSrc}
-              <div className="flex justify-evenly">
-                <div>
-                  <button
-                    className={
-                      signSrc.length > 1
-                        ? "bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
-                        : "bg-blue-500 text-white font-bold py-2 px-4 rounded opacity-50 cursor-not-allowed"
-                    }
-                    type="button"
-                    disabled={signSrc.length <= 1}
-                    onClick={(_) => {
-                      let newSrcIndex = (srcIndex + 1) % signSrc.length;
-                      setCurrentSrc((_) => (
-                        <iframe
-                          key={0}
-                          className="pb-2"
-                          width="420"
-                          height="315"
-                          src={`https://www.youtube.com/embed/${
-                            signSrc[newSrcIndex].split(":")[0]
-                          }?start=${Math.floor(
-                            +signSrc[newSrcIndex].split(":")[1] / 1000
-                          )}&cc_load_policy=1&autoplay=1&end=${
-                            Math.floor(
+            <div>
+              <div className="grid grid-cols-1">
+                {currentSrc}
+                <div className="flex justify-evenly">
+                  <div>
+                    <button
+                      className={
+                        signSrc.length > 1
+                          ? "bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+                          : "bg-blue-500 text-white font-bold py-2 px-4 rounded opacity-50 cursor-not-allowed"
+                      }
+                      type="button"
+                      disabled={signSrc.length <= 1}
+                      onClick={(_) => {
+                        let newSrcIndex = (srcIndex + 1) % signSrc.length;
+                        setCurrentSrc((_) => (
+                          <iframe
+                            key={0}
+                            className="pb-2"
+                            width="420"
+                            height="315"
+                            src={`https://www.youtube.com/embed/${
+                              signSrc[newSrcIndex].split(":")[0]
+                            }?start=${Math.floor(
                               +signSrc[newSrcIndex].split(":")[1] / 1000
-                            ) + 1
-                          }&loop=1&fs=0&iv_load_policy=3`}
-                        />
-                      ));
-                      setSrcIndex(newSrcIndex);
-                      setKey(0);
-                    }}
-                  >
-                    {signSrc.length > 1
-                      ? `Next Clip (${srcIndex + 1}/${signSrc.length})`
-                      : "This is all we have"}
-                  </button>
-                </div>
-                <div>
-                  <button
-                    className={
-                      srcIndex > 0
-                        ? "bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
-                        : "bg-blue-500 text-white font-bold py-2 px-4 rounded opacity-50 cursor-not-allowed"
-                    }
-                    type="button"
-                    disabled={srcIndex <= 0}
-                    onClick={(_) => {
-                      let newSrcIndex = srcIndex - 1;
-                      setCurrentSrc((_) => (
-                        <iframe
-                          key={0}
-                          className="pb-2"
-                          width="420"
-                          height="315"
-                          src={`https://www.youtube.com/embed/${
-                            signSrc[newSrcIndex].split(":")[0]
-                          }?start=${Math.floor(
-                            +signSrc[newSrcIndex].split(":")[1] / 1000
-                          )}&cc_load_policy=1&autoplay=1&end=${
-                            Math.floor(
+                            )}&cc_load_policy=1&autoplay=1&end=${
+                              Math.floor(
+                                +signSrc[newSrcIndex].split(":")[1] / 1000
+                              ) + 1
+                            }&loop=1&fs=0&iv_load_policy=3`}
+                          />
+                        ));
+                        setSrcIndex(newSrcIndex);
+                        setKey(0);
+                      }}
+                    >
+                      {signSrc.length > 1
+                        ? `Next Clip (${srcIndex + 1}/${signSrc.length})`
+                        : "This is all we have"}
+                    </button>
+                  </div>
+                  <div>
+                    <button
+                      className={
+                        srcIndex > 0
+                          ? "bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+                          : "bg-blue-500 text-white font-bold py-2 px-4 rounded opacity-50 cursor-not-allowed"
+                      }
+                      type="button"
+                      disabled={srcIndex <= 0}
+                      onClick={(_) => {
+                        let newSrcIndex = srcIndex - 1;
+                        setCurrentSrc((_) => (
+                          <iframe
+                            key={0}
+                            className="pb-2"
+                            width="420"
+                            height="315"
+                            src={`https://www.youtube.com/embed/${
+                              signSrc[newSrcIndex].split(":")[0]
+                            }?start=${Math.floor(
                               +signSrc[newSrcIndex].split(":")[1] / 1000
-                            ) + 1
-                          }&loop=1&fs=0&iv_load_policy=3`}
-                        />
-                      ));
-                      setSrcIndex(newSrcIndex);
-                      setKey(0);
-                    }}
-                  >
-                    Previous Clip
-                  </button>
-                </div>
-                <div>
-                  <button
-                    onClick={(_) => updateSrc()}
-                    className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
-                    type="button"
-                  >
-                    ↺
-                  </button>
+                            )}&cc_load_policy=1&autoplay=1&end=${
+                              Math.floor(
+                                +signSrc[newSrcIndex].split(":")[1] / 1000
+                              ) + 1
+                            }&loop=1&fs=0&iv_load_policy=3`}
+                          />
+                        ));
+                        setSrcIndex(newSrcIndex);
+                        setKey(0);
+                      }}
+                    >
+                      Previous Clip
+                    </button>
+                  </div>
+                  <div>
+                    <button
+                      onClick={(_) => updateSrc()}
+                      className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+                      type="button"
+                    >
+                      ↺
+                    </button>
+                  </div>
                 </div>
               </div>
             </div>
@@ -156,80 +158,82 @@ export default function Recognizer({ challenges, dynamic }: props) {
           <p className="pt-2 pb-2">{`${sign[0].toUpperCase()}${sign.slice(
             1
           )}`}</p>
-          <div className="flex justify-evenly">
-            <div>
-              <button
-                onClick={(_) => {
-                  let newSignSrc = challenges[i + 1][1];
-                  setCurrentSrc((_) => {
-                    setSrcIndex(0);
-                    setChallenge(challenges[i + 1]);
-                    setI((i) => i + 1);
-                    return (
-                      <iframe
-                        key={0}
-                        className="pb-2"
-                        width="420"
-                        height="315"
-                        src={`https://www.youtube.com/embed/${
-                          newSignSrc[0].split(":")[0]
-                        }?start=${Math.floor(
-                          +newSignSrc[0].split(":")[1] / 1000
-                        )}&cc_load_policy=1&autoplay=1&end=${
-                          Math.floor(+newSignSrc[0].split(":")[1] / 1000) + 1
-                        }&loop=1&fs=0&iv_load_policy=3`}
-                      />
-                    );
-                  });
-                }}
-                className={
-                  i + 1 < challenges.length
-                    ? "bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
-                    : "bg-blue-500 text-white font-bold py-2 px-4 rounded opacity-50 cursor-not-allowed"
-                }
-                disabled={i + 1 >= challenges.length}
-                type="button"
-              >
-                {`Skip Sign (${i + 1}/${challenges.length})`}
-              </button>
+          {typeof signSrc !== "string" && (
+            <div className="flex justify-evenly">
+              <div>
+                <button
+                  onClick={(_) => {
+                    let newSignSrc = challenges[i + 1][1];
+                    setCurrentSrc((_) => {
+                      setSrcIndex(0);
+                      setChallenge(challenges[i + 1]);
+                      setI((i) => i + 1);
+                      return (
+                        <iframe
+                          key={0}
+                          className="pb-2"
+                          width="420"
+                          height="315"
+                          src={`https://www.youtube.com/embed/${
+                            newSignSrc[0].split(":")[0]
+                          }?start=${Math.floor(
+                            +newSignSrc[0].split(":")[1] / 1000
+                          )}&cc_load_policy=1&autoplay=1&end=${
+                            Math.floor(+newSignSrc[0].split(":")[1] / 1000) + 1
+                          }&loop=1&fs=0&iv_load_policy=3`}
+                        />
+                      );
+                    });
+                  }}
+                  className={
+                    i + 1 < challenges.length
+                      ? "bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+                      : "bg-blue-500 text-white font-bold py-2 px-4 rounded opacity-50 cursor-not-allowed"
+                  }
+                  disabled={i + 1 >= challenges.length}
+                  type="button"
+                >
+                  {`Skip Sign (${i + 1}/${challenges.length})`}
+                </button>
+              </div>
+              <div className="pl-2">
+                <button
+                  onClick={(_) => {
+                    let newSignSrc = challenges[i - 1][1];
+                    setCurrentSrc((_) => {
+                      setSrcIndex(0);
+                      setChallenge(challenges[i - 1]);
+                      setI((i) => i - 1);
+                      return (
+                        <iframe
+                          key={0}
+                          className="pb-2"
+                          width="420"
+                          height="315"
+                          src={`https://www.youtube.com/embed/${
+                            newSignSrc[0].split(":")[0]
+                          }?start=${Math.floor(
+                            +newSignSrc[0].split(":")[1] / 1000
+                          )}&cc_load_policy=1&autoplay=1&end=${
+                            Math.floor(+newSignSrc[0].split(":")[1] / 1000) + 1
+                          }&loop=1&fs=0&iv_load_policy=3`}
+                        />
+                      );
+                    });
+                  }}
+                  className={
+                    i > 0
+                      ? "bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+                      : "bg-blue-500 text-white font-bold py-2 px-4 rounded opacity-50 cursor-not-allowed"
+                  }
+                  disabled={i <= 0}
+                  type="button"
+                >
+                  Previous Sign
+                </button>
+              </div>
             </div>
-            <div className="pl-2">
-              <button
-                onClick={(_) => {
-                  let newSignSrc = challenges[i - 1][1];
-                  setCurrentSrc((_) => {
-                    setSrcIndex(0);
-                    setChallenge(challenges[i - 1]);
-                    setI((i) => i - 1);
-                    return (
-                      <iframe
-                        key={0}
-                        className="pb-2"
-                        width="420"
-                        height="315"
-                        src={`https://www.youtube.com/embed/${
-                          newSignSrc[0].split(":")[0]
-                        }?start=${Math.floor(
-                          +newSignSrc[0].split(":")[1] / 1000
-                        )}&cc_load_policy=1&autoplay=1&end=${
-                          Math.floor(+newSignSrc[0].split(":")[1] / 1000) + 1
-                        }&loop=1&fs=0&iv_load_policy=3`}
-                      />
-                    );
-                  });
-                }}
-                className={
-                  i > 0
-                    ? "bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
-                    : "bg-blue-500 text-white font-bold py-2 px-4 rounded opacity-50 cursor-not-allowed"
-                }
-                disabled={i <= 0}
-                type="button"
-              >
-                Previous Sign
-              </button>
-            </div>
-          </div>
+          )}
         </div>
         {shouldCapture &&
           (dynamic || "JZ".includes(sign) ? (
