@@ -1,4 +1,5 @@
 import csv
+import json
 from pathlib import Path
 import shutil
 import string
@@ -88,7 +89,7 @@ class YouTubeScraper():
                     if key is None:
                         continue
                     key = key.code
-                    if 'en' in key or 'ase' in key:
+                    if ('en' in key or 'ase' in key) and 'asr' not in key:
                         keys.append(key)
                 
                 if keys == []:
@@ -102,6 +103,13 @@ class YouTubeScraper():
                     length = len(caption.json_captions)
                     
                 captions = yt.captions[current_key].json_captions
+                
+                print(json.dumps(
+                yt,
+                default=lambda o: o.__dict__, 
+                sort_keys=True,
+                indent=4))
+                exit()
                 
                 caption_dict = {}
                 for caption in captions["events"]:
@@ -165,8 +173,9 @@ class YouTubeScraper():
 if __name__ == "__main__":
     yt = YouTubeScraper(Path("dynamic_signs/common_words_new.csv"), Path("dynamic_signs/video_ids.txt"), num_hands=2)
     # yt.find_common_words(min_occurances=50, max=0)
+    yt.extract_captions(max=0)
     # yt.get_video_signs(max=0,seconds_per_clip=1)
     # yt.get_video_signs(max=0,seconds_per_clip=1)
     # yt.find_common_words(min_occurances=50, max=0)
     # yt.find_common_words(min_occurances=0, max=20)
-    yt.write_common_words()
+    # yt.write_common_words()
