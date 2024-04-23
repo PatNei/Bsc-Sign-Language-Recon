@@ -104,13 +104,6 @@ class YouTubeScraper():
                     
                 captions = yt.captions[current_key].json_captions
                 
-                print(json.dumps(
-                yt,
-                default=lambda o: o.__dict__, 
-                sort_keys=True,
-                indent=4))
-                exit()
-                
                 caption_dict = {}
                 for caption in captions["events"]:
                         try:
