@@ -1,4 +1,5 @@
 # Weekly meeting
+- [25 April 2024](#Date-25th-April-2024)
 - [18 April 2024](#Date-18th-April-2024)
 - [9 April 2024](#Date-9th-April-2024)
 - [26 March 2024](#Date-26th-March-2024)
@@ -6,6 +7,33 @@
 - [5 March 2024](#Date-5th-March-2024)
 - [29 February 2024](#Date-29th-February-2024)
 - [15 February 2024](#Date-15th-February-2024)
+## Date: 25th April 2024 
+
+### What helped you this week?
+
+
+### What did you achieve?
+Improvements on the frontend(It now shows corresponding videos when learning a common word).
+Trained a dynamic model for common words.
+
+
+### What did you struggle with?
+Youtube data scraping.
+Time(model training, scraping, etc)
+
+
+### What would you like to work on next week?
+Model adjustment
+Writing
+
+### Where do you need help from Amelia?
+Which part of the report should we focus on for the draft.
+
+We would like to go through the intended learning outcomes and hear your interpretation of them related to our project. (https://itustudent.itu.dk/Study-Administration/Project-Work/Intended-Learning-Outcomes)
+
+### What are the agreements after this meeting? (to fill in after the meeting)
+
+  
 ## Date: 18th April 2024 
 
 ### What helped you this week?
