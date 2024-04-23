@@ -108,12 +108,12 @@ export default function Recognizer({ challenges, dynamic }: props) {
                   <div>
                     <button
                       className={
-                        signSrc.length > 1
+                        srcIndex + 1 < signSrc.length
                           ? "bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
                           : "bg-blue-500 text-white font-bold py-2 px-4 rounded opacity-50 cursor-not-allowed"
                       }
                       type="button"
-                      disabled={signSrc.length <= 1}
+                      disabled={srcIndex + 1 >= signSrc.length}
                       onClick={(_) => {
                         let newSrcIndex = (srcIndex + 1) % signSrc.length;
                         setCurrentSrc((_) => (
@@ -137,9 +137,7 @@ export default function Recognizer({ challenges, dynamic }: props) {
                         setKey(0);
                       }}
                     >
-                      {signSrc.length > 1
-                        ? `Next Clip (${srcIndex + 1}/${signSrc.length})`
-                        : "This is all we have"}
+                      {`Next Clip (${srcIndex + 1}/${signSrc.length})`}
                     </button>
                   </div>
                   <div>
