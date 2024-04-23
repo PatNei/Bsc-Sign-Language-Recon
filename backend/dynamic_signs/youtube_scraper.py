@@ -17,8 +17,8 @@ class YouTubeScraper():
         self.common_words_path_txt = common_words_path_txt
         self.num_hands = num_hands
 
-    def get_video_signs(self, out_path="youtube.csv", max=0, seconds_per_clip=1):
-        dynamic_landmark_extractor = DynamicLandmarkExtractor(out_path=out_path,num_hands=self.num_hands)
+    def get_video_signs(self, max=0, seconds_per_clip=1):
+        dynamic_landmark_extractor = DynamicLandmarkExtractor(out_path="dynamic_signs/new_youtube.csv",num_hands=self.num_hands)
         captions = self.extract_captions(max=max, only_common_words=True).items()
         if max == 0:
             max = len(captions)
@@ -161,10 +161,10 @@ class YouTubeScraper():
                 common_words_txt.write(res[:-1])
 
 if __name__ == "__main__":
-    yt = YouTubeScraper(Path("dynamic_signs/common_words_new.csv"), Path("dynamic_signs/video_ids.txt"), num_hands=2)
+    yt = YouTubeScraper(Path("dynamic_signs/common_words.csv"), Path("dynamic_signs/video_ids.txt"), num_hands=2)
     # yt.find_common_words(min_occurances=50, max=0)
-    yt.extract_captions(max=0)
-    # yt.get_video_signs(max=0,seconds_per_clip=1)
+    # yt.extract_captions(max=0)
+    yt.get_video_signs(max=0,seconds_per_clip=1)
     # yt.get_video_signs(max=0,seconds_per_clip=1)
     # yt.find_common_words(min_occurances=50, max=0)
     # yt.find_common_words(min_occurances=0, max=20)
