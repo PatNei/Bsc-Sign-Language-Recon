@@ -47,6 +47,7 @@ export default function Recognizer({ challenges, dynamic }: props) {
     const nextI = i + 1;
     if (nextI < challenges.length) setChallenge(challenges[nextI]);
     setI(nextI);
+    setSrcIndex(0);
     setLetterCounter(0);
   };
 
@@ -107,26 +108,42 @@ export default function Recognizer({ challenges, dynamic }: props) {
                 </div>
                 <div>
                   <button
+                    className={
+                      srcIndex > 0
+                        ? "bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+                        : "bg-blue-500 text-white font-bold py-2 px-4 rounded opacity-50 cursor-not-allowed"
+                    }
+                    type="button"
+                    disabled={srcIndex <= 0}
                     onClick={(_) => {
+                      let newSrcIndex = srcIndex - 1;
                       setCurrentSrc((_) => (
                         <iframe
-                          key={key + 1}
+                          key={0}
                           className="pb-2"
                           width="420"
                           height="315"
                           src={`https://www.youtube.com/embed/${
-                            signSrc[srcIndex].split(":")[0]
+                            signSrc[newSrcIndex].split(":")[0]
                           }?start=${Math.floor(
-                            +signSrc[srcIndex].split(":")[1] / 1000
+                            +signSrc[newSrcIndex].split(":")[1] / 1000
                           )}&cc_load_policy=1&autoplay=1&end=${
                             Math.floor(
-                              +signSrc[srcIndex].split(":")[1] / 1000
+                              +signSrc[newSrcIndex].split(":")[1] / 1000
                             ) + 1
                           }&loop=1&fs=0&iv_load_policy=3`}
                         />
                       ));
-                      setKey((i) => i + 1);
+                      setSrcIndex(newSrcIndex);
+                      setKey(0);
                     }}
+                  >
+                    Previous Clip
+                  </button>
+                </div>
+                <div>
+                  <button
+                    onClick={(_) => updateSrc()}
                     className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
                     type="button"
                   >
@@ -136,7 +153,83 @@ export default function Recognizer({ challenges, dynamic }: props) {
               </div>
             </div>
           )}
-          <p className="pt-2">{`${sign[0].toUpperCase()}${sign.slice(1)}`}</p>
+          <p className="pt-2 pb-2">{`${sign[0].toUpperCase()}${sign.slice(
+            1
+          )}`}</p>
+          <div className="flex justify-evenly">
+            <div>
+              <button
+                onClick={(_) => {
+                  let newSignSrc = challenges[i + 1][1];
+                  setCurrentSrc((_) => {
+                    setSrcIndex(0);
+                    setChallenge(challenges[i + 1]);
+                    setI((i) => i + 1);
+                    return (
+                      <iframe
+                        key={0}
+                        className="pb-2"
+                        width="420"
+                        height="315"
+                        src={`https://www.youtube.com/embed/${
+                          newSignSrc[0].split(":")[0]
+                        }?start=${Math.floor(
+                          +newSignSrc[0].split(":")[1] / 1000
+                        )}&cc_load_policy=1&autoplay=1&end=${
+                          Math.floor(+newSignSrc[0].split(":")[1] / 1000) + 1
+                        }&loop=1&fs=0&iv_load_policy=3`}
+                      />
+                    );
+                  });
+                }}
+                className={
+                  i + 1 < challenges.length
+                    ? "bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+                    : "bg-blue-500 text-white font-bold py-2 px-4 rounded opacity-50 cursor-not-allowed"
+                }
+                disabled={i + 1 >= challenges.length}
+                type="button"
+              >
+                {`Skip Sign (${i + 1}/${challenges.length})`}
+              </button>
+            </div>
+            <div className="pl-2">
+              <button
+                onClick={(_) => {
+                  let newSignSrc = challenges[i - 1][1];
+                  setCurrentSrc((_) => {
+                    setSrcIndex(0);
+                    setChallenge(challenges[i - 1]);
+                    setI((i) => i - 1);
+                    return (
+                      <iframe
+                        key={0}
+                        className="pb-2"
+                        width="420"
+                        height="315"
+                        src={`https://www.youtube.com/embed/${
+                          newSignSrc[0].split(":")[0]
+                        }?start=${Math.floor(
+                          +newSignSrc[0].split(":")[1] / 1000
+                        )}&cc_load_policy=1&autoplay=1&end=${
+                          Math.floor(+newSignSrc[0].split(":")[1] / 1000) + 1
+                        }&loop=1&fs=0&iv_load_policy=3`}
+                      />
+                    );
+                  });
+                }}
+                className={
+                  i > 0
+                    ? "bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+                    : "bg-blue-500 text-white font-bold py-2 px-4 rounded opacity-50 cursor-not-allowed"
+                }
+                disabled={i <= 0}
+                type="button"
+              >
+                Previous Sign
+              </button>
+            </div>
+          </div>
         </div>
         {shouldCapture &&
           (dynamic || "JZ".includes(sign) ? (
@@ -148,7 +241,7 @@ export default function Recognizer({ challenges, dynamic }: props) {
           {boolski && (
             <>
               "✅"
-              <button type="button" onClick={onNext}>
+              <button type="button" onClick={(_) => onNext()}>
                 Next
               </button>
             </>
@@ -164,4 +257,22 @@ export default function Recognizer({ challenges, dynamic }: props) {
       </button>
     </div>
   );
+  function updateSrc() {
+    setCurrentSrc((_) => (
+      <iframe
+        key={key + 1}
+        className="pb-2"
+        width="420"
+        height="315"
+        src={`https://www.youtube.com/embed/${
+          signSrc[srcIndex].split(":")[0]
+        }?start=${Math.floor(
+          +signSrc[srcIndex].split(":")[1] / 1000
+        )}&cc_load_policy=1&autoplay=1&end=${
+          Math.floor(+signSrc[srcIndex].split(":")[1] / 1000) + 1
+        }&loop=1&fs=0&iv_load_policy=3`}
+      />
+    ));
+    setKey((i) => i + 1);
+  }
 }
