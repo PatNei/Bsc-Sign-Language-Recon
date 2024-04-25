@@ -23,9 +23,10 @@ from sklearn.pipeline import make_pipeline
 logistic_reg = LogisticRegression(random_state=42,max_iter=10000)
 parameters = {'C':range(10,1001,20)}
 pre_clf = RandomizedSearchCV(logistic_reg,parameters,n_jobs=-1)
-pre_clf.fit(np.array(xs),ys)
+print("Searching for best hyper parameters")
+pre_clf.fit(_xs,ys)
 print(pre_clf.best_estimator_,pre_clf.best_index_,pre_clf.best_params_,pre_clf.best_score_)
-print(classification_report(ys_test,pre_clf.predict(np.array(xs_test)),digits=4))
+print(classification_report(ys_test,pre_clf.predict(xs_test),digits=4))
 
 if True:
     from joblib import dump
