@@ -121,7 +121,7 @@ async function gameLogicDynamicSign(
   setLetterRecognizerResponse: (r: string) => void
 ): Promise<void> {
   if (!multiHandLandmarks || multiHandLandmarks.data.length === 0) return;
-  console.log(`LENGTH: ${dynamicSignLandmarks.data.length}`);
+  //console.log(`LENGTH: ${dynamicSignLandmarks.data.length}`);
   if (i >= min_frames_per_sign) {
     const postState = await APIPost("dynamic_annotation", dynamicSignLandmarks);
     if (postState?.response && !postState.error) {
