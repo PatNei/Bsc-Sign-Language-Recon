@@ -155,7 +155,7 @@ class YouTubeScraper():
 
 if __name__ == "__main__":
     yt = YouTubeScraper(Path("dynamic_signs/common_words_new.csv"), Path("dynamic_signs/video_ids.txt"), num_hands=2)
-    yt.find_common_words(min_occurances=50, max=0)
+    yt.find_common_words(min_occurances=100, max=0)
     yt.get_video_signs(max=0, out_path="youtube_with_asl_in_title.csv",seconds_per_clip=1)
     # yt.get_video_signs(max=0,seconds_per_clip=1)
     # yt.find_common_words(min_occurances=50, max=0)
