@@ -4,7 +4,7 @@ TRAIN_PATH = 'model/train.csv'
 STATIC_MODEL_PATH = 'model/M6.joblib'
 STATIC_MODEL_USES_HANDEDNESS = True #REMEMBER TO UPDATE THIS ONE WITH STATIC_MODEL_PATH
 
-DYNAMIC_MODEL_PATH = 'model/DYN_JZ_M1.joblib'
+DYNAMIC_MODEL_PATH = 'model/DYN_M1.joblib'
 CLASSIFIER_PATH = "model/keypoint_classifier_label.csv"
 AMOUNT_OF_KEYFRAMES = 24
 
