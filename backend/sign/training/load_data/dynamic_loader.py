@@ -1,3 +1,4 @@
+from pathlib import Path
 import numpy as np
 import numpy.typing as npt
 from dataclasses import dataclass
@@ -52,8 +53,10 @@ class DynamicLoader():
 
     @staticmethod
     def __decide_target(left: list[list[float] | None], right: list[list[float] | None]) -> tuple[list[float], Literal["left", "right"] | None] :
-        """Decides which hand to continue our preprocessing step for.
-            That is, choosing the longest list when all 'None's are removed.
+        """
+        Decides which hand to continue our preprocessing step for.
+        
+        That is, choosing the longest list when all 'None's are removed.
         """
         #left_landmarks = [elm for elm in left if elm is not None]
         #right_landmarks = [elm for elm in right if elm is not None]
@@ -66,7 +69,7 @@ class DynamicLoader():
             return [],None
         return target
     
-    def prepare_training_data(self, path:str) -> DynamicTrainingData:
+    def prepare_training_data(self, path:str | Path) -> DynamicTrainingData:
         """Extracts and prepares training data directly from a csv.
 
         :path: must be a path (in str form) to a csv created using MediaPiper.
@@ -111,5 +114,6 @@ class DynamicLoader():
 if __name__ == "__main__":
     loader = DynamicLoader(target_len=24)
     #data = loader.prepare_training_data("data/dynamic_train/dyn_j_z_homemade.csv")
-    data = loader.prepare_training_data("data/dynamic_train/dyn_j_z_youtube.csv")
+    path = Path("backend/sign/training/load_data/dyn_50_common_youtube_55p.csv")
+    data = loader.prepare_training_data(path)
 

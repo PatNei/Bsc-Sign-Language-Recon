@@ -187,3 +187,4 @@ notebooks/**/*.png
 /backend/poetry.lock
 
 *nohup*
+*.joblib
