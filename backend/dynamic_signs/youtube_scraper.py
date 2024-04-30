@@ -1,5 +1,4 @@
 import csv
-import json
 from pathlib import Path
 import shutil
 import string
@@ -66,7 +65,6 @@ class YouTubeScraper():
                     break
                 
                 yt = YouTube(f"https://www.youtube.com/watch?v={video_id}")
-                title = yt.title.lower()
                         
                 try:        
                     yt.bypass_age_gate()
@@ -90,7 +88,7 @@ class YouTubeScraper():
                     if key is None:
                         continue
                     key = key.code
-                    if ('en' in key or 'ase' in key) and 'asr' not in key:
+                    if 'en' in key or 'ase' in key:
                         keys.append(key)
                 
                 if keys == []:
@@ -165,8 +163,10 @@ class YouTubeScraper():
                 common_words_txt.write(res[:-1])
 
 if __name__ == "__main__":
-    yt = YouTubeScraper(Path("dynamic_signs/common_words_new.csv"), Path("dynamic_signs/video_ids.txt"), num_hands=2)
+    csv.field_size_limit(sys.maxsize)
+    yt = YouTubeScraper(Path("dynamic_signs/common_words_new.csv"), Path("dynamic_signs/video_ids.txt"),Path("dynamic_signs/common_words_new.txt"), num_hands=2)
     yt.find_common_words(min_occurances=100, max=0)
+    yt.write_common_words()
     yt.get_video_signs(max=0, out_path="youtube_with_asl_in_title.csv",seconds_per_clip=1)
     # yt.get_video_signs(max=0,seconds_per_clip=1)
     # yt.find_common_words(min_occurances=50, max=0)
