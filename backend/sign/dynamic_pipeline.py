@@ -1,5 +1,6 @@
-from collections import Counter
-from typing import Literal, Tuple, Union
+from typing import Literal, Tuple
+from sklearn.base import BaseEstimator, ClassifierMixin, check_X_y, check_is_fitted
+from sklearn.utils.multiclass import unique_labels
 from sklearn.svm import SVC
 from sklearn.model_selection import cross_val_score
 from joblib import dump
@@ -9,7 +10,7 @@ import numpy as np
 import numpy.typing as npt
 
 
-class DynamicClassifierPipeline():
+class DynamicClassifierPipeline(BaseEstimator, ClassifierMixin):
     """ A simple DynamicPipeline class that tries to fulfill the subset of API functions needed to use
     Sklearn cross_validate functions.
     """
@@ -24,23 +25,22 @@ class DynamicClassifierPipeline():
         self.intermediates = intermediates
         self.intermediate_frames = intermediate_frames
         self.real_trajectories:list[dict[str, npt.NDArray[np.float32]]] = [{} for _ in range(intermediates)]
-        self.__target_length = self.intermediates * self.intermediate_frames
+        self.target_length = self.intermediates * self.intermediate_frames
         self.models = []
-        self.__verbose = verbose
-        self.__model_failed = model_failed
-        self.__trajectory_failed = trajectory_failed
-        self.__out_name = out_name
+        self.verbose = verbose
+        self.model_failed = model_failed
+        self.trajectory_failed = trajectory_failed
+        self.out_name = out_name
         self.is_fitted = False
     
     def dump(self):
-        if not self.is_fitted:
-            raise Exception("Pipeline hasn't been fitted!")
-        dump(self, self.__out_name)
+        check_is_fitted(self)
+        dump(self, self.out_name)
 
     def __instantiate_model(self, step:int):
-        clf = LogisticRegression(max_iter=10_000, verbose=2 if self.__verbose else 0)
-        if self.__verbose:
-            print(f"Step{step} -> Uses model of type:\n\t{type(clf)}")
+        clf = LogisticRegression(max_iter=200, verbose=2 if self.verbose else 0)
+        if self.verbose:
+            print(f"Step{step} -> Uses model of type: '{type(clf).__name__}'")
         return clf
 
 
@@ -55,7 +55,7 @@ class DynamicClassifierPipeline():
                 - And:   <42xyz>_n is the 42 x-,y-,z-values for static sign recognition
         
         """
-        trajector_end = (self.__target_length-1) * 3
+        trajector_end = (self.target_length-1) * 3
         #Pad the trajectory with an all stationary trajectory element at the begining.
         padded_trajectory = np.concatenate((np.array([0,0,0]), x[:trajector_end]))
         x_trj = np.split(padded_trajectory, self.intermediates)
@@ -90,7 +90,7 @@ class DynamicClassifierPipeline():
             
             :ys: -> a list of the true labels for the instances (xs), where indices match, that is label(xs[0]) == ys[0] 
         """
-
+        xs, ys = check_X_y(xs,ys)
         lndmarks, trajects = self.split_data_into_pipeline_training_samples(xs)
 
         #remember most common trajectories?
@@ -120,12 +120,16 @@ class DynamicClassifierPipeline():
             for i in range(self.intermediates):
                 step_xs[i].append(step_landmarks_tuple[i])
         for idx, training_samples in enumerate(step_xs):
-            if self.__verbose:
+            if self.verbose:
                 print(f"Training model for step {idx} - shape:{np.array(training_samples).shape}")     
             clf = self.__instantiate_model(idx)
             clf.fit(training_samples, ys)
             self.models.append(clf)
-        self.is_fitted = True
+        
+        self.classes_ = unique_labels(list(ys) + [self.model_failed, self.trajectory_failed])
+        self.X_ = xs
+        self.y_ = ys
+        return self
 
     def predict_step(self, data, modelnumber) -> str:
         return self.models[modelnumber].predict(data)[0]
@@ -134,27 +138,26 @@ class DynamicClassifierPipeline():
     def predict_single(self, x) -> str:
         """ Predicts the label of a single instance.
         """
-        if not self.is_fitted:
-            raise Exception("Model hasn't bene fit! Call fit()")
+        check_is_fitted(self)
         step_to_trajectory, landmarks_for_steps = self.__split_training_instance(x)
         
         predictions:list[str] = []
         for i in range(self.intermediates):
             prediction = self.predict_step([landmarks_for_steps[i]], i)
             predictions.append(prediction)
-            if self.__verbose:
+            if self.verbose:
                 print(f"Step{i}: model predicted -> {prediction}")
         for i in range(self.intermediates):
             if(i > 0):
                 if(predictions[i] != predictions[i - 1]):
-                    return self.__model_failed
+                    return self.model_failed
 
             prediction_at_step = predictions[i]
             real_trajectory = self.real_trajectories[i][prediction_at_step]
             if not np.array_equal(real_trajectory, step_to_trajectory[i]):
-                if self.__verbose:
+                if self.verbose:
                     print(f"Step{i}: trajectory discard -> {prediction_at_step}")
-                return self.__trajectory_failed
+                return self.trajectory_failed
         return predictions[0]
     
     def predict(self, xs) -> list[str]:
@@ -173,21 +176,24 @@ if __name__ == "__main__":
     loader = DynamicLoader(target_len=TARGET_LENGTH)
     PATH = "../backend/new_youtube.csv"
     #PATH = "small_dyn.csv"
-    print("Loading data...")
+    print(f"Loading data from '{PATH}'...")
     data = loader.prepare_training_data(PATH)
     xs = data.xs
     ys = data.ys
     print("Loaded data...")
     
-    print("...About to train 💪")
     pipe = DynamicClassifierPipeline(INTERMEDIATES, INTERMEDIATE_FRAMES, verbose=2)
-    pipe.fit(xs, ys)
-    print("Trained model")
-
-    TARGET = (ys[4], xs[4])
-    print(f"Trying to predict {TARGET}")
-    predicted = pipe.predict_single(TARGET[1])
-    print(f"Final prediction is: '{predicted}'")
+    print("Doing cross validation...")
+    print(f"cross_val_score: {cross_val_score(pipe, np.array(xs), ys, scoring='accuracy', cv=2)}",)
+   
+    #print("...About to train 💪")
+    #pipe.fit(xs, ys)
+    #print("Trained model")
+    #print(pipe.classes_)
+    # TARGET = (ys[4], xs[4])
+    # print(f"Trying to predict {TARGET}")
+    # predicted = pipe.predict_single(TARGET[1])
+    # print(f"Final prediction is: '{predicted}'")
 
 
 
