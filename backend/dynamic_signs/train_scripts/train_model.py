@@ -142,7 +142,7 @@ def main():
     logging.info(f"training set: { Counter(ys) }")
     logging.info(f"test set: { Counter(ys_test) }")
     if should_scale:
-        if model_type == "rf":
+        if model_type == EK.RF:
             logging.warn("Random forrest doesn't benefit from scaling the data, it might be beneficial to remove the -s or --scale flag.")
         logging.info("Scaling the data")
         scaler = StandardScaler().fit(xs,np.array(ys))
