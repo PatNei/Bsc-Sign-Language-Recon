@@ -1,12 +1,13 @@
 import csv
-import json
 from pathlib import Path
 import shutil
 import string
+import sys
 from pytube import YouTube
 import enchant
 from moviepy.video.io.ffmpeg_tools import ffmpeg_extract_subclip
 from dynamic_signs.landmark_extractor import DynamicLandmarkExtractor
+import re
 
 class YouTubeScraper():
     num_hands: int
@@ -64,23 +65,30 @@ class YouTubeScraper():
                     break
                 
                 yt = YouTube(f"https://www.youtube.com/watch?v={video_id}")
-                title = yt.title.lower()
                         
                 try:        
                     yt.bypass_age_gate()
-                    
+                    title = yt.title.lower()
+                    desc = yt.description.lower()
+                    keywords = "".join(yt.keywords).lower()
+                    is_asl = "asl" in title or "american" in title or "asl" in desc or "american" in desc or "asl" in keywords or "american" in keywords
+
+
                     # Don't download videos with a length of more than 15 minutes
-                    if yt.length > 15 * 60 or "asl" not in title or "american" not in title:
+                    if yt.length > 15 * 60 or not is_asl:
                         continue
                 except:
                     continue
                 
+                if "auto" in str(yt.captions.keys()):
+                    continue
+
                 keys = []
                 for key in yt.captions.keys():
                     if key is None:
                         continue
                     key = key.code
-                    if ('en' in key or 'ase' in key) and 'asr' not in key:
+                    if 'en' in key or 'ase' in key:
                         keys.append(key)
                 
                 if keys == []:
@@ -104,7 +112,7 @@ class YouTubeScraper():
                         
                         for seg in segs:
                             text = seg['utf8'].lower().translate(str.maketrans('', '', string.punctuation)) 
-                            if text == "" or len(text.split(" ")) > 1:
+                            if not re.match(r"^[a-zA-Z]+$", text) or len(text.split(" ")) > 1:
                                 continue
                             
                             d = enchant.Dict("en_US")
@@ -155,8 +163,10 @@ class YouTubeScraper():
                 common_words_txt.write(res[:-1])
 
 if __name__ == "__main__":
-    yt = YouTubeScraper(Path("dynamic_signs/common_words_new.csv"), Path("dynamic_signs/video_ids.txt"), num_hands=2)
+    csv.field_size_limit(sys.maxsize)
+    yt = YouTubeScraper(Path("dynamic_signs/common_words_new.csv"), Path("dynamic_signs/video_ids.txt"),Path("dynamic_signs/common_words_new.txt"), num_hands=2)
     yt.find_common_words(min_occurances=100, max=0)
+    yt.write_common_words()
     yt.get_video_signs(max=0, out_path="youtube_with_asl_in_title.csv",seconds_per_clip=1)
     # yt.get_video_signs(max=0,seconds_per_clip=1)
     # yt.find_common_words(min_occurances=50, max=0)
