@@ -5,6 +5,10 @@ import {
 } from "@mediapipe/drawing_utils";
 import { HAND_CONNECTIONS } from "@mediapipe/hands";
 
+const butXPad = 20;
+const butYPad = 10;
+const butWidth = 5;
+
 interface result {
 	image: CanvasImageSource;
 	multiHandLandmarks: NormalizedLandmark[][];
@@ -15,12 +19,36 @@ export interface drawType {
 	canvasCtx: CanvasRenderingContext2D | null;
 }
 
-function drawCaptureCircle(ctx: CanvasRenderingContext2D,width:number,height?:number) {
+function drawCaptureCircle(
+	ctx: CanvasRenderingContext2D,
+	butX: number,
+	butY: number,
+) {
 	ctx.beginPath();
-	ctx.arc(width-20, 20, 5, 0, 2 * Math.PI);
-    ctx.fillStyle = "red"
-    ctx.fill()
+	ctx.arc(butX, butY, butWidth, 0, 2 * Math.PI);
+	ctx.fillStyle = "red";
+	ctx.fill();
 	ctx.stroke();
+}
+
+function calculateDistanceToButton(
+	butX: number,
+	butY: number,
+	canvas: HTMLCanvasElement,
+	NormalizedLandmarks?: NormalizedLandmark[],
+) {
+	if (!NormalizedLandmarks) return;
+	const indexFinger = NormalizedLandmarks[7];
+	const fingX = indexFinger.x * canvas.width;
+	const fingY = indexFinger.y * canvas.height;
+	const distX = Math.abs(butX - fingX + butWidth / 2);
+	const distY = Math.abs(butY - fingY - butWidth / 2);
+	console.log("ButX", butX);
+	console.log("ButY", butY);
+	console.log("distX", distX);
+	console.log("distY", distY);
+	console.log("fingX", fingX);
+	console.log("fingY", fingY);
 }
 
 export async function renderEverything(
@@ -43,8 +71,14 @@ export async function renderEverything(
 			radius: 0.8,
 		});
 	}
-
-	drawCaptureCircle(canvasCtx,canvas.width);
+	const butX = canvas.width - butXPad;
+	drawCaptureCircle(canvasCtx, butX, butYPad);
+	calculateDistanceToButton(
+		butX,
+		butYPad,
+		canvas,
+		result.multiHandLandmarks[0],
+	);
 
 	canvasCtx.restore();
 	// canvasCtx.save();
