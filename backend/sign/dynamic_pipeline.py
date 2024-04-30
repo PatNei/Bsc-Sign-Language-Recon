@@ -17,7 +17,7 @@ class DynamicClassifierPipeline():
     def __init__(self,
                  intermediates = 3,
                  intermediate_frames = 8,
-                 verbose = False,
+                 verbose:Literal[0,1,2] = 0,
                  model_failed:str = "__MODEL_FAILED__",
                  trajectory_failed:str = "__TRAJECTORY_FAILED__",
                  out_name = "DynamicPipeline"):
@@ -38,7 +38,7 @@ class DynamicClassifierPipeline():
         dump(self, self.__out_name)
 
     def __instantiate_model(self, step:int):
-        clf = LogisticRegression(max_iter=10_000, verbose=)
+        clf = LogisticRegression(max_iter=10_000, verbose=2 if self.__verbose else 0)
         if self.__verbose:
             print(f"Step{step} -> Uses model of type:\n\t{type(clf)}")
         return clf
@@ -180,7 +180,7 @@ if __name__ == "__main__":
     print("Loaded data...")
     
     print("...About to train 💪")
-    pipe = DynamicClassifierPipeline(INTERMEDIATES, INTERMEDIATE_FRAMES, verbose=True)
+    pipe = DynamicClassifierPipeline(INTERMEDIATES, INTERMEDIATE_FRAMES, verbose=2)
     pipe.fit(xs, ys)
     print("Trained model")
 
