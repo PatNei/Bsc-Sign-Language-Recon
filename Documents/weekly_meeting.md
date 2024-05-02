@@ -1,4 +1,5 @@
 # Weekly meeting
+- [2 May 2024](#Date-2th-May-2024)
 - [25 April 2024](#Date-25th-April-2024)
 - [18 April 2024](#Date-18th-April-2024)
 - [9 April 2024](#Date-9th-April-2024)
@@ -7,6 +8,33 @@
 - [5 March 2024](#Date-5th-March-2024)
 - [29 February 2024](#Date-29th-February-2024)
 - [15 February 2024](#Date-15th-February-2024)
+
+## Date: 2th May 2024 
+
+### What helped you this week?
+Feedback on the report draft.
+Sunshine.
+We improved our workflow for training models.
+
+
+### What did you achieve?
+Finished our report draft.
+Added countdown & start button to our frontend.
+Cleaned our common words dataset.
+
+### What did you struggle with?
+Training dynamic svm models.
+
+
+### What would you like to work on next week?
+Write report.
+Experiment with dynamic models.
+Experiment with cleaning our data using PCA.
+
+### Where do you need help from Amelia?
+
+### What are the agreements after this meeting? (to fill in after the meeting)
+
 ## Date: 25th April 2024 
 
 ### What helped you this week?
