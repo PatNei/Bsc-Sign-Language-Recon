@@ -5,19 +5,21 @@ import logging
 import os
 from pathlib import Path
 from typing import Dict, Literal
+from sklearn.calibration import cross_val_predict
 from sklearn.discriminant_analysis import StandardScaler
 from sklearn.ensemble import BaggingClassifier, RandomForestClassifier, VotingClassifier
 from sklearn.linear_model import LogisticRegression
-from sklearn.metrics import classification_report
+from sklearn.metrics import ConfusionMatrixDisplay, classification_report, confusion_matrix
 from scipy.sparse import spmatrix
 import numpy as np
 from sklearn.base import BaseEstimator
-from sklearn.model_selection import RandomizedSearchCV
+from sklearn.model_selection import RandomizedSearchCV, cross_val_score
 from sklearn.pipeline import make_pipeline
 from sklearn.svm import SVC
 from sign.training.load_data.dynamic_loader import DynamicLoader
 from sign.CONST import AMOUNT_OF_KEYFRAMES
 from collections import Counter
+import matplotlib.pyplot
 
 class EK(Enum):
     """Estimator keywords """
@@ -85,8 +87,6 @@ def get_base_estimators(name:EK,xs:np.ndarray,ys:tuple[str]) -> BaseEstimator:
                                                 ('rf', rf), 
                                                 ('bclr', bclr)
         ]) 
-        
-        
 
 def find_optimized_model(estimator_name:EK,xs:np.ndarray,ys:tuple[str],n_jobs=-1):
     estimator = get_base_estimators(estimator_name,xs,ys)
@@ -96,6 +96,8 @@ def find_optimized_model(estimator_name:EK,xs:np.ndarray,ys:tuple[str],n_jobs=-1
     pre_clf.fit(xs,ys)
     return pre_clf
 
+def evaluate_model(clf:BaseEstimator,xs:np.ndarray,ys:tuple[str],cv=3):
+    cross_val_score(clf, xs, ys, cv=cv, scoring="accuracy")
 
 def main():
     parser = argparse.ArgumentParser()
@@ -111,6 +113,11 @@ def main():
                         help="Should the input be scaled ?",
                         dest="scale",
                         action='store_true')
+    parser.add_argument("--jobs","-j",
+                        help="How many cores should we use?",
+                        dest="n_jobs",
+                        type=int
+                        )
     parser.add_argument("--out", 
                         help="name of the out file.",
                         required=False,
@@ -138,7 +145,7 @@ def main():
     logging.info(f"About to process {input_path} outputting to {out_path}")
     
     xs,ys,xs_test,ys_test = load_csv(input_path)
-    n_jobs = -1
+    n_jobs = args.n_jobs
     logging.info(f"training set: { Counter(ys) }")
     logging.info(f"test set: { Counter(ys_test) }")
     if should_scale:
@@ -158,10 +165,17 @@ def main():
     logging.info(f"Best Score: {best_clf.best_score_}")
 
     y_pred = best_clf.predict(xs_test)
+    
     # logging.info(xs.shape)
     # logging.info(xs_test.shape)
-    logging.info(f"Classification Report:\n{classification_report(ys_test,y_pred,digits=4,zero_division=1)}")
-    logging.info(f"Probabilities:\n{[(x,y) for (x,y) in zip(ys_test,best_clf.predict_proba(xs_test))]}")
+    logging.info(f"Cross val score:\n{cross_val_score(best_clf, xs, ys, cv=3, scoring='accuracy')}")
+    logging.info(f"Classification Report for training set:\n{classification_report(ys,cross_val_predict(best_clf,xs,ys))}")
+    logging.info(f"Classification Report for test set:\n{classification_report(ys_test,y_pred,digits=4,zero_division=1)}")
+    cm = confusion_matrix(ys_test,y_pred)
+    display = ConfusionMatrixDisplay(cm,display_labels=best_clf.classes_)
+    display.plot()
+    matplotlib.pyplot.savefig(f"{LOG_PATH}/cm-{CURRENT_TIME}")
+    #logging.info(f"Probabilities:\n{[(x,y) for (x,y) in zip(ys_test,best_clf.predict_proba(xs_test))]}")
     from joblib import dump
     
     dump(best_clf, out_path)
