@@ -30,10 +30,12 @@ class YouTubeScraper():
             yt = YouTube(f"https://www.youtube.com/watch?v={video_id}")
             video = yt.streams.get_highest_resolution()
             if video is None:
+                print(video_id,"could not be found")
                 continue
             try:
                 video.download(output_path=f"dynamic_signs/videos/{video_id}", filename=f"{video_id}.mp4")
-            except:
+            except Exception as e:
+                print(video_id,e)
                 continue
             
             for start_time, text in captions.items():
@@ -75,12 +77,20 @@ class YouTubeScraper():
 
 
                     # Don't download videos with a length of more than 15 minutes
-                    if yt.length > 15 * 60 or not is_asl:
+                    if yt.length > 15 * 60:
+                        print(video_id,"is more than 15 minutes long asl:")
                         continue
-                except:
+                    if not is_asl:
+                        print(video_id,"does not contain asl.")
+                        print(desc)
+                        print(title)
+                        continue
+                except Exception as e:
+                    print(video_id,e)
                     continue
                 
                 if "auto" in str(yt.captions.keys()):
+                    print(video_id,"contained generated captions")
                     continue
 
                 keys = []
@@ -107,12 +117,14 @@ class YouTubeScraper():
                 for caption in captions["events"]:
                         try:
                             segs = caption['segs']
-                        except:
+                        except Exception as e:
+                            print(video_id,e)
                             continue
                         
                         for seg in segs:
                             text = seg['utf8'].lower().translate(str.maketrans('', '', string.punctuation)) 
-                            if not re.match(r"^[a-zA-Z]+$", text) or len(text.split(" ")) > 1:
+                            if not re.match(r"^[a-zA-Z\d]+$", text) or len(text.split(" ")) > 1:               
+                                print(video_id,"caption is a special character",text)                 
                                 continue
                             
                             d = enchant.Dict("en_US")
@@ -162,12 +174,26 @@ class YouTubeScraper():
                     res = res + f"{word}?{clips},"
                 common_words_txt.write(res[:-1])
 
+def main():
+    
+    yt = YouTubeScraper(Path("dynamic_signs/common_words_new.csv"), Path("dynamic_signs/video_ids.txt"),Path("dynamic_signs/common_words_new.txt"), num_hands=2)
+    yt.get_video_signs(max=0, out_path="dynamic_signs/youtube_best.csv",seconds_per_clip=1)
+    
+
+def update_common_words():
+    yt = YouTubeScraper(Path("dynamic_signs/common_words_new_with_numbers.csv"), Path("dynamic_signs/video_ids.txt"),Path("dynamic_signs/common_words_new_with_numbers.txt"), num_hands=2)
+    yt.find_common_words(min_occurances=100, max=0)
+        
+
 if __name__ == "__main__":
     csv.field_size_limit(sys.maxsize)
-    yt = YouTubeScraper(Path("dynamic_signs/common_words_new.csv"), Path("dynamic_signs/video_ids.txt"),Path("dynamic_signs/common_words_new.txt"), num_hands=2)
-    yt.find_common_words(min_occurances=100, max=0)
-    yt.write_common_words()
-    yt.get_video_signs(max=0, out_path="youtube_with_asl_in_title.csv",seconds_per_clip=1)
+    # print(str(yt.captions.keys()))
+    # yt = YouTubeScraper(Path("dynamic_signs/common_words_new.csv"), Path("dynamic_signs/video_ids.txt"),Path("dynamic_signs/common_words_new.txt"), num_hands=2)
+    yt = YouTube("https://www.youtube.com/watch?v=jFrGhodqC08")
+    print(yt.title)
+    # yt.get_video_signs(max=0, out_path="dynamic_signs/youtube_with_asl_in_title.csv",seconds_per_clip=1)
+    # yt.find_common_words(min_occurances=100, max=0)
+    # yt.write_common_words()
     # yt.get_video_signs(max=0,seconds_per_clip=1)
     # yt.find_common_words(min_occurances=50, max=0)
     # yt.find_common_words(min_occurances=0, max=20)
