@@ -91,7 +91,7 @@ def get_base_estimators(name:EK,xs:np.ndarray,ys:tuple[str]) -> BaseEstimator:
 def find_optimized_model(estimator_name:EK,xs:np.ndarray,ys:tuple[str],n_jobs=-1):
     estimator = get_base_estimators(estimator_name,xs,ys)
     parameters = get_parameters(estimator_name)
-    pre_clf = RandomizedSearchCV(estimator,parameters,n_jobs=n_jobs,verbose=2,random_state=RANDOM_STATE,pre_dispatch=2) # type: ignore
+    pre_clf = RandomizedSearchCV(estimator,parameters,n_jobs=n_jobs,verbose=2,random_state=RANDOM_STATE) # type: ignore
     logging.info("Searching for best hyper parameters")
     pre_clf.fit(xs,ys)
     return pre_clf
