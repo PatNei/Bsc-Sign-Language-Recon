@@ -1,3 +1,5 @@
+import logging
+import logging.config
 from typing import Tuple
 import numpy as np
 import numpy.typing as npt
@@ -7,6 +9,7 @@ from sign.model import SignClassifier
 from sign.trajectory import TrajectoryBuilder
 
 import random
+
 
 class DynamicClassifier():
     def __init__(self):
@@ -32,7 +35,8 @@ class DynamicClassifier():
         # Model now expects input to be of the form:
         # <simple-trajectory-as-xyz-values><42-xy-values-from-yt-algo><42-xy-values-from-yt-algo>...
         predictions = self.classifier.predict(np.array([model_input]))
-
+        proba = self.classifier.predict_proba(np.array([model_input]))
+        logging.warn(proba)
         return predictions[0]
     
     def _preprocess_mediapipe_landmarks(self, ldnmrks:list[np.ndarray]) -> list[Tuple[npt.NDArray[np.float32], list[float]]]:
