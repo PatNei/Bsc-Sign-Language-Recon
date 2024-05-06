@@ -11,6 +11,7 @@ class scikitModel(Protocol):
         return self
     def fit(self,X:npt.NDArray,y:npt.NDArray): ...
     def predict(self,target:npt.NDArray) -> npt.NDArray[np.str_]: ...
+    def predict_proba(self,target:npt.NDArray) -> npt.NDArray: ...
 
 
 
@@ -23,6 +24,8 @@ class SignClassifier:
 
     def predict(self, target:npt.NDArray[np.float32]) -> npt.NDArray[np.str_]:
         return self.model.predict(target)
+    def predict_proba(self, target:npt.NDArray[np.float32]) -> npt.NDArray[np.str_]:
+        return self.model.predict_proba(target)
 
 if __name__ == '__main__':
     print("it works sir")
