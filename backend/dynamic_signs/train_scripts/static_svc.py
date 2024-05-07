@@ -17,7 +17,7 @@ from sklearn.model_selection import RandomizedSearchCV, cross_validate
 from dynamic_signs.setup_logging import setup_logging
 from sign.training.load_data.StaticLandmarkLoader import StaticLandmarkLoader
 
-STATIC_TRAIN_PATH = Path.cwd().parent.joinpath("misc", "data", "static_train")
+STATIC_TRAIN_PATH = Path.cwd().joinpath("misc", "data", "static_train")
 
 CURRENT_DATE = datetime.datetime.now()
 CURRENT_DATE_date_str = datetime.datetime.now().strftime("%d-%m-%Y")
