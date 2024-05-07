@@ -61,7 +61,7 @@ def get_parameters(name:EK):
     if name == EK.SVC or name == EK.SVM:
         return {'C':[float(x) for x in range(100,501,20)],"gamma":[round(x * 0.1,3) for x in range(30,51,1)]}
     if name == EK.RF:
-        return {"max_features":["sqrt","log2"],"n_estimators":range(100,5001,100),"max_depth":range(500,600,1)}
+        return {"max_features":["sqrt","log2"],"n_estimators":range(100,5001,100),"max_depth":range(500,600,10)}
     if name == EK.BCLR:
         return {"n_estimators":range(100,5001,100)}
     if name == EK.VC:
@@ -96,6 +96,7 @@ def find_optimized_model(estimator_name:EK,xs:np.ndarray,ys:tuple[str],n_jobs=-1
     pre_clf.fit(xs,ys)
     return pre_clf
 
+
 def evaluate_model(clf:BaseEstimator,xs:np.ndarray,ys:tuple[str],cv=3):
     cross_val_score(clf, xs, ys, cv=cv, scoring="accuracy")
 
@@ -116,7 +117,8 @@ def main():
     parser.add_argument("--jobs","-j",
                         help="How many cores should we use?",
                         dest="n_jobs",
-                        type=int
+                        type=int,
+                        default=-1
                         )
     parser.add_argument("--out", 
                         help="name of the out file.",
@@ -177,7 +179,6 @@ def main():
     matplotlib.pyplot.savefig(f"{LOG_PATH}/cm-{CURRENT_TIME}")
     #logging.info(f"Probabilities:\n{[(x,y) for (x,y) in zip(ys_test,best_clf.predict_proba(xs_test))]}")
     from joblib import dump
-    
     dump(best_clf, out_path)
 
 if __name__ == "__main__":
