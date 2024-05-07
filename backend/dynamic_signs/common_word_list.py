@@ -1,6 +1,3 @@
-import logging
-
-
 common_words_english_lower_case = [ word.lower() for word in [
     # wiki list ends here
     "the","and", "that", "have","for", "not",  "with","you", "this", "but", "his",  
