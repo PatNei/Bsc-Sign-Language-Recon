@@ -43,6 +43,9 @@ def combine_and_shuffle(X1, y1, X2, y2):
     X_unzipped, y_unzipped = zip(*zipped)
     return np.array(X_unzipped), np.array(y_unzipped)
 
+def filter_out_nothing_space_delete_j_z(X,y):
+    filtered_indices = (y == "nothing") & (y == "space") & (y == "del") & (y == "J") & (y == "Z")
+    return X[filtered_indices], y[filtered_indices]
 
 def main():
     out_path_searcher = Path.cwd().joinpath(BASE_PATH, "static_searcher.joblib")
@@ -64,13 +67,17 @@ def main():
 
     nt = '\n\t'
     logging.info(f"Loaded data from:\n\t{nt.join(map(str, files.values()))}")
+
     X, y = combine_and_shuffle(k_x_train, k_y_train, hm_x_train, hm_y_train)
     X_test, y_test = combine_and_shuffle(k_x_test, k_y_test, hm_x_test, hm_y_test)
 
     logging.info(f"Length kaggle: {len(k_x_train) + len(k_x_test)}, length homemade: {len(hm_x_train)+ len(hm_x_test)}")
     logging.info(f"Combined length train: {len(X)} & Combined length test: {len(X_test)}")
     logging.info(f"Length Kaggle_test: {len(k_x_test)}, length Homemade_test {len(hm_x_test)}")
-
+    
+    X, y = filter_out_nothing_space_delete_j_z(X,y)
+    X_test, y_test = filter_out_nothing_space_delete_j_z(X_test, y_test)
+    logging.info(f"Combined length train after filter: {len(X)}, length combined test after {len(X_test)}")
     #Train
     clf = make_pipeline(StandardScaler(), SVC(kernel="poly"))
     PARAMS_DICT = {
