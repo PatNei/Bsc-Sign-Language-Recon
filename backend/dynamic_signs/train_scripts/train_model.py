@@ -96,10 +96,10 @@ def get_model(estimator_name:EK,xs:np.ndarray,ys:tuple[str],optimised=False,n_jo
     if optimised:
         parameters = get_parameters(estimator_name)
         pre_clf = RandomizedSearchCV(estimator,parameters,n_jobs=n_jobs,verbose=2,random_state=RANDOM_STATE) # type: ignore
-        logging.info("Returning model with best hyper parameters")
+        logging.info(f"Returning {estimator_name.value} model with best hyper parameters")
     else:
         pre_clf = make_pipeline(estimator)
-        logging.info("Returning model with default parameters")
+        logging.info(f"Returning {estimator_name.value} model with default parameters")
     pre_clf.fit(xs,ys)
     return pre_clf    
 
