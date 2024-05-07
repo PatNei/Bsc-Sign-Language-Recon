@@ -44,7 +44,7 @@ def combine_and_shuffle(X1, y1, X2, y2):
     return np.array(X_unzipped), np.array(y_unzipped)
 
 def filter_out_nothing_space_delete_j_z(X,y):
-    filtered_indices = (y == "nothing") & (y == "space") & (y == "del") & (y == "J") & (y == "Z")
+    filtered_indices = (y != "nothing") & (y != "space") & (y != "del") & (y != "J") & (y != "Z")
     return X[filtered_indices], y[filtered_indices]
 
 def main():
