@@ -104,8 +104,31 @@ def main():
     logging.info(f"Training set - Cross validation result:\n{cv_result}")
     logging.info(f"Training set - Classification report  :\n{cr_cv_predictions}")
 
+    logging.info("---- Validating on Kaggle Test set ----")
+    y_kaggle_test_pred = _best.predict(k_x_test) #type: ignore
+    
+    kaggle_cr_test = classification_report(k_y_test,y_kaggle_test_pred,digits=4)
+    logging.info(f"Test set     - Classification Report:\n{kaggle_cr_test}")
 
-    logging.info("---- Validating on Test set ----")
+    cm = confusion_matrix(k_y_test,y_kaggle_test_pred)
+    display = ConfusionMatrixDisplay(cm,display_labels=_best.classes_) #type: ignore
+    display.plot()
+    matplotlib.pyplot.savefig(f"{BASE_PATH}/cm-{CURRENT_DATE_time_str}-KAGGLE")
+    logging.info("")
+    
+    logging.info("---- Validating on Homemade Test set ----")
+    y_homemade_test_pred = _best.predict(hm_x_test) #type: ignore
+    
+    homemade_cr_test = classification_report(hm_y_test,y_homemade_test_pred,digits=4)
+    logging.info(f"Test set     - Classification Report:\n{homemade_cr_test}")
+
+    cm = confusion_matrix(hm_y_test,y_homemade_test_pred)
+    display = ConfusionMatrixDisplay(cm,display_labels=_best.classes_) #type: ignore
+    display.plot()
+    matplotlib.pyplot.savefig(f"{BASE_PATH}/cm-{CURRENT_DATE_time_str}-HOMEMADE")
+    logging.info("")
+
+    logging.info("---- Validating on Combined Test set ----")
     y_test_pred = _best.predict(X_test) #type: ignore
     
     cr_test = classification_report(y_test,y_test_pred,digits=4)
@@ -114,8 +137,7 @@ def main():
     cm = confusion_matrix(y_test,y_test_pred)
     display = ConfusionMatrixDisplay(cm,display_labels=_best.classes_) #type: ignore
     display.plot()
-    matplotlib.pyplot.savefig(f"{BASE_PATH}/cm-{CURRENT_DATE_time_str}")
-    
+    matplotlib.pyplot.savefig(f"{BASE_PATH}/cm-{CURRENT_DATE_time_str}-COMBINED")
 
 
 if __name__ == "__main__":
