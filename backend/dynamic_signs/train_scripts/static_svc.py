@@ -93,6 +93,7 @@ def main():
     logging.info(f"Finished checking params, took {end - start} seconds")
     logging.info(f"Dumping fit {type(searcher).__name__} to {out_path_searcher}")
     dump(searcher, out_path_searcher)
+    logging.info(f"Best params: {searcher.best_params_}")
     logging.info(f"Dumping best estimator to {out_path}")
     _best = searcher.best_estimator_
     dump(_best, out_path)
