@@ -105,24 +105,26 @@ def main():
     logging.info(f"Training set - Classification report  :\n{cr_cv_predictions}")
 
     logging.info("---- Validating on Kaggle Test set ----")
-    y_kaggle_test_pred = _best.predict(k_x_test) #type: ignore
+    kaggle_X_test, kaggle_y_test = filter_out_nothing_space_delete_j_z(k_x_test, k_y_test)
+    y_kaggle_test_pred = _best.predict(kaggle_X_test) #type: ignore
     
-    kaggle_cr_test = classification_report(k_y_test,y_kaggle_test_pred,digits=4)
+    kaggle_cr_test = classification_report(kaggle_y_test,y_kaggle_test_pred,digits=4)
     logging.info(f"Test set     - Classification Report:\n{kaggle_cr_test}")
 
-    cm = confusion_matrix(k_y_test,y_kaggle_test_pred)
+    cm = confusion_matrix(kaggle_y_test,y_kaggle_test_pred)
     display = ConfusionMatrixDisplay(cm,display_labels=_best.classes_) #type: ignore
     display.plot()
     matplotlib.pyplot.savefig(f"{BASE_PATH}/cm-{CURRENT_DATE_time_str}-KAGGLE")
     logging.info("")
     
     logging.info("---- Validating on Homemade Test set ----")
-    y_homemade_test_pred = _best.predict(hm_x_test) #type: ignore
+    homemade_X_test, homemade_y_test = filter_out_nothing_space_delete_j_z(k_x_test, k_y_test)
+    y_homemade_test_pred = _best.predict(homemade_X_test) #type: ignore
     
-    homemade_cr_test = classification_report(hm_y_test,y_homemade_test_pred,digits=4)
+    homemade_cr_test = classification_report(homemade_y_test,y_homemade_test_pred,digits=4)
     logging.info(f"Test set     - Classification Report:\n{homemade_cr_test}")
 
-    cm = confusion_matrix(hm_y_test,y_homemade_test_pred)
+    cm = confusion_matrix(homemade_y_test,y_homemade_test_pred)
     display = ConfusionMatrixDisplay(cm,display_labels=_best.classes_) #type: ignore
     display.plot()
     matplotlib.pyplot.savefig(f"{BASE_PATH}/cm-{CURRENT_DATE_time_str}-HOMEMADE")
