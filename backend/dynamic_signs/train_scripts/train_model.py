@@ -4,7 +4,7 @@ from enum import Enum
 import logging
 import os
 from pathlib import Path
-from typing import Dict, Literal
+from pydantic import InstanceOf
 from sklearn.calibration import cross_val_predict
 from sklearn.discriminant_analysis import StandardScaler
 from sklearn.ensemble import BaggingClassifier, RandomForestClassifier, VotingClassifier
@@ -13,7 +13,7 @@ from sklearn.metrics import ConfusionMatrixDisplay, classification_report, confu
 from scipy.sparse import spmatrix
 import numpy as np
 from sklearn.base import BaseEstimator
-from sklearn.model_selection import RandomizedSearchCV, cross_val_score
+from sklearn.model_selection import GridSearchCV, RandomizedSearchCV, cross_val_score
 from sklearn.pipeline import make_pipeline
 from sklearn.svm import SVC
 from dynamic_signs.setup_logging import setup_logging
@@ -57,18 +57,29 @@ def load_csv(CSV_PATH:Path,AMOUNT_OF_KEYFRAMES=AMOUNT_OF_KEYFRAMES,NUM_HANDS=2):
     logging.debug("data loaded")
     return _xs,ys,_xs_test,ys_test
 
-def get_parameters(name:EK):
+def get_parameters_random(name:EK):
     if name == EK.LR:
-        return  {'C':range(10,1001,20)}
+        return  {'C':range(530,550,10)}
     if name == EK.SVC or name == EK.SVM:
-        return {'C':[float(x) for x in range(100,501,20)],"gamma":[round(x * 0.1,3) for x in range(30,51,1)]}
+        return {'C':[float(x) for x in range(0,1000,10)],"gamma":[round(x * 0.1,3) for x in range(0,100,5)]}
     if name == EK.RF:
-        return {"max_features":["sqrt","log2"],"n_estimators":range(100,5001,100),"max_depth":range(500,600,10)}
+        return {"max_features":["sqrt","log2"],"n_estimators":range(100,5001,100),"max_depth":None}
     if name == EK.BCLR:
-        return {"n_estimators":range(100,5001,100)}
+        return {"n_estimators":range(0,5001,1000)}
     if name == EK.VC:
         return {"voting":["hard","soft"]}
-    
+
+def get_parameters_grid(name:EK):
+    if name == EK.LR:
+        return  {'C':range(530,550,10)}
+    if name == EK.SVC or name == EK.SVM:
+        return {'C':[float(x) for x in range(0,1000,10)],"gamma":[round(x * 0.1,3) for x in range(0,100,5)]}
+    if name == EK.RF:
+        return {"max_features":["sqrt","log2"],"n_estimators":range(4400,4600,50),"max_depth":None}
+    if name == EK.BCLR:
+        return {"n_estimators":range(0,5001,1000)}
+    if name == EK.VC:
+        return {"voting":["hard","soft"]}
     
 def get_base_estimators(name:EK,xs:np.ndarray,ys:tuple[str],optimised=False) -> BaseEstimator:
     if name == EK.LR:
@@ -90,18 +101,23 @@ def get_base_estimators(name:EK,xs:np.ndarray,ys:tuple[str],optimised=False) -> 
                                                 ('bclr', bclr)
         ]) 
 
-def get_model(estimator_name:EK,xs:np.ndarray,ys:tuple[str],optimised=False,n_jobs=-1):
+def get_model(estimator_name:EK,xs:np.ndarray,ys:tuple[str],optimised=False,grid_search=False,n_jobs=-1):
     estimator = get_base_estimators(estimator_name,xs,ys,optimised)
     pre_clf:BaseEstimator
     if optimised:
-        parameters = get_parameters(estimator_name)
-        pre_clf = RandomizedSearchCV(estimator,parameters,n_jobs=n_jobs,verbose=2,random_state=RANDOM_STATE) # type: ignore
+        parameters = (get_parameters_grid if grid_search else get_parameters_random)(estimator_name) # Lugter af Tobias
+        
+        if grid_search:
+            pre_clf = GridSearchCV(estimator,parameters,n_jobs=n_jobs,verbose=3)
+        else:
+            pre_clf = RandomizedSearchCV(estimator,parameters,n_jobs=n_jobs,verbose=3,random_state=RANDOM_STATE)
+        
         logging.info(f"Returning {estimator_name.value} model with best hyper parameters")
     else:
         pre_clf = make_pipeline(estimator)
         logging.info(f"Returning {estimator_name.value} model with default parameters")
     pre_clf.fit(xs,ys)
-    return pre_clf    
+    return pre_clf
 
 def evaluate_model(clf:BaseEstimator,xs:np.ndarray,ys:tuple[str],cv=3):
     cross_val_score(clf, xs, ys, cv=cv, scoring="accuracy")
@@ -123,6 +139,10 @@ def main():
                         help="Should we find the most optimised?",
                         dest="optimise",
                         action='store_true')
+    parser.add_argument("--grid","-g",
+                        help="Use Grid Search",
+                        dest="use_grid",
+                        action='store_true')
     parser.add_argument("--jobs","-j",
                         help="How many cores should we use?",
                         dest="n_jobs",
@@ -140,6 +160,7 @@ def main():
     model_type = EK(args.model)
     should_scale:bool = args.scale
     optimise:bool = args.optimise
+    use_grid_search: bool = args.use_grid
     out_path:Path
     if args.out == None:
         out_path = Path(f"{BASE_PATH}/dynamic-{model_type}-{CURRENT_DATE_time_str}.joblib")
@@ -171,9 +192,17 @@ def main():
         if isinstance(xs_test,spmatrix) or isinstance(xs,spmatrix):
             exit()
     
-    clf = get_model(model_type,xs,ys,optimise,n_jobs)
+    clf = get_model(model_type,xs,ys,optimise,use_grid_search,n_jobs)
     
-    if isinstance(clf,RandomizedSearchCV):
+    if not out_path.exists():
+        logging.info(f"Couldn't find {out_path.name}, so created it.")
+        out_path.touch()
+
+    from joblib import dump
+    dump(clf, out_path)
+
+    
+    if isinstance(clf,RandomizedSearchCV) or isinstance(clf,GridSearchCV):
         logging.info("- Search resulted in -")
         logging.info(f"Best Estimator: {clf.best_estimator_}")
         logging.info(f"Best Index: {clf.best_index_}")
@@ -192,12 +221,5 @@ def main():
     display.plot()
     matplotlib.pyplot.savefig(f"{BASE_PATH}/cm-{CURRENT_DATE_time_str}")
     
-    if not out_path.exists():
-        logging.info(f"Couldn't find {out_path.name}, so created it.")
-        out_path.touch()
-
-    from joblib import dump
-    dump(clf, out_path)
-
 if __name__ == "__main__":
   main()
