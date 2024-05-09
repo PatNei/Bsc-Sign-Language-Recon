@@ -74,7 +74,7 @@ def main():
     logging.info(f"Length kaggle: {len(k_x_train) + len(k_x_test)}, length homemade: {len(hm_x_train)+ len(hm_x_test)}")
     logging.info(f"Combined length train: {len(X)} & Combined length test: {len(X_test)}")
     logging.info(f"Length Kaggle_test: {len(k_x_test)}, length Homemade_test {len(hm_x_test)}")
-    
+
     X, y = filter_out_nothing_space_delete_j_z(X,y)
     X_test, y_test = filter_out_nothing_space_delete_j_z(X_test, y_test)
     logging.info(f"Combined length train after filter: {len(X)}, length combined test after {len(X_test)}")
@@ -85,7 +85,7 @@ def main():
         "svc__coef0": [0.25, 0.5, 1, 100, 250],
         "svc__degree": [3,4,5,6],
     }
-    searcher = RandomizedSearchCV(estimator=clf, param_distributions=PARAMS_DICT, n_jobs=-1)    
+    searcher = RandomizedSearchCV(estimator=clf, param_distributions=PARAMS_DICT, n_jobs=-1, verbose=1, n_iter=5)
     logging.info("Checking params")
     start = time()
     searcher.fit(X,y)
@@ -94,10 +94,12 @@ def main():
     logging.info(f"Dumping fit {type(searcher).__name__} to {out_path_searcher}")
     dump(searcher, out_path_searcher)
     logging.info(f"Dumping best estimator to {out_path}")
-
     _best = searcher.best_estimator_
-    cv_result = cross_validate(_best, X, y, cv=3, scoring='accuracy')
-    cr_cv_predictions = classification_report(y,cross_val_predict(_best,X,y))
+    dump(_best, out_path)
+
+    logging.info("About to start cross validating on training set:")
+    cv_result = cross_validate(_best, X, y, cv=3, scoring='accuracy', n_jobs=-1)
+    cr_cv_predictions = classification_report(y,cross_val_predict(_best,X,y, n_jobs=-1))
     logging.info(f"Training set - Cross validation result:\n{cv_result}")
     logging.info(f"Training set - Classification report  :\n{cr_cv_predictions}")
 
