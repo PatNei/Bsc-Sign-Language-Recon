@@ -1,4 +1,5 @@
 # Weekly meeting
+- [9 May 2024](#Date-9th-May-2024)
 - [2 May 2024](#Date-2th-May-2024)
 - [25 April 2024](#Date-25th-April-2024)
 - [18 April 2024](#Date-18th-April-2024)
@@ -8,6 +9,29 @@
 - [5 March 2024](#Date-5th-March-2024)
 - [29 February 2024](#Date-29th-February-2024)
 - [15 February 2024](#Date-15th-February-2024)
+
+## Date: 9th May 2024 
+
+### What helped you this week?
+- Bad weather during weekend, easy to stay in doors writing report.
+
+### What did you achieve?
+- A lot of words have been put into the report.
+- We've implemented all the great feedback received from Amelia
+
+### What did you struggle with?
+- Latex, tables in particular are very tricky ;(.
+- Training model is time consuming, nail-biting work.
+
+### What would you like to work on next week?
+- Finishing the report, making a great abstract!
+
+### Where do you need help from Amelia?
+- Tips to discussion
+- Any visualisations that can be cut
+
+### What are the agreements after this meeting? (to fill in after the meeting)
+- 
 
 ## Date: 2th May 2024 
 
