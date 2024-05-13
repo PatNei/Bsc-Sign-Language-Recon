@@ -60,25 +60,25 @@ def load_csv(CSV_PATH:Path,AMOUNT_OF_KEYFRAMES=AMOUNT_OF_KEYFRAMES,NUM_HANDS=2):
 
 def get_parameters_random(name:EK):
     if name == EK.LR:
-        return  {'C':range(530,550,10)}
+        return  {'C':[590]}
     if name == EK.SVC or name == EK.SVM:
         return {'C':[float(x) for x in range(0,1000,10)],"gamma":[round(x * 0.1,3) for x in range(0,100,5)]}
     if name == EK.RF:
         return {"max_features":["sqrt","log2"],"n_estimators":range(100,5001,100),"max_depth":None}
     if name == EK.BCLR:
-        return {"n_estimators":range(0,5001,1000)}
+        return {"n_estimators":range(1900,2100,50)}
     if name == EK.VC:
         return {"voting":["hard","soft"]}
 
 def get_parameters_grid(name:EK):
     if name == EK.LR:
-        return  {'C':range(530,550,10)}
+        return  {'C':[590]}
     if name == EK.SVC or name == EK.SVM:
         return {'C':[float(x) for x in range(0,1000,10)],"gamma":[round(x * 0.1,3) for x in range(0,100,5)]}
     if name == EK.RF:
-        return {"max_features":["sqrt","log2"],"n_estimators":range(4400,4600,50),"max_depth":None}
+        return {"max_features":["sqrt"],"n_estimators":range(4400,4600,50),"max_depth":None}
     if name == EK.BCLR:
-        return {"n_estimators":range(0,5001,1000)}
+        return {"n_estimators":range(1900,2100,50)}
     if name == EK.VC:
         return {"voting":["hard","soft"]}
     
