@@ -3,7 +3,9 @@
 ## Data
 
 From here:
-Alphabet: https://www.kaggle.com/datasets/grassknoted/asl-alphabet
+Kaggle ASL Alphabet: https://www.kaggle.com/datasets/grassknoted/asl-alphabet
+
+Kaggle Sign Language Videos \[J & Z\]: https://www.kaggle.com/datasets/signnteam/asl-sign-language-alphabet-videos-j-z
 
 Youtube ID's for scraper: https://github.com/google-research/google-research/tree/master/youtube_asl
 
