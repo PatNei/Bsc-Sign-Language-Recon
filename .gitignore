@@ -188,3 +188,4 @@ notebooks/**/*.png
 
 *nohup*
 *.joblib
+!*.joblib.zip
