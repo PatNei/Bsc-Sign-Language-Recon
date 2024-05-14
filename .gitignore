@@ -191,3 +191,5 @@ notebooks/**/*.png
 !*.joblib.zip
 !backend/model/dynamic_best/*/*.png
 !backend/model/dynamic_best/*/*.log
+!best_common_words.csv
+!youtube_final_j_z_nice.csv
