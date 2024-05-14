@@ -189,3 +189,5 @@ notebooks/**/*.png
 *nohup*
 *.joblib
 !*.joblib.zip
+!backend/model/dynamic_best/*/*.png
+!backend/model/dynamic_best/*/*.log
