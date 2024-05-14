@@ -15,3 +15,4 @@ The backend can be started with the Poetry dependency management tool Poetry. Wi
 ## Running the frontend
 
 The frontend can be ran using npm. From within the frontend directory run commands `npm i` followed by `npm run dev`
+The frontend can be accessed through your browser at http://localhost:5002
