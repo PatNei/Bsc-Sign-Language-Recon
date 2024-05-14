@@ -76,11 +76,11 @@ def get_parameters_grid(name:EK):
     if name == EK.SVC or name == EK.SVM:
         return {'C':[float(x) for x in range(0,1000,10)],"gamma":[round(x * 0.1,3) for x in range(0,100,5)]}
     if name == EK.RF:
-        return {"max_features":["sqrt"],"n_estimators":range(4400,4600,50),"max_depth":None}
+        return {"max_features":["sqrt"],"n_estimators":[4500],"max_depth":None}
     if name == EK.BCLR:
-        return {"n_estimators":range(1900,2100,50)}
+        return {"n_estimators":[2050]}
     if name == EK.VC:
-        return {"voting":["hard","soft"]}
+        return {"voting":["soft"]}
     
 def get_base_estimators(name:EK,xs:np.ndarray,ys:tuple[str],optimised=False) -> BaseEstimator:
     if name == EK.LR:
@@ -98,11 +98,12 @@ def get_base_estimators(name:EK,xs:np.ndarray,ys:tuple[str],optimised=False) -> 
         return BaggingClassifier(be)
     
     if name == EK.VC:
-        lr   = get_model(EK.LR,xs,ys,optimised)
+        from joblib import load
+        lr   = load("model/dynamic_best/lr/dynamic-EK.LR-09-05-2024(09-24-32).joblib")
         lr   = lr.best_estimator_ if isinstance(lr,(GridSearchCV, RandomizedSearchCV)) else lr
-        bclr = get_model(EK.BCLR,xs,ys,optimised)
+        bclr = load("model/dynamic_best/bagginglr/dynamic-EK.BCLR-12-05-2024(11-19-21).joblib")
         bclr = bclr.best_estimator_ if isinstance(bclr,(GridSearchCV, RandomizedSearchCV)) else bclr
-        rf   = get_model(EK.RF,xs,ys,optimised)
+        rf = load("model/dynamic_best/random_forrest/dynamic-EK.RF-07-05-2024(12-03-32).joblib")
         rf   = rf.best_estimator_ if isinstance(rf,(GridSearchCV, RandomizedSearchCV)) else rf
         return VotingClassifier( estimators=[ 
             ('lr', lr), 
@@ -210,26 +211,30 @@ def main():
         if isinstance(xs_test,spmatrix) or isinstance(xs,spmatrix):
             exit()
     
-    clf = get_model(model_type,xs,ys,optimise,use_grid_search,n_jobs)
     
-    if not out_path.exists():
-        logging.info(f"Couldn't find {out_path.name}, so created it.")
-        out_path.touch()
+    
+    #clf = get_model(model_type,xs,ys,optimise,use_grid_search,n_jobs)
+    from joblib import dump, load
+    clf = load("model/dynamic_best/lr/dynamic-EK.LR-09-05-2024(09-24-32).joblib")
+    #if not out_path.exists():
+    #    logging.info(f"Couldn't find {out_path.name}, so created it.")
+    #    out_path.touch()
 
-    from joblib import dump
-    dump(clf, out_path)
+    #dump(clf, out_path)
 
     y_pred = clf.predict(xs_test)
     
-    logging.info(f"Cross val score:\n{cross_val_score(clf, xs, ys, cv=3, scoring='accuracy')}")
-    logging.info(f"Classification Report for training set:\n{classification_report(ys,cross_val_predict(clf,xs,ys))}")
-    logging.info(f"Classification Report for test set:\n{classification_report(ys_test,y_pred,digits=4,zero_division=1)}")
-    logging.info(f"Probabilities:\n{[(x,y) for (x,y) in zip(ys_test,clf.predict_proba(xs_test))]}")
+    #logging.info(f"Cross val score:\n{cross_val_score(clf, xs, ys, cv=3, scoring='accuracy')}")
+    #logging.info(f"Classification Report for training set:\n{classification_report(ys,cross_val_predict(clf,xs,ys))}")
+    logging.info(f"Classification Report for test set:\n{classification_report(ys_test,y_pred,digits=2)}")
+    #logging.info(f"Probabilities:\n{[(x,y) for (x,y) in zip(ys_test,clf.predict_proba(xs_test))]}")
     
-    cm = confusion_matrix(ys_test,y_pred)
-    display = ConfusionMatrixDisplay(cm,display_labels=clf.classes_)
-    display.plot()
-    matplotlib.pyplot.savefig(f"{BASE_PATH}/cm-{CURRENT_DATE_time_str}")
+    #cm = confusion_matrix(ys_test,y_pred)
+    #display = ConfusionMatrixDisplay(cm,display_labels=clf.classes_)
+    #display.plot()
+    #matplotlib.pyplot.savefig(f"{BASE_PATH}/cm-{CURRENT_DATE_time_str}")
     
+    
+
 if __name__ == "__main__":
   main()

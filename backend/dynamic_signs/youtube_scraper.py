@@ -199,18 +199,18 @@ class YouTubeScraper():
 
 def main(root_path="dynamic_signs"):
     yt = YouTubeScraper(
-            common_words_path_csv=Path.cwd().joinpath(root_path).joinpath("common_words_new_with_numbers.csv"), 
+            common_words_path_csv=Path.cwd().joinpath(root_path).joinpath("common_words_longer_than_2.csv"), 
             text_id_path=Path.cwd().joinpath(root_path).joinpath("video_ids.txt"),
-            common_words_path_txt=Path.cwd().joinpath(root_path).joinpath("common_words_new_with_numbers.txt"), 
+            common_words_path_txt=Path.cwd().joinpath(root_path).joinpath("common_words_longer_than_2.txt"), 
             num_hands=2)
-    yt.get_video_signs(max=0, out_path="dynamic_signs/youtube_final.csv",seconds_per_clip=1)
+    yt.get_video_signs(max=0, out_path="dynamic_signs/youtube_final_final.csv",seconds_per_clip=1)
     
 
 def update_common_words(root_path="dynamic_signs"):
     yt = YouTubeScraper(
-            common_words_path_csv=Path.cwd().joinpath(root_path).joinpath("common_words_new_with_numbers.csv"), 
+            common_words_path_csv=Path.cwd().joinpath(root_path).joinpath("common_words_longer_than_2.csv"), 
             text_id_path=Path.cwd().joinpath(root_path).joinpath("video_ids.txt"),
-            common_words_path_txt=Path.cwd().joinpath(root_path).joinpath("common_words_new_with_numbers.txt"), 
+            common_words_path_txt=Path.cwd().joinpath(root_path).joinpath("common_words_longer_than_2.txt"), 
             num_hands=2)
     yt.find_common_words(min_occurances=50, max=0)
         
