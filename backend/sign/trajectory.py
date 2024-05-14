@@ -255,54 +255,6 @@ class TrajectoryBuilder:
     def make_trajectory_values(self, trj: trajectory) -> np.ndarray:
         return np.array([(te.x.value, te.y.value, te.z.value) for te in trj.directions]).flatten()
 
-def hands_spatial_position(landmarks:NormalizedLandmarks,hand=HAND):
-    """
-    Should take the mean value of the landmarks and apply it where it makes sense.
-    """
-    handType = 0 if hand.LEFT else 1
-    
-    return landmarks.data[handType]
-
-def convert_landmark_to_npArray(landmark:NormalizedLandmark):
-    return np.array((landmark.x,landmark.y,landmark.z))
-    
-
-def make_step_directions(_previous:NormalizedLandmark,_current:NormalizedLandmark,zero_precision:float):
-    """
-    """
-    # TODO: Refactor these types, they are not transparent
-    previous = np.array(_previous,np.object_)
-    current = np.array(_current,np.object_)
-    
-    # TODO: Maybe check if dimensions are correct
-    if SCALED_PRECISION: # increases precision for the zero precision if the movement is too low.
-        zero_precision = find_best_precision(previous,current,zero_precision)        
-
-    
-    
-    return
-
-def find_best_precision(_previous:npt.NDArray,_current:npt.NDArray, zero_precision:float) -> float:
-    max_displacement = np.max(np.abs(_current - _previous))
-    if max_displacement > zero_precision * 2:
-        zero_precision = max_displacement / 2
-    return zero_precision
-
-def generate_trajectories(landmarks_seq: NormalizedLandmarksSequence,zero_precision:float,hand=HAND):
-
-    ## Do the thing
-    
-    trajectories = []
-    previous = hands_spatial_position(landmarks_seq[0],hand)
-    for landmark in landmarks_seq[1:]:
-        current = hands_spatial_position(landmark,hand)
-        directions = make_step_directions(previous,current,zero_precision)
-
-        trajectories.append(directions)
-        previous = current
-    return trajectories
-
-
 if __name__ == "__main__":
     fist_down_seq = np.load("./dynamic_signs/fist_down_seq_npyarray.npy")
     
