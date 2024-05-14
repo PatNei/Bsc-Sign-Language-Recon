@@ -213,26 +213,25 @@ def main():
     
     
     
-    #clf = get_model(model_type,xs,ys,optimise,use_grid_search,n_jobs)
-    from joblib import dump, load
-    clf = load("model/dynamic_best/lr/dynamic-EK.LR-09-05-2024(09-24-32).joblib")
-    #if not out_path.exists():
-    #    logging.info(f"Couldn't find {out_path.name}, so created it.")
-    #    out_path.touch()
+    clf = get_model(model_type,xs,ys,optimise,use_grid_search,n_jobs)
+    if not out_path.exists():
+        logging.info(f"Couldn't find {out_path.name}, so created it.")
+        out_path.touch()
 
-    #dump(clf, out_path)
+    from joblib import dump
+    dump(clf, out_path)
 
     y_pred = clf.predict(xs_test)
     
-    #logging.info(f"Cross val score:\n{cross_val_score(clf, xs, ys, cv=3, scoring='accuracy')}")
-    #logging.info(f"Classification Report for training set:\n{classification_report(ys,cross_val_predict(clf,xs,ys))}")
+    logging.info(f"Cross val score:\n{cross_val_score(clf, xs, ys, cv=3, scoring='accuracy')}")
+    logging.info(f"Classification Report for training set:\n{classification_report(ys,cross_val_predict(clf,xs,ys))}")
     logging.info(f"Classification Report for test set:\n{classification_report(ys_test,y_pred,digits=2)}")
-    #logging.info(f"Probabilities:\n{[(x,y) for (x,y) in zip(ys_test,clf.predict_proba(xs_test))]}")
+    logging.info(f"Probabilities:\n{[(x,y) for (x,y) in zip(ys_test,clf.predict_proba(xs_test))]}")
     
-    #cm = confusion_matrix(ys_test,y_pred)
-    #display = ConfusionMatrixDisplay(cm,display_labels=clf.classes_)
-    #display.plot()
-    #matplotlib.pyplot.savefig(f"{BASE_PATH}/cm-{CURRENT_DATE_time_str}")
+    cm = confusion_matrix(ys_test,y_pred)
+    display = ConfusionMatrixDisplay(cm,display_labels=clf.classes_)
+    display.plot()
+    matplotlib.pyplot.savefig(f"{BASE_PATH}/cm-{CURRENT_DATE_time_str}")
     
     
 
