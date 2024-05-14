@@ -3,7 +3,7 @@ The learning platform
 
 ## Prerequisites
 
-- NodeJS 
+- Nodejs
 
 ## Getting started
 
@@ -17,7 +17,7 @@ npm install
 ## Running the application
 
 Rununing the following command to start the application:
-```
+```console
 npm run dev
 ```
-It should automatically launch your favourite browser, if it doesn't navigate to http://localhost:3000. 
+It should automatically launch your favourite browser, if it doesn't go to http://localhost:3000. 
