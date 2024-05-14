@@ -8,7 +8,7 @@ https://www.kaggle.com/datasets/grassknoted/asl-alphabet
 
 ## Running the backend
 
-The backend can be started with the Poetry dependency management tool Poetry. With poetry installed, run `poetry install` followed by `poetry run dev` from within the backend directory.
+The backend can be started with the Poetry dependency management tool Poetry. With poetry installed, run `poetry install` followed by `poetry run prod` from within the backend directory.
 
 
 ## Running the frontend
