@@ -3,8 +3,9 @@
 ## Data
 
 From here:
-https://www.kaggle.com/datasets/grassknoted/asl-alphabet
+Alfabet: https://www.kaggle.com/datasets/grassknoted/asl-alphabet
 
+Youtube ID's for scraper: https://github.com/google-research/google-research/tree/master/youtube_asl
 
 ## Running the backend
 
