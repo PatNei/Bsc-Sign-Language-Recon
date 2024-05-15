@@ -64,7 +64,7 @@ def get_parameters_random(name:EK):
     if name == EK.SVC or name == EK.SVM:
         return {'C':[float(x) for x in range(0,1000,10)],"gamma":[round(x * 0.1,3) for x in range(0,100,5)]}
     if name == EK.RF:
-        return {"max_features":["sqrt","log2"],"n_estimators":range(100,5001,100),"max_depth":None}
+        return {"max_features":["sqrt","log2"],"n_estimators":range(100,5001,100)}
     if name == EK.BCLR:
         return {"n_estimators":range(1900,2100,50)}
     if name == EK.VC:
@@ -76,7 +76,7 @@ def get_parameters_grid(name:EK):
     if name == EK.SVC or name == EK.SVM:
         return {'C':[float(x) for x in range(0,1000,10)],"gamma":[round(x * 0.1,3) for x in range(0,100,5)]}
     if name == EK.RF:
-        return {"max_features":["sqrt"],"n_estimators":[4500],"max_depth":None}
+        return {"max_features":["sqrt"],"n_estimators":[4500]}
     if name == EK.BCLR:
         return {"n_estimators":[2050]}
     if name == EK.VC:
@@ -232,6 +232,47 @@ def main():
     display = ConfusionMatrixDisplay(cm,display_labels=clf.classes_)
     display.plot()
     matplotlib.pyplot.savefig(f"{BASE_PATH}/cm-{CURRENT_DATE_time_str}")
+    
+    
+def train_random_forest():
+    input_path = Path("dynamic_signs/youtube_final_j_z_nice.csv")
+    model_type = EK.RF
+    optimise:bool = True
+    use_grid_search: bool = True
+    out_path = Path(f"{BASE_PATH}/dynamic-{model_type}-{CURRENT_DATE_time_str}.joblib")
+
+    if not input_path.exists() or input_path.suffix != '.csv':
+        raise ValueError(f"Input file must be a .csv :thinking:")
+
+    logging.info(f"About to process {input_path} outputting to {out_path}")
+    
+    xs,ys,xs_test,ys_test = load_csv(input_path)
+    
+    n_jobs:int = -1
+    logging.info(f"training set: { Counter(ys) }")
+    logging.info(f"test set: { Counter(ys_test) }")
+    
+    
+    clf = get_model(model_type,xs,ys,optimise,use_grid_search,n_jobs)
+    if not out_path.exists():
+        logging.info(f"Couldn't find {out_path.name}, so created it.")
+        out_path.touch()
+
+    from joblib import dump
+    dump(clf, out_path)
+
+    y_pred = clf.predict(xs_test)
+    
+    logging.info(f"Cross val score:\n{cross_val_score(clf, xs, ys, cv=3, scoring='accuracy')}")
+    logging.info(f"Classification Report for training set:\n{classification_report(ys,cross_val_predict(clf,xs,ys))}")
+    logging.info(f"Classification Report for test set:\n{classification_report(ys_test,y_pred,digits=2)}")
+    logging.info(f"Probabilities:\n{[(x,y) for (x,y) in zip(ys_test,clf.predict_proba(xs_test))]}")
+    
+    cm = confusion_matrix(ys_test,y_pred)
+    display = ConfusionMatrixDisplay(cm,display_labels=clf.classes_)
+    display.plot()
+    matplotlib.pyplot.savefig(f"{BASE_PATH}/cm-{CURRENT_DATE_time_str}")
+    
     
     
 
