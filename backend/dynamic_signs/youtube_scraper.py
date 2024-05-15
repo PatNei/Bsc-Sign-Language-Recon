@@ -218,10 +218,11 @@ def update_common_words(root_path="dynamic_signs"):
 if __name__ == "__main__":
     csv.field_size_limit(sys.maxsize)
     # print(str(yt.captions.keys()))
-    # yt = YouTubeScraper(Path("dynamic_signs/common_words_new.csv"), Path("dynamic_signs/video_ids.txt"),Path("dynamic_signs/common_words_new.txt"), num_hands=2)
+    yt = YouTubeScraper(Path("dynamic_signs/best_common_words.csv"), Path("dynamic_signs/video_ids.txt"),Path("dynamic_signs/best_common_words.txt"), num_hands=2)
+    yt.write_common_words()
     #yt = YouTube("https://www.youtube.com/watch?v=jFrGhodqC08")
     # print(yt.title)
-    update_common_words(root_path="backend/dynamic_signs")
+    # update_common_words(root_path="backend/dynamic_signs")
     # yt.get_video_signs(max=0, out_path="dynamic_signs/youtube_with_asl_in_title.csv",seconds_per_clip=1)
     # yt.find_common_words(min_occurances=100, max=0)
     # yt.write_common_words()
