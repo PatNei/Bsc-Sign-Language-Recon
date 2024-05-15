@@ -11,8 +11,9 @@ Youtube ID's for scraper: https://github.com/google-research/google-research/tre
 
 ## Training
 We have provided helper scripts to train the static and dynamic models
-- Instructions on how to train the dynamic model can be found by running running `poetry run train_dynamic_model --help`
-- Training the static model can be done with `poetry run train_static_model` will start training the static svc model immediately
+- Instructions on how to train the dynamic model can be found by  running `poetry run train_dynamic_model --help`
+- To train a random forest for the dynamic model can be done by running `poetry run train_dynamic_random_forest` which will start training immediately.
+- Training the static model can be done with `poetry run train_static_model` which will start training the static svc model immediately
 
 these scripts will output a log file containing various statistics about the model, it will also output a confusion matrix as a .png
 
