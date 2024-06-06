@@ -7,7 +7,7 @@ import { HANDS_PATH } from "../constants/paths";
 
 // resultFunction: ResultsListener
 export const createHands = (
-  props: Omit<onResultType, "multiHandLandmarks">,
+  props: onResultType,
   draw: drawType
 ) => {
   const hands = new Hands({

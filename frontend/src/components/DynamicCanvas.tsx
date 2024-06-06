@@ -2,6 +2,7 @@ import { type ReactElement, useRef, useEffect, useState } from "react";
 import { createCamera, createHands } from "../utility/camera";
 import type { Camera } from "@mediapipe/camera_utils";
 import Countdown from "react-countdown";
+import { Handedness, NormalizedLandmark } from "@mediapipe/hands";
 
 type CanvasProps = {
   setLetterRecognizerResponse: (r: string) => void;
@@ -14,6 +15,9 @@ export default function Canvas({
   const videoRef = useRef<HTMLVideoElement>(null);
   const cameraRef = useRef<Camera | null>(null);
   const countdownRef = useRef<Countdown | null>(null);
+  const [multiHandLandmarks, setMultihandLandmarks] = useState<
+    [NormalizedLandmark[], Handedness][]
+  >([]);
 
   // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
   useEffect(() => {
@@ -22,6 +26,7 @@ export default function Canvas({
     cameraRef.current = createCamera(
       createHands(
         {
+          multiHandLandmarks,
           shouldCaptureDynamicSign: true,
           setLetterRecognizerResponse,
           countdownRef,

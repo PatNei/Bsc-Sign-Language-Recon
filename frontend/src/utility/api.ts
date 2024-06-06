@@ -50,7 +50,7 @@ export interface onResultType {
   multiHandLandmarks: [NormalizedLandmark[], Handedness][];
   shouldCaptureDynamicSign: boolean;
   setLetterRecognizerResponse: (r: string) => void;
-  countdownRef: React.MutableRefObject<Countdown | null>;
+  countdownRef: React.MutableRefObject<Countdown | null> | null;
 }
 
 export const onResult = async ({
@@ -123,14 +123,13 @@ function normalizedLandmarkToDTO(
 let i = 0;
 let dynamicSignLandmarks: LandmarkSequencesDTO = { data: [] };
 async function gameLogicDynamicSign(
-multiHandLandmarks: LandmarkSequenceDTO, setLetterRecognizerResponse: (r: string) => void, countdownRef: React.MutableRefObject<Countdown | null>): Promise<void> {
-  if (!multiHandLandmarks || multiHandLandmarks.data.length === 0 || !countdownRef.current?.api?.isCompleted()) return;
-  console.log("doing the thing")
+multiHandLandmarks: LandmarkSequenceDTO, setLetterRecognizerResponse: (r: string) => void, countdownRef: React.MutableRefObject<Countdown | null> | null): Promise<void> {
+  if (!multiHandLandmarks || multiHandLandmarks.data.length === 0 || !countdownRef?.current?.api?.isCompleted()) return;
   //console.log(`LENGTH: ${dynamicSignLandmarks.data.length}`);
   if (i >= min_frames_per_sign) {
     const postState = await APIPost("dynamic_annotation", dynamicSignLandmarks);
     if (postState?.response && !postState.error) {
-      console.log(postState.response);
+      // console.log(postState.response);
       setLetterRecognizerResponse(postState.response);
     } else if (postState.error) {
       // console.log(postState.error);

@@ -33,11 +33,13 @@ export default function Recognizer({ challenges, dynamic }: props) {
     />
   );
 
-  if (response === sign) {
+  if (response.toLowerCase() === sign.toLowerCase()) {
     if (!boolski) {
       setLetterCounter(letterCounter + 1);
 
-      if (letterCounter >= 10) setBoolski(true);
+      if (letterCounter >= 10 || dynamic || "jz".includes(sign)) {
+        setBoolski(true);
+      }
     }
   }
 
@@ -161,6 +163,7 @@ export default function Recognizer({ challenges, dynamic }: props) {
               <div className="pr-2">
                 <button
                   onClick={(_) => {
+                    setBoolski(false);
                     let newSignSrc = challenges[i - 1][1];
                     setCurrentSrc((_) => {
                       setSrcIndex(0);
@@ -197,6 +200,7 @@ export default function Recognizer({ challenges, dynamic }: props) {
               <div>
                 <button
                   onClick={(_) => {
+                    setBoolski(false);
                     let newSignSrc = challenges[i + 1][1];
                     setCurrentSrc((_) => {
                       setSrcIndex(0);
@@ -234,7 +238,7 @@ export default function Recognizer({ challenges, dynamic }: props) {
           )}
         </div>
         {shouldCapture &&
-          (dynamic || "JZ".includes(sign) ? (
+          (dynamic || "jz".includes(sign.toLocaleLowerCase()) ? (
             <DynamicCanvas setLetterRecognizerResponse={setResponse} />
           ) : (
             <Canvas setLetterRecognizerResponse={setResponse} />
