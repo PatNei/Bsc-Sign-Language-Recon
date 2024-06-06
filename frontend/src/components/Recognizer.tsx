@@ -163,6 +163,7 @@ export default function Recognizer({ challenges, dynamic }: props) {
               <div className="pr-2">
                 <button
                   onClick={(_) => {
+                    setResponse("");
                     setBoolski(false);
                     let newSignSrc = challenges[i - 1][1];
                     setCurrentSrc((_) => {
@@ -201,6 +202,7 @@ export default function Recognizer({ challenges, dynamic }: props) {
                 <button
                   onClick={(_) => {
                     setBoolski(false);
+                    setResponse("");
                     let newSignSrc = challenges[i + 1][1];
                     setCurrentSrc((_) => {
                       setSrcIndex(0);

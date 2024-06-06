@@ -18,6 +18,7 @@ export default function Canvas({
   const [multiHandLandmarks, setMultihandLandmarks] = useState<
     [NormalizedLandmark[], Handedness][]
   >([]);
+  const [date, setDate] = useState<number>(Date.now());
 
   // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
   useEffect(() => {
@@ -56,19 +57,18 @@ export default function Canvas({
               <button
                 className="min-w-40 bg-red-600 hover:bg-red-500 text-white font-bold py-2 px-4 rounded"
                 onClick={(e) => {
+                  setDate(Date.now());
                   e.preventDefault();
-                  countdownRef.current?.api?.start();
+                  props.api.start();
                 }}
               >
-                {props.seconds === 3
-                  ? "Click to start"
-                  : props.completed
-                  ? "Sign now"
-                  : props.seconds}
+                {(props.api.isStopped() && "Click to start") ||
+                  (props.api.isStarted() && props.seconds) ||
+                  "Sign now"}
               </button>
             );
           }}
-          date={Date.now() + 3000}
+          date={date + 3000}
           ref={countdownRef}
         />
       </div>

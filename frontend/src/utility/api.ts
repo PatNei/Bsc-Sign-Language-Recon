@@ -124,21 +124,20 @@ let i = 0;
 let dynamicSignLandmarks: LandmarkSequencesDTO = { data: [] };
 async function gameLogicDynamicSign(
 multiHandLandmarks: LandmarkSequenceDTO, setLetterRecognizerResponse: (r: string) => void, countdownRef: React.MutableRefObject<Countdown | null> | null): Promise<void> {
-  if (!multiHandLandmarks || multiHandLandmarks.data.length === 0 || !countdownRef?.current?.api?.isCompleted()) return;
-  //console.log(`LENGTH: ${dynamicSignLandmarks.data.length}`);
+  // Stopped and completed in the beginning and started during countdown.
+  if (!multiHandLandmarks || multiHandLandmarks.data.length === 0 || countdownRef?.current?.api?.isStarted() || countdownRef?.current?.api?.isStopped() || !countdownRef?.current?.api?.isCompleted()) return;
   if (i >= min_frames_per_sign) {
+    countdownRef?.current?.api?.stop();
     const postState = await APIPost("dynamic_annotation", dynamicSignLandmarks);
     if (postState?.response && !postState.error) {
-      // console.log(postState.response);
       setLetterRecognizerResponse(postState.response);
     } else if (postState.error) {
-      // console.log(postState.error);
     }
     i = 0;
     dynamicSignLandmarks = { data: [] };
-    countdownRef.current?.api?.stop();
   } else {
     dynamicSignLandmarks.data.push(multiHandLandmarks);
+    console.log(i)
     i++;
   }
 }
